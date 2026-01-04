@@ -10,10 +10,18 @@ import {
 } from "@/lib/rate-limit";
 import { sendNewMessageEmail } from "@/lib/email";
 
+// Phone validation regex - supports international formats
+const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
+
 const createMessageSchema = z.object({
   profileId: z.string().uuid("Invalid profile ID"),
   senderName: z.string().min(2, "Name is required").max(100),
-  senderPhone: z.string().min(10, "Valid phone number required").max(20),
+  senderPhone: z
+    .string()
+    .min(10, "Phone number must be at least 10 digits")
+    .max(20, "Phone number too long")
+    .regex(phoneRegex, "Invalid phone number format")
+    .transform((val) => val.replace(/[^\d+]/g, "")), // Strip non-digits except +
   senderEmail: z.string().email("Invalid email").max(255).optional(),
   messageContent: z.string().min(10, "Message too short").max(500, "Message too long"),
 });

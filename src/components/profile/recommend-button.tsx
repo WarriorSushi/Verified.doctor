@@ -29,7 +29,7 @@ export function RecommendButton({ profileId }: RecommendButtonProps) {
 
       if (data.alreadyRecommended) {
         setStatus("already");
-        toast.info("You&apos;ve already recommended this doctor");
+        toast.info("You've already recommended this doctor");
       } else {
         // Track successful recommendation
         trackEvent({ profileId, eventType: "recommendation_given" });

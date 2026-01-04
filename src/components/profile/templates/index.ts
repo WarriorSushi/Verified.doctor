@@ -2,6 +2,9 @@
 export { ClassicTemplate } from "./classic-template";
 export { HeroTemplate } from "./hero-template";
 export { TimelineTemplate } from "./timeline-template";
+export { MagazineTemplate } from "./magazine-template";
+export { GridTemplate } from "./grid-template";
+export { MinimalTemplate } from "./minimal-template";
 
 // Legacy exports for backwards compatibility (deprecated)
 export { OceanTemplate } from "./ocean-template";

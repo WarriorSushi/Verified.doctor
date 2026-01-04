@@ -3,8 +3,14 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email/send";
+import { escapeHtml } from "@/lib/utils/html-escape";
 
-const ADMIN_EMAIL = "drsyedirfan93@gmail.com";
+// Admin email from environment variable
+const ADMIN_EMAIL = process.env.ADMIN_SUPPORT_EMAIL || process.env.ADMIN_EMAIL;
+
+if (!ADMIN_EMAIL) {
+  console.error("[support] ADMIN_SUPPORT_EMAIL or ADMIN_EMAIL not configured");
+}
 
 const supportSchema = z.object({
   subject: z.string().min(1, "Subject is required").max(200),
@@ -42,8 +48,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    // Save the support message to database
-    const { data: supportMessage, error: insertError } = await supabase
+    // Save the support message to database (table may not exist yet)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: supportMessage, error: insertError } = await (supabase as any)
       .from("support_messages")
       .insert({
         profile_id: profile.id,
@@ -98,16 +105,16 @@ export async function POST(request: Request) {
       <h1>New Support Request</h1>
 
       <div class="user-info">
-        <div class="user-name">${profile.full_name}</div>
-        <div class="user-detail">${profile.specialty || "Doctor"}</div>
+        <div class="user-name">${escapeHtml(profile.full_name)}</div>
+        <div class="user-detail">${escapeHtml(profile.specialty || "Doctor")}</div>
         <div class="user-detail">
-          <a href="${profileUrl}" style="color: #0099F7;">verified.doctor/${profile.handle}</a>
+          <a href="${profileUrl}" style="color: #0099F7;">verified.doctor/${escapeHtml(profile.handle)}</a>
         </div>
       </div>
 
       <div class="message-box">
-        <p class="message-subject">${subject}</p>
-        <p class="message-content">${message}</p>
+        <p class="message-subject">${escapeHtml(subject)}</p>
+        <p class="message-content">${escapeHtml(message)}</p>
       </div>
 
       <center>
@@ -142,13 +149,22 @@ View in Admin Panel: ${adminPanelUrl}
     `.trim();
 
     // Send email to admin
-    await sendEmail({
-      to: ADMIN_EMAIL,
-      subject: `[Support] ${subject} - ${profile.full_name}`,
-      html: emailHtml,
-      text: emailText,
-      replyTo: ADMIN_EMAIL,
-    });
+    if (ADMIN_EMAIL) {
+      try {
+        await sendEmail({
+          to: ADMIN_EMAIL,
+          subject: `[Support] ${subject} - ${profile.full_name}`,
+          html: emailHtml,
+          text: emailText,
+          replyTo: ADMIN_EMAIL,
+        });
+      } catch (emailError) {
+        console.error("[support] Email send error:", emailError);
+        // Don't fail the request if email fails - message is already in DB
+      }
+    } else {
+      console.warn("[support] Admin email not configured, skipping email notification");
+    }
 
     return NextResponse.json({
       success: true,
@@ -182,7 +198,8 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const status = url.searchParams.get("status") || "all";
 
-    let query = supabase
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query = (supabase as any)
       .from("support_messages")
       .select(`
         *,

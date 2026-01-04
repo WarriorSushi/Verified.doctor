@@ -148,7 +148,7 @@ export function HeroSection() {
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const doctorCount = useDoctorCount();
-  const demoName = useTypewriter(DEMO_NAMES, true);
+  const demoName = useTypewriter(DEMO_NAMES, !isInputFocused);
 
   const checkAvailability = async () => {
     if (!handle.trim()) return;
@@ -165,7 +165,8 @@ export function HeroSection() {
       const data = await response.json();
       setStatus(data.available ? "available" : "taken");
     } catch {
-      setStatus(Math.random() > 0.3 ? "available" : "taken");
+      // Show error state instead of random result
+      setStatus("idle");
     }
   };
 

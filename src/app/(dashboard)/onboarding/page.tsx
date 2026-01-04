@@ -15,6 +15,12 @@ import {
   Sparkles,
   Users,
   AlertCircle,
+  Layout,
+  Palette,
+  Star,
+  MapPin,
+  Clock,
+  ThumbsUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,29 +31,158 @@ import { AIEnhanceButton } from "@/components/ui/ai-enhance-button";
 import { AISuggestTags } from "@/components/ui/ai-suggest-tags";
 import { uploadProfilePhoto } from "@/lib/upload";
 import { getUser } from "@/lib/auth/client";
+import { LAYOUTS, THEMES, ThemeConfig } from "@/lib/theme-config";
 
-const TEMPLATES = [
-  {
-    id: "classic",
-    name: "Classic",
-    description: "Clean white with brand blue accents",
-  },
-  {
-    id: "ocean",
-    name: "Ocean",
-    description: "Soft blue professional theme",
-  },
-  {
-    id: "sage",
-    name: "Sage",
-    description: "Calming green medical aesthetic",
-  },
-  {
-    id: "warm",
-    name: "Warm",
-    description: "Soft cream with terracotta accents",
-  },
-];
+// Mini preview components for layout and theme selection
+function LayoutPreview({ layoutId }: { layoutId: string }) {
+  const previewImage = "/doctor-3.jpg";
+
+  // Each layout gets a unique visual preview showing its structure
+  switch (layoutId) {
+    case "classic":
+      return (
+        <div className="absolute inset-2 flex flex-col items-center">
+          {/* Single column centered layout */}
+          <div className="w-8 h-8 rounded-full bg-slate-300 mb-2 overflow-hidden">
+            <Image src={previewImage} alt="" fill className="object-cover" />
+          </div>
+          <div className="w-12 h-1.5 bg-slate-300 rounded mb-1" />
+          <div className="w-8 h-1 bg-slate-200 rounded mb-2" />
+          <div className="w-full h-px bg-slate-200 my-2" />
+          <div className="w-full space-y-1.5">
+            <div className="h-1.5 bg-slate-200 rounded w-full" />
+            <div className="h-1.5 bg-slate-200 rounded w-3/4" />
+          </div>
+        </div>
+      );
+    case "hero":
+      return (
+        <div className="absolute inset-0 flex flex-col">
+          {/* Full-width hero banner */}
+          <div className="h-1/2 bg-gradient-to-r from-slate-400 to-slate-300 relative">
+            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white border-2 border-white overflow-hidden shadow-lg">
+              <Image src={previewImage} alt="" fill className="object-cover" />
+            </div>
+          </div>
+          <div className="flex-1 bg-white p-2 pt-5">
+            <div className="w-10 h-1.5 bg-slate-300 rounded mx-auto mb-1" />
+            <div className="w-6 h-1 bg-slate-200 rounded mx-auto" />
+          </div>
+        </div>
+      );
+    case "timeline":
+      return (
+        <div className="absolute inset-2 flex">
+          {/* Vertical timeline on left */}
+          <div className="w-px bg-slate-300 mr-2 relative">
+            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-400" />
+            <div className="absolute top-5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-300" />
+            <div className="absolute top-9 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-200" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
+                <Image src={previewImage} alt="" fill className="object-cover" />
+              </div>
+              <div className="flex-1">
+                <div className="h-1.5 bg-slate-300 rounded w-3/4" />
+              </div>
+            </div>
+            <div className="h-1 bg-slate-200 rounded w-full" />
+            <div className="h-1 bg-slate-200 rounded w-2/3" />
+          </div>
+        </div>
+      );
+    case "magazine":
+      return (
+        <div className="absolute inset-2 flex gap-2">
+          {/* Asymmetric 2-column layout */}
+          <div className="w-1/2 rounded bg-slate-200 overflow-hidden">
+            <Image src={previewImage} alt="" fill className="object-cover" />
+          </div>
+          <div className="flex-1 flex flex-col justify-center">
+            <div className="h-2 bg-slate-300 rounded w-full mb-1" />
+            <div className="h-1.5 bg-slate-200 rounded w-3/4 mb-2" />
+            <div className="h-1 bg-slate-200 rounded w-1/2" />
+          </div>
+        </div>
+      );
+    case "grid":
+      return (
+        <div className="absolute inset-2 grid grid-cols-3 gap-1">
+          {/* Bento grid layout */}
+          <div className="col-span-2 row-span-2 rounded bg-slate-200 flex items-center justify-center overflow-hidden">
+            <div className="w-6 h-6 rounded-full overflow-hidden">
+              <Image src={previewImage} alt="" fill className="object-cover" />
+            </div>
+          </div>
+          <div className="rounded bg-slate-300" />
+          <div className="rounded bg-slate-200" />
+          <div className="col-span-2 rounded bg-slate-200" />
+          <div className="rounded bg-slate-300" />
+        </div>
+      );
+    case "minimal":
+      return (
+        <div className="absolute inset-3 flex flex-col justify-center">
+          {/* Ultra minimal typography-focused */}
+          <div className="text-[8px] font-bold text-slate-400 mb-1">DR. JANE DOE</div>
+          <div className="w-6 h-6 rounded-full bg-slate-200 mb-2 overflow-hidden">
+            <Image src={previewImage} alt="" fill className="object-cover" />
+          </div>
+          <div className="h-1 bg-slate-300 rounded w-1/2 mb-1" />
+          <div className="h-0.5 bg-slate-200 rounded w-1/3" />
+        </div>
+      );
+    default:
+      return null;
+  }
+}
+
+function ThemePreview({ theme }: { theme: ThemeConfig }) {
+  const { colors } = theme;
+
+  return (
+    <div className="absolute inset-3 flex flex-col">
+      {/* Mini profile card preview with theme colors */}
+      <div
+        className="rounded-lg p-2 flex-1 flex flex-col"
+        style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, borderWidth: 1 }}
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <div
+            className="w-6 h-6 rounded-full"
+            style={{ backgroundColor: colors.accent }}
+          />
+          <div className="flex-1">
+            <div
+              className="h-1.5 rounded w-3/4 mb-1"
+              style={{ backgroundColor: colors.text }}
+            />
+            <div
+              className="h-1 rounded w-1/2"
+              style={{ backgroundColor: colors.textMuted }}
+            />
+          </div>
+        </div>
+        <div
+          className="h-1 rounded w-full mb-1"
+          style={{ backgroundColor: colors.backgroundAlt }}
+        />
+        <div
+          className="h-1 rounded w-2/3 mb-2"
+          style={{ backgroundColor: colors.backgroundAlt }}
+        />
+        <div
+          className="h-4 rounded flex items-center justify-center mt-auto"
+          style={{ backgroundColor: colors.primary }}
+        >
+          <Star className="w-2 h-2" style={{ color: colors.textOnPrimary }} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function OnboardingForm() {
   const searchParams = useSearchParams();
@@ -76,7 +211,7 @@ function OnboardingForm() {
   const [consultationFee, setConsultationFee] = useState("");
   const [services, setServices] = useState("");
 
-  // Step 4: Photo, Bio & Template
+  // Step 4: Photo & Bio
   const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
   const [profilePhotoUrl, setProfilePhotoUrl] = useState<string | null>(null);
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
@@ -84,7 +219,10 @@ function OnboardingForm() {
   const [originalImageForCrop, setOriginalImageForCrop] = useState<string | null>(null);
   const [bio, setBio] = useState("");
   const [externalBookingUrl, setExternalBookingUrl] = useState("");
-  const [profileTemplate, setProfileTemplate] = useState("classic");
+
+  // Step 5 & 6: Layout & Theme (no defaults - user must select)
+  const [profileLayout, setProfileLayout] = useState("");
+  const [profileTheme, setProfileTheme] = useState("");
 
   // Handle availability check
   const [handleStatus, setHandleStatus] = useState<
@@ -241,7 +379,8 @@ function OnboardingForm() {
           profilePhotoUrl: profilePhotoUrl || undefined,
           bio: bio || undefined,
           externalBookingUrl: externalBookingUrl || undefined,
-          profileTemplate,
+          profileLayout,
+          profileTheme,
           inviteCode: inviteCode || undefined,
         }),
       });
@@ -310,10 +449,10 @@ function OnboardingForm() {
 
         {/* Progress */}
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
-          {[1, 2, 3, 4].map((s) => (
+          {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
-              className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
+              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${
                 s <= step ? "bg-[#0099F7]" : "bg-slate-200"
               }`}
             />
@@ -489,7 +628,7 @@ function OnboardingForm() {
                       <Label htmlFor="yearsExperience" className="text-sm sm:text-base">
                         Experience
                         <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
-                          (yrs)
+                          (optional)
                         </span>
                       </Label>
                       <Input
@@ -559,7 +698,12 @@ function OnboardingForm() {
 
                 <div className="space-y-4 sm:space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="clinicName" className="text-sm sm:text-base">Clinic/Hospital Name</Label>
+                    <Label htmlFor="clinicName" className="text-sm sm:text-base">
+                      Clinic/Hospital Name
+                      <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
+                        (optional)
+                      </span>
+                    </Label>
                     <Input
                       id="clinicName"
                       type="text"
@@ -571,7 +715,12 @@ function OnboardingForm() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="clinicLocation" className="text-sm sm:text-base">Location</Label>
+                    <Label htmlFor="clinicLocation" className="text-sm sm:text-base">
+                      Location
+                      <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
+                        (optional)
+                      </span>
+                    </Label>
                     <Input
                       id="clinicLocation"
                       type="text"
@@ -584,7 +733,12 @@ function OnboardingForm() {
 
                   <div className="grid grid-cols-2 gap-3 sm:gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="languages" className="text-sm sm:text-base">Languages</Label>
+                      <Label htmlFor="languages" className="text-sm sm:text-base">
+                        Languages
+                        <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
+                          (optional)
+                        </span>
+                      </Label>
                       <Input
                         id="languages"
                         type="text"
@@ -596,7 +750,12 @@ function OnboardingForm() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="consultationFee" className="text-sm sm:text-base">Fee</Label>
+                      <Label htmlFor="consultationFee" className="text-sm sm:text-base">
+                        Fee
+                        <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
+                          (optional)
+                        </span>
+                      </Label>
                       <Input
                         id="consultationFee"
                         type="text"
@@ -613,7 +772,7 @@ function OnboardingForm() {
                       <Label htmlFor="services" className="text-sm sm:text-base">
                         Services
                         <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
-                          (comma separated)
+                          (optional, comma separated)
                         </span>
                       </Label>
                       <Input
@@ -677,7 +836,12 @@ function OnboardingForm() {
                 <div className="space-y-5 sm:space-y-6">
                   {/* Profile Photo */}
                   <div className="space-y-2">
-                    <Label className="text-sm sm:text-base">Profile Photo</Label>
+                    <Label className="text-sm sm:text-base">
+                      Profile Photo
+                      <span className="ml-1 text-slate-400 font-normal text-xs sm:text-sm">
+                        (optional)
+                      </span>
+                    </Label>
                     <div className="flex items-center gap-3 sm:gap-4">
                       <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
                         {profilePhoto ? (
@@ -784,35 +948,165 @@ function OnboardingForm() {
                       />
                     </div>
                   </div>
+                </div>
 
-                  {/* Template Selection */}
-                  <div className="space-y-2 sm:space-y-3">
-                    <Label className="flex items-center gap-2 text-sm sm:text-base">
-                      <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#0099F7]" />
-                      Profile Template
-                    </Label>
-                    <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                      {TEMPLATES.map((template) => (
-                        <button
-                          key={template.id}
-                          type="button"
-                          onClick={() => setProfileTemplate(template.id)}
-                          className={`p-3 sm:p-4 rounded-lg sm:rounded-xl border-2 text-left transition-all ${
-                            profileTemplate === template.id
-                              ? "border-[#0099F7] bg-blue-50/50"
-                              : "border-slate-200 hover:border-slate-300"
-                          }`}
-                        >
-                          <p className="font-medium text-slate-900 text-sm sm:text-base">
-                            {template.name}
-                          </p>
-                          <p className="text-xs sm:text-sm text-slate-500 line-clamp-1">
-                            {template.description}
-                          </p>
-                        </button>
-                      ))}
-                    </div>
+                <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep(3)}
+                    className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setStep(5)}
+                    className="flex-1 h-10 sm:h-12 bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white font-semibold text-sm sm:text-base"
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+                  </Button>
+                </div>
+              </>
+            )}
+
+            {/* Step 5: Layout Selection */}
+            {step === 5 && (
+              <>
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#0099F7]/10 to-[#0080CC]/10 mb-4">
+                    <Layout className="w-6 h-6 text-[#0099F7]" />
                   </div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+                    Choose Your Layout
+                  </h1>
+                  <p className="text-sm sm:text-base text-slate-600">
+                    Select how your profile will be structured
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {LAYOUTS.map((layout) => (
+                    <button
+                      key={layout.id}
+                      type="button"
+                      onClick={() => setProfileLayout(layout.id)}
+                      className={`group relative overflow-hidden rounded-xl border-2 text-left transition-all ${
+                        profileLayout === layout.id
+                          ? "border-[#0099F7] ring-2 ring-[#0099F7]/20"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {/* Preview Image Area */}
+                      <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+                        {/* Mini Preview based on layout type */}
+                        <LayoutPreview layoutId={layout.id} />
+                        {profileLayout === layout.id && (
+                          <div className="absolute inset-0 bg-[#0099F7]/10 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-[#0099F7] flex items-center justify-center">
+                              <Check className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <p className="font-semibold text-slate-900 text-sm sm:text-base">
+                          {layout.name}
+                        </p>
+                        <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                          {layout.description}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex gap-3 sm:gap-4 mt-6 sm:mt-8">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setStep(4)}
+                    className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setStep(6)}
+                    disabled={!profileLayout}
+                    className="flex-1 h-10 sm:h-12 bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white font-semibold text-sm sm:text-base"
+                  >
+                    Continue
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />
+                  </Button>
+                </div>
+
+                {!profileLayout && (
+                  <p className="text-center text-xs text-slate-500 mt-3">
+                    Please select a layout to continue
+                  </p>
+                )}
+              </>
+            )}
+
+            {/* Step 6: Theme Selection */}
+            {step === 6 && (
+              <>
+                <div className="text-center mb-6 sm:mb-8">
+                  <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-[#0099F7]/10 to-[#0080CC]/10 mb-4">
+                    <Palette className="w-6 h-6 text-[#0099F7]" />
+                  </div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">
+                    Pick Your Colors
+                  </h1>
+                  <p className="text-sm sm:text-base text-slate-600">
+                    Choose a color theme for your profile
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                  {THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      type="button"
+                      onClick={() => setProfileTheme(theme.id)}
+                      className={`group relative overflow-hidden rounded-xl border-2 text-left transition-all ${
+                        profileTheme === theme.id
+                          ? "border-[#0099F7] ring-2 ring-[#0099F7]/20"
+                          : "border-slate-200 hover:border-slate-300"
+                      }`}
+                    >
+                      {/* Color Preview */}
+                      <div
+                        className="relative aspect-[4/3] overflow-hidden"
+                        style={{ backgroundColor: theme.colors.background }}
+                      >
+                        <ThemePreview theme={theme} />
+                        {profileTheme === theme.id && (
+                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-lg">
+                              <Check className="w-5 h-5 text-[#0099F7]" />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 sm:p-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div
+                            className="w-4 h-4 rounded-full"
+                            style={{ backgroundColor: theme.colors.primary }}
+                          />
+                          <p className="font-semibold text-slate-900 text-sm sm:text-base">
+                            {theme.name}
+                          </p>
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          {theme.description}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
                 </div>
 
                 {error && (
@@ -825,26 +1119,32 @@ function OnboardingForm() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setStep(3)}
+                    onClick={() => setStep(5)}
                     className="flex-1 h-10 sm:h-12 text-sm sm:text-base"
                   >
                     Back
                   </Button>
                   <Button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || !profileTheme}
                     className="flex-1 h-10 sm:h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold text-sm sm:text-base"
                   >
                     {isLoading ? (
                       <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
                     ) : (
                       <>
-                        <Check className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
-                        Publish
+                        <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />
+                        Create Profile
                       </>
                     )}
                   </Button>
                 </div>
+
+                {!profileTheme && (
+                  <p className="text-center text-xs text-slate-500 mt-3">
+                    Please select a color theme to continue
+                  </p>
+                )}
               </>
             )}
           </form>

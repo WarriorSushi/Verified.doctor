@@ -58,7 +58,7 @@ const updateProfileSchema = z.object({
   profilePhotoUrl: z.string().url().nullable().optional(),
   externalBookingUrl: z.string().url().nullable().optional(),
   profileTemplate: z.enum(["classic", "ocean", "sage", "warm", "executive", "hero", "timeline"]).optional(),
-  profileLayout: z.enum(["classic", "hero", "timeline"]).optional(),
+  profileLayout: z.enum(["classic", "hero", "timeline", "magazine", "grid", "minimal"]).optional(),
   profileTheme: z.enum(["blue", "ocean", "sage", "warm", "teal", "executive"]).optional(),
   bio: z.string().max(2000).nullable().optional(),
   qualifications: z.string().max(1000).nullable().optional(),
@@ -205,16 +205,51 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 export async function GET(request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
+    const { userId } = await getAuth();
     const supabase = await createClient();
+
+    // Define public fields that anyone can access
+    const publicFields = `
+      id, handle, full_name, specialty, bio, qualifications,
+      years_experience, clinic_name, clinic_location, languages,
+      consultation_fee, services, profile_photo_url, external_booking_url,
+      is_verified, recommendation_count, connection_count,
+      profile_template, profile_layout, profile_theme,
+      video_introduction_url, approach_to_care, first_visit_guide,
+      availability_note, conditions_treated, procedures_performed,
+      is_available, offers_telemedicine, education_timeline,
+      hospital_affiliations, case_studies, clinic_gallery,
+      professional_memberships, media_publications, section_visibility
+    `;
 
     const { data: profile, error } = await supabase
       .from("profiles")
-      .select("*")
+      .select(publicFields)
       .eq("id", id)
       .single();
 
     if (error || !profile) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    }
+
+    // If the requester is the owner, include additional private fields
+    if (userId && profile.id) {
+      const { data: ownerCheck } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("id", id)
+        .single();
+
+      if (ownerCheck?.user_id === userId) {
+        // Return full profile for owner - refetch with all fields
+        const { data: fullProfile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", id)
+          .single();
+
+        return NextResponse.json({ profile: fullProfile, isOwner: true });
+      }
     }
 
     return NextResponse.json({ profile });

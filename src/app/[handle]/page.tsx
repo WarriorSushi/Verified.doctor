@@ -7,6 +7,9 @@ import {
   ClassicTemplate,
   HeroTemplate,
   TimelineTemplate,
+  MagazineTemplate,
+  GridTemplate,
+  MinimalTemplate,
 } from "@/components/profile/templates";
 import { getTheme } from "@/lib/theme-config";
 import { PauseCircle } from "lucide-react";
@@ -294,35 +297,60 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     );
   }
 
-  // Increment view count (fire and forget)
-  supabase.rpc("increment_view_count", { profile_uuid: extendedProfile.id });
+  // Increment view count (fire and forget, with error logging)
+  supabase.rpc("increment_view_count", { profile_uuid: extendedProfile.id })
+    .then(() => {}, (err) => console.error("Failed to increment view count:", err));
 
-  // Fetch connected doctors
-  const { data: connections } = await supabase
-    .from("connections")
-    .select(`
-      requester_id,
-      receiver_id,
-      requester:profiles!connections_requester_id_fkey(
-        id, full_name, specialty, handle, profile_photo_url
-      ),
-      receiver:profiles!connections_receiver_id_fkey(
-        id, full_name, specialty, handle, profile_photo_url
-      )
-    `)
-    .or(`requester_id.eq.${extendedProfile.id},receiver_id.eq.${extendedProfile.id}`)
-    .eq("status", "accepted");
+  // Fetch connections and invites in parallel for better performance
+  const [connectionsResult, inviteResult] = await Promise.all([
+    // Fetch connected doctors - use separate queries to avoid SQL injection via .or()
+    Promise.all([
+      supabase
+        .from("connections")
+        .select(`
+          requester_id,
+          receiver_id,
+          requester:profiles!connections_requester_id_fkey(
+            id, full_name, specialty, handle, profile_photo_url
+          ),
+          receiver:profiles!connections_receiver_id_fkey(
+            id, full_name, specialty, handle, profile_photo_url
+          )
+        `)
+        .eq("requester_id", extendedProfile.id)
+        .eq("status", "accepted"),
+      supabase
+        .from("connections")
+        .select(`
+          requester_id,
+          receiver_id,
+          requester:profiles!connections_requester_id_fkey(
+            id, full_name, specialty, handle, profile_photo_url
+          ),
+          receiver:profiles!connections_receiver_id_fkey(
+            id, full_name, specialty, handle, profile_photo_url
+          )
+        `)
+        .eq("receiver_id", extendedProfile.id)
+        .eq("status", "accepted"),
+    ]).then(([r1, r2]) => ({
+      data: [...(r1.data || []), ...(r2.data || [])],
+    })),
 
-  // Fetch inviter info (if this profile was created via invite)
-  const { data: inviteData } = await supabase
-    .from("invites")
-    .select(`
-      inviter:profiles!invites_inviter_profile_id_fkey(
-        id, full_name, specialty, handle
-      )
-    `)
-    .eq("used_by_profile_id", extendedProfile.id)
-    .single();
+    // Fetch inviter info (if this profile was created via invite)
+    supabase
+      .from("invites")
+      .select(`
+        inviter:profiles!invites_inviter_profile_id_fkey(
+          id, full_name, specialty, handle
+        )
+      `)
+      .eq("used_by_profile_id", extendedProfile.id)
+      .single(),
+  ]);
+
+  const connections = connectionsResult.data;
+  const inviteData = inviteResult.data;
 
   const invitedBy = inviteData?.inviter as {
     id: string;
@@ -375,6 +403,24 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       return (
         <TemplateWithJsonLd>
           <TimelineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+        </TemplateWithJsonLd>
+      );
+    case "magazine":
+      return (
+        <TemplateWithJsonLd>
+          <MagazineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+        </TemplateWithJsonLd>
+      );
+    case "grid":
+      return (
+        <TemplateWithJsonLd>
+          <GridTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+        </TemplateWithJsonLd>
+      );
+    case "minimal":
+      return (
+        <TemplateWithJsonLd>
+          <MinimalTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
         </TemplateWithJsonLd>
       );
     case "classic":

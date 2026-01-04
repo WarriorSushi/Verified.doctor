@@ -47,20 +47,38 @@ export const LAYOUTS: LayoutConfig[] = [
   {
     id: "classic",
     name: "Classic",
-    description: "Clean, card-based professional layout",
-    preview: "Centered content with organized sections",
+    description: "Apple-style ultra-minimal single-column",
+    preview: "Pure whitespace, clean horizontal sections",
   },
   {
     id: "hero",
     name: "Hero",
-    description: "Bold header with large photo background",
-    preview: "Dramatic hero section with floating elements",
+    description: "Bold dramatic full-bleed header",
+    preview: "Large hero banner with floating cards",
   },
   {
     id: "timeline",
     name: "Timeline",
-    description: "Editorial magazine-style with career timeline",
-    preview: "Serif typography with animated milestones",
+    description: "Editorial magazine with vertical timeline",
+    preview: "Serif typography, warm ivory background",
+  },
+  {
+    id: "magazine",
+    name: "Magazine",
+    description: "Asymmetric editorial portfolio style",
+    preview: "Fashion magazine aesthetic with offset photo",
+  },
+  {
+    id: "grid",
+    name: "Grid",
+    description: "Modern Bento/dashboard card grid",
+    preview: "SaaS-style cards of varying sizes",
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    description: "Swiss/Bauhaus ultra-minimal design",
+    preview: "Maximum whitespace, typography-focused",
   },
 ];
 

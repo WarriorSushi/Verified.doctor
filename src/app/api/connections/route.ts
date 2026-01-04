@@ -29,8 +29,8 @@ export async function GET() {
     }
 
     // Get all accepted connections (where user is requester or receiver)
-    // Using filter with proper parameterization to prevent SQL injection
-    const { data: connections, error } = await supabase
+    // Query both directions separately to avoid SQL injection via string interpolation
+    const { data: asRequester, error: err1 } = await supabase
       .from("connections")
       .select(`
         id,
@@ -43,9 +43,30 @@ export async function GET() {
           id, full_name, handle, specialty, profile_photo_url, is_verified
         )
       `)
-      .or(`requester_id.eq."${profile.id}",receiver_id.eq."${profile.id}"`)
+      .eq("requester_id", profile.id)
       .eq("status", "accepted")
       .order("created_at", { ascending: false });
+
+    const { data: asReceiver, error: err2 } = await supabase
+      .from("connections")
+      .select(`
+        id,
+        status,
+        created_at,
+        requester:profiles!connections_requester_id_fkey(
+          id, full_name, handle, specialty, profile_photo_url, is_verified
+        ),
+        receiver:profiles!connections_receiver_id_fkey(
+          id, full_name, handle, specialty, profile_photo_url, is_verified
+        )
+      `)
+      .eq("receiver_id", profile.id)
+      .eq("status", "accepted")
+      .order("created_at", { ascending: false });
+
+    const error = err1 || err2;
+    // Merge and deduplicate connections
+    const connections = [...(asRequester || []), ...(asReceiver || [])];
 
     if (error) {
       console.error("Get connections error:", error);

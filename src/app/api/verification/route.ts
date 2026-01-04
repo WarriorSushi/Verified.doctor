@@ -2,6 +2,26 @@ import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 
+// Magic bytes for file type validation
+const MAGIC_BYTES: Record<string, number[][]> = {
+  "image/jpeg": [[0xff, 0xd8, 0xff]],
+  "image/png": [[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]],
+  "image/webp": [[0x52, 0x49, 0x46, 0x46]], // RIFF header (WebP also has WEBP at offset 8)
+  "application/pdf": [[0x25, 0x50, 0x44, 0x46]], // %PDF
+};
+
+async function validateFileMagicBytes(file: File): Promise<boolean> {
+  const expectedSignatures = MAGIC_BYTES[file.type];
+  if (!expectedSignatures) return false;
+
+  const buffer = await file.slice(0, 16).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+
+  return expectedSignatures.some((signature) =>
+    signature.every((byte, index) => bytes[index] === byte)
+  );
+}
+
 export async function POST(request: Request) {
   try {
     const { userId } = await getAuth();
@@ -57,7 +77,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate file types and sizes
+    // Validate file types, sizes, and magic bytes
     const allowedTypes = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
     const maxSize = 5 * 1024 * 1024; // 5MB
 
@@ -72,6 +92,15 @@ export async function POST(request: Request) {
       if (file.size > maxSize) {
         return NextResponse.json(
           { error: `File too large: ${file.name}. Maximum size is 5MB.` },
+          { status: 400 }
+        );
+      }
+
+      // Validate file content matches declared type (prevent spoofed MIME types)
+      const isValidContent = await validateFileMagicBytes(file);
+      if (!isValidContent) {
+        return NextResponse.json(
+          { error: `File content doesn't match declared type: ${file.name}. Please upload a valid image or PDF.` },
           { status: 400 }
         );
       }

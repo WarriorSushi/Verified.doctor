@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email/send";
 import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { headers } from "next/headers";
+import { escapeHtml } from "@/lib/utils/html-escape";
 
 // Admin email from environment variable
 const ADMIN_EMAIL = process.env.ADMIN_CONTACT_EMAIL || process.env.ADMIN_EMAIL;
@@ -106,28 +107,28 @@ export async function POST(request: Request) {
 <body>
   <div class="container">
     <div class="card">
-      <span class="type-badge">${typeLabels[type]}</span>
+      <span class="type-badge">${escapeHtml(typeLabels[type])}</span>
       <h1>New Contact Form Submission</h1>
 
       <div class="info-row">
         <div class="info-label">Name</div>
-        <div class="info-value">${name}</div>
+        <div class="info-value">${escapeHtml(name)}</div>
       </div>
 
       <div class="info-row">
         <div class="info-label">Email</div>
-        <div class="info-value"><a href="mailto:${email}" style="color: #0099F7;">${email}</a></div>
+        <div class="info-value"><a href="mailto:${escapeHtml(email)}" style="color: #0099F7;">${escapeHtml(email)}</a></div>
       </div>
 
       ${subject ? `
       <div class="info-row">
         <div class="info-label">Subject</div>
-        <div class="info-value">${subject}</div>
+        <div class="info-value">${escapeHtml(subject)}</div>
       </div>
       ` : ""}
 
       <div class="message-box">
-        <p class="message-content">${message}</p>
+        <p class="message-content">${escapeHtml(message)}</p>
       </div>
 
       <p class="timestamp">Received: ${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })} IST</p>

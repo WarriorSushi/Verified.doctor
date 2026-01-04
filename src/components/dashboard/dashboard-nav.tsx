@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, MessageSquare, Users, Settings, BarChart3 } from "lucide-react";
+import { LayoutDashboard, MessageSquare, Users, UserPen, BarChart3 } from "lucide-react";
 
 interface DashboardNavProps {
   unreadCount: number;
@@ -15,7 +15,7 @@ const navItems = [
   { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages" },
   { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections" },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+  { href: "/dashboard/profile-builder", label: "Edit Profile", icon: UserPen },
 ];
 
 export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: DashboardNavProps) {

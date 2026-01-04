@@ -35,7 +35,8 @@ const createProfileSchema = z.object({
   registrationNumber: z.string().max(100).optional(),
   consultationFee: z.string().max(50).optional(),
   services: z.string().max(500).optional(),
-  profileTemplate: z.enum(["classic", "modern", "minimal", "professional"]).optional(),
+  profileLayout: z.enum(["classic", "hero", "timeline", "magazine", "grid", "minimal"]).optional(),
+  profileTheme: z.enum(["blue", "ocean", "sage", "warm", "teal", "executive"]).optional(),
 });
 
 export async function POST(request: Request) {
@@ -75,7 +76,8 @@ export async function POST(request: Request) {
       registrationNumber,
       consultationFee,
       services,
-      profileTemplate,
+      profileLayout,
+      profileTheme,
     } = result.data;
 
     // Check if handle is banned
@@ -137,7 +139,8 @@ export async function POST(request: Request) {
         registration_number: registrationNumber || null,
         consultation_fee: consultationFee || null,
         services: services || null,
-        profile_template: profileTemplate || "classic",
+        profile_layout: profileLayout || "classic",
+        profile_theme: profileTheme || "blue",
         is_verified: false,
         verification_status: "none",
         recommendation_count: 0,

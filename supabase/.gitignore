@@ -1,0 +1,9 @@
+# Supabase local development
+.branches
+.temp
+.env
+.env.*
+
+# Supabase secrets - NEVER COMMIT THESE
+**/secrets.toml
+**/seed.sql
