@@ -17,15 +17,31 @@ interface Profile {
   handle: string;
 }
 
-interface ProfileActionsProps {
-  profile: Profile;
+interface ThemeColors {
+  background?: string;
+  cardBorder?: string;
+  primary?: string;
+  text?: string;
 }
 
-export function ProfileActions({ profile }: ProfileActionsProps) {
+interface ProfileActionsProps {
+  profile: Profile;
+  themeColors?: ThemeColors;
+}
+
+export function ProfileActions({ profile, themeColors }: ProfileActionsProps) {
   const [isInquiryOpen, setIsInquiryOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const profileUrl = `https://verified.doctor/${profile.handle}`;
+
+  // Default colors that work with any theme
+  const colors = {
+    background: themeColors?.background || "#ffffff",
+    border: themeColors?.cardBorder || "#e2e8f0",
+    primary: themeColors?.primary || "#0099F7",
+    text: themeColors?.text || "#1e293b",
+  };
 
   const handleSaveContact = () => {
     // Track analytics event
@@ -98,13 +114,24 @@ export function ProfileActions({ profile }: ProfileActionsProps) {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 p-4 shadow-lg">
+      <div
+        className="fixed bottom-0 left-0 right-0 z-50 p-3 sm:p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
+        style={{
+          backgroundColor: colors.background,
+          borderTop: `1px solid ${colors.border}`,
+        }}
+      >
         <div className="max-w-lg mx-auto flex gap-2 sm:gap-3">
           <Button
             onClick={handleSaveContact}
             variant="outline"
             size="xl"
-            className="flex-1 px-2 sm:px-4"
+            className="flex-1 px-2 sm:px-4 transition-all duration-200 hover:scale-[1.02]"
+            style={{
+              borderColor: colors.border,
+              color: colors.text,
+              backgroundColor: "transparent",
+            }}
           >
             <Download className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Save Contact</span>
@@ -113,7 +140,12 @@ export function ProfileActions({ profile }: ProfileActionsProps) {
             onClick={handleShare}
             variant="outline"
             size="xl"
-            className="px-3 sm:px-4"
+            className="px-3 sm:px-4 transition-all duration-200 hover:scale-[1.02]"
+            style={{
+              borderColor: colors.border,
+              color: colors.text,
+              backgroundColor: "transparent",
+            }}
           >
             {copied ? (
               <Check className="w-4 h-4 text-green-600" />
@@ -128,7 +160,10 @@ export function ProfileActions({ profile }: ProfileActionsProps) {
               setIsInquiryOpen(true);
             }}
             size="xl"
-            className="flex-1 px-2 sm:px-4 bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white"
+            className="flex-1 px-2 sm:px-4 text-white transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+            style={{
+              background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primary}dd 100%)`,
+            }}
           >
             <MessageSquare className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Send Inquiry</span>

@@ -23,6 +23,7 @@ import { ProfileActions } from "../profile-actions";
 import { RecommendButton } from "../recommend-button";
 import { ProfileViewTracker } from "../profile-view-tracker";
 import { formatRecommendationCount, formatConnectionCount } from "@/lib/format-metrics";
+import { extractFirstName } from "@/lib/utils";
 import {
   VideoIntroduction,
   EducationTimeline,
@@ -115,7 +116,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
   const recommendationText = formatRecommendationCount(profile.recommendation_count || 0);
   const connectionText = formatConnectionCount(profile.connection_count || 0);
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
-  const firstName = profile.full_name.split(" ")[0];
+  const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
 
   const bioTruncated = profile.bio && profile.bio.length > 200
@@ -305,40 +306,72 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
             <h2 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: colors.textMuted }}>
               Credentials
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
               {profile.qualifications && (
-                <div className="flex items-start gap-3">
-                  <GraduationCap className="w-4 h-4 mt-0.5" style={{ color: colors.primary }} />
-                  <div>
+                <div
+                  className="flex items-start gap-3 p-3 rounded-xl transition-colors"
+                  style={{ backgroundColor: `${colors.primary}08` }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: `${colors.primary}15` }}
+                  >
+                    <GraduationCap className="w-4 h-4" style={{ color: colors.primary }} />
+                  </div>
+                  <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wide mb-0.5" style={{ color: colors.textMuted }}>Qualifications</p>
-                    <p className="text-sm" style={{ color: colors.text }}>{profile.qualifications}</p>
+                    <p className="text-sm font-medium" style={{ color: colors.text }}>{profile.qualifications}</p>
                   </div>
                 </div>
               )}
               {profile.languages && (
-                <div className="flex items-start gap-3">
-                  <Globe className="w-4 h-4 mt-0.5" style={{ color: colors.primary }} />
-                  <div>
+                <div
+                  className="flex items-start gap-3 p-3 rounded-xl transition-colors"
+                  style={{ backgroundColor: `${colors.primary}08` }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: `${colors.primary}15` }}
+                  >
+                    <Globe className="w-4 h-4" style={{ color: colors.primary }} />
+                  </div>
+                  <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wide mb-0.5" style={{ color: colors.textMuted }}>Languages</p>
-                    <p className="text-sm" style={{ color: colors.text }}>{profile.languages}</p>
+                    <p className="text-sm font-medium" style={{ color: colors.text }}>{profile.languages}</p>
                   </div>
                 </div>
               )}
               {profile.consultation_fee && (
-                <div className="flex items-start gap-3">
-                  <ThumbsUp className="w-4 h-4 mt-0.5" style={{ color: colors.primary }} />
-                  <div>
+                <div
+                  className="flex items-start gap-3 p-3 rounded-xl transition-colors"
+                  style={{ backgroundColor: `${colors.primary}08` }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: `${colors.primary}15` }}
+                  >
+                    <ThumbsUp className="w-4 h-4" style={{ color: colors.primary }} />
+                  </div>
+                  <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wide mb-0.5" style={{ color: colors.textMuted }}>Consultation</p>
-                    <p className="text-sm" style={{ color: colors.text }}>{profile.consultation_fee}</p>
+                    <p className="text-sm font-medium" style={{ color: colors.text }}>{profile.consultation_fee}</p>
                   </div>
                 </div>
               )}
               {profile.registration_number && (
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="w-4 h-4 mt-0.5" style={{ color: colors.primary }} />
-                  <div>
+                <div
+                  className="flex items-start gap-3 p-3 rounded-xl transition-colors"
+                  style={{ backgroundColor: `${colors.primary}08` }}
+                >
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: `${colors.primary}15` }}
+                  >
+                    <CheckCircle2 className="w-4 h-4" style={{ color: colors.primary }} />
+                  </div>
+                  <div className="min-w-0">
                     <p className="text-xs font-medium uppercase tracking-wide mb-0.5" style={{ color: colors.textMuted }}>Registration</p>
-                    <p className="text-sm" style={{ color: colors.text }}>{profile.registration_number}</p>
+                    <p className="text-sm font-medium" style={{ color: colors.text }}>{profile.registration_number}</p>
                   </div>
                 </div>
               )}
@@ -444,15 +477,55 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
           </motion.section>
         )}
 
-        {/* Divider */}
-        <div className="h-px my-12" style={{ backgroundColor: colors.cardBorder }} />
-
         {/* Recommend Section */}
-        <motion.section {...fadeUp} transition={{ delay: 0.6 }} className="text-center py-8">
-          <p className="text-base mb-4" style={{ color: colors.text }}>
-            Had a good experience with {firstName}?
-          </p>
-          <RecommendButton profileId={profile.id} />
+        <motion.section {...fadeUp} transition={{ delay: 0.6 }} className="mt-16">
+          <div
+            className="relative overflow-hidden rounded-2xl p-6 sm:p-8 text-center"
+            style={{
+              background: `linear-gradient(135deg, ${colors.primary}08 0%, ${colors.accent}15 100%)`,
+              border: `1px solid ${colors.primary}15`
+            }}
+          >
+            {/* Decorative elements */}
+            <div
+              className="absolute -top-8 -right-8 w-32 h-32 rounded-full opacity-20"
+              style={{ background: `radial-gradient(circle, ${colors.primary}40 0%, transparent 70%)` }}
+            />
+            <div
+              className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full opacity-15"
+              style={{ background: `radial-gradient(circle, ${colors.accent}60 0%, transparent 70%)` }}
+            />
+
+            <div className="relative z-10">
+              <div
+                className="w-12 h-12 mx-auto mb-4 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: `${colors.primary}15` }}
+              >
+                <svg
+                  className="w-6 h-6"
+                  style={{ color: colors.primary }}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+              </div>
+              <h3
+                className="text-lg font-semibold mb-2"
+                style={{ color: colors.text }}
+              >
+                Had a good experience?
+              </h3>
+              <p
+                className="text-sm mb-5 max-w-xs mx-auto"
+                style={{ color: colors.textMuted }}
+              >
+                Your recommendation helps other patients find quality care with {firstName}
+              </p>
+              <RecommendButton profileId={profile.id} />
+            </div>
+          </div>
         </motion.section>
 
         {/* Connected Doctors */}
@@ -491,7 +564,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
         )}
       </main>
 
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={themeColors} />
     </div>
   );
 }

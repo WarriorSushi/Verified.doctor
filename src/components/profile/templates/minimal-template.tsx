@@ -20,6 +20,7 @@ import { ProfileActions } from "../profile-actions";
 import { RecommendButton } from "../recommend-button";
 import { ProfileViewTracker } from "../profile-view-tracker";
 import { formatRecommendationCount, formatConnectionCount } from "@/lib/format-metrics";
+import { extractFirstName } from "@/lib/utils";
 import {
   VideoIntroduction,
   EducationTimeline,
@@ -113,7 +114,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
   const recommendationText = formatRecommendationCount(profile.recommendation_count || 0);
   const connectionText = formatConnectionCount(profile.connection_count || 0);
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
-  const firstName = profile.full_name.split(" ")[0];
+  const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
 
   const bioTruncated = profile.bio && profile.bio.length > 300

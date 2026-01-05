@@ -12,6 +12,7 @@ import {
   MinimalTemplate,
 } from "@/components/profile/templates";
 import { getTheme } from "@/lib/theme-config";
+import { formatDoctorTitle, extractFirstName } from "@/lib/utils";
 import { PauseCircle } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -447,9 +448,7 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
   }
 
   const profileUrl = `${baseUrl}/${profile.handle}`;
-  const title = profile.is_verified
-    ? `Dr. ${profile.full_name} - Verified ${profile.specialty || "Doctor"}`
-    : `${profile.full_name} - ${profile.specialty || "Medical Professional"}`;
+  const title = formatDoctorTitle(profile.full_name, profile.is_verified, profile.specialty);
 
   const description = profile.bio
     ? profile.bio.slice(0, 160)
@@ -485,8 +484,8 @@ export async function generateMetadata({ params }: ProfilePageProps): Promise<Me
           alt: `${profile.full_name} - Profile Photo`,
         },
       ] : undefined,
-      firstName: profile.full_name.split(" ")[0],
-      lastName: profile.full_name.split(" ").slice(1).join(" "),
+      firstName: extractFirstName(profile.full_name),
+      lastName: profile.full_name.split(" ").slice(profile.full_name.toLowerCase().startsWith("dr") ? 2 : 1).join(" "),
     },
     twitter: {
       card: "summary",
