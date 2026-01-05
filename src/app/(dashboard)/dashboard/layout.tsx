@@ -79,8 +79,8 @@ export default async function DashboardLayout({
         </div>
       </header>
 
-      {/* Action Bar - Sticky on desktop only, scrolls on mobile */}
-      <div className="sm:sticky sm:top-[105px] z-40 bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border-b border-sky-100/80">
+      {/* Action Bar - Sticky on all devices */}
+      <div className="sticky top-[53px] sm:top-[105px] z-40 bg-gradient-to-r from-sky-50 via-blue-50 to-indigo-50 border-b border-sky-100/80">
         <div className="max-w-6xl mx-auto px-3 sm:px-6">
           <div className="flex items-center justify-center gap-2 sm:gap-3 py-2 sm:py-2.5">
             <Link
