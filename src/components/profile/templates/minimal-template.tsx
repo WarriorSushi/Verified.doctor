@@ -159,8 +159,8 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
       </header>
 
       {/* Main Content - Extreme Whitespace */}
-      <main className="px-6 lg:px-12 pt-32 pb-40">
-        <div className="max-w-3xl">
+      <main className="px-6 lg:px-12 xl:px-24 pt-32 pb-40">
+        <div className="max-w-4xl mx-auto">
 
           {/* Hero Section - Name & Photo Side by Side */}
           <motion.section {...slideUp} className="mb-24 lg:mb-32">

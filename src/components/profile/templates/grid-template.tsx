@@ -208,16 +208,16 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
       {/* Main Grid Content */}
       <main className="max-w-6xl mx-auto px-4 py-8 pb-32">
         {/* Bento Grid Layout */}
-        <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-12 gap-4 auto-rows-[minmax(80px,auto)]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-12 gap-3 lg:gap-4 auto-rows-[minmax(80px,auto)]">
 
-          {/* Profile Card - Large (spans 4 cols, 4 rows) */}
+          {/* Profile Card - Large (spans 4 cols, 3 rows) */}
           <motion.div
             variants={cardVariants}
             initial="hidden"
             animate="visible"
             custom={0}
             whileHover={cardHover}
-            className="col-span-4 md:col-span-3 lg:col-span-4 row-span-4 rounded-3xl border p-6 flex flex-col"
+            className="col-span-2 sm:col-span-4 lg:col-span-4 row-span-3 rounded-3xl border p-5 lg:p-6 flex flex-col"
             style={cardStyle}
           >
             {/* Photo */}
@@ -282,7 +282,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
             animate="visible"
             custom={1}
             whileHover={cardHover}
-            className="col-span-2 md:col-span-3 lg:col-span-4 row-span-2 rounded-3xl border p-5 flex flex-col justify-between"
+            className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5 flex flex-col justify-between"
             style={cardStyle}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -306,7 +306,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
             animate="visible"
             custom={2}
             whileHover={cardHover}
-            className="col-span-2 md:col-span-3 lg:col-span-4 row-span-2 rounded-3xl border p-5 flex flex-col justify-between"
+            className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5 flex flex-col justify-between"
             style={cardStyle}
           >
             <div className="w-10 h-10 rounded-xl flex items-center justify-center"
@@ -331,7 +331,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={3}
               whileHover={cardHover}
-              className="col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-5 flex flex-col justify-between"
+              className="col-span-2 sm:col-span-2 lg:col-span-4 row-span-1 rounded-3xl border p-4 lg:p-5 flex flex-col justify-between"
               style={cardStyle}
             >
               <Clock className="w-6 h-6" style={{ color: colors.primary }} />
@@ -358,7 +358,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               custom={4}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="col-span-4 md:col-span-6 lg:col-span-4 row-span-2 rounded-3xl p-6 flex items-center justify-between cursor-pointer group"
+              className="col-span-2 sm:col-span-4 lg:col-span-4 row-span-1 rounded-3xl p-4 lg:p-6 flex items-center justify-between cursor-pointer group"
               style={{
                 background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`,
                 boxShadow: `0 8px 32px ${colors.primary}40`,
@@ -387,7 +387,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={5}
               whileHover={cardHover}
-              className="col-span-4 md:col-span-6 lg:col-span-8 row-span-2 rounded-3xl border p-6"
+              className="col-span-2 sm:col-span-4 lg:col-span-8 row-span-2 rounded-3xl border p-5 lg:p-6"
               style={cardStyle}
             >
               <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: colors.textMuted }}>
@@ -416,7 +416,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={6}
               whileHover={cardHover}
-              className="col-span-4 md:col-span-3 lg:col-span-4 row-span-2 rounded-3xl border p-5"
+              className="col-span-2 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5"
               style={cardStyle}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -439,7 +439,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={7}
               whileHover={cardHover}
-              className="col-span-2 md:col-span-3 lg:col-span-4 row-span-2 rounded-3xl border p-5"
+              className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5"
               style={cardStyle}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -462,7 +462,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={8}
               whileHover={cardHover}
-              className="col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-5 flex flex-col justify-between"
+              className="col-span-1 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5 flex flex-col justify-between"
               style={cardStyle}
             >
               <Activity className="w-5 h-5" style={{ color: colors.primary }} />
@@ -485,7 +485,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               animate="visible"
               custom={9}
               whileHover={cardHover}
-              className="col-span-4 md:col-span-3 lg:col-span-4 row-span-2 rounded-3xl border p-5"
+              className="col-span-2 sm:col-span-2 lg:col-span-4 row-span-2 rounded-3xl border p-4 lg:p-5"
               style={cardStyle}
             >
               <div className="flex items-center gap-2 mb-3">
@@ -507,7 +507,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
               initial="hidden"
               animate="visible"
               custom={10}
-              className="col-span-4 md:col-span-6 lg:col-span-12 row-span-2 rounded-3xl border p-6"
+              className="col-span-2 sm:col-span-4 lg:col-span-12 row-span-2 rounded-3xl border p-5 lg:p-6"
               style={cardStyle}
             >
               <p className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: colors.textMuted }}>

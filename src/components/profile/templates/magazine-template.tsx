@@ -156,9 +156,9 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="lg:w-5/12 relative"
+          className="lg:w-5/12 relative lg:self-start lg:sticky lg:top-0"
         >
-          <div className="lg:fixed lg:top-0 lg:left-0 lg:w-5/12 lg:h-screen">
+          <div className="lg:h-screen">
             {/* Photo Container - Asymmetric Shape */}
             <div className="h-[60vh] lg:h-full relative overflow-hidden">
               {profile.profile_photo_url ? (
@@ -205,7 +205,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="lg:w-7/12 lg:ml-[41.666667%] relative z-10"
+          className="lg:w-7/12 relative z-10"
         >
           <div className="px-6 sm:px-12 lg:px-16 py-12 lg:py-24">
             {/* Verified Badge */}
