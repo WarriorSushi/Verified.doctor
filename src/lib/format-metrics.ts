@@ -23,14 +23,14 @@ export function formatConnectionCount(count: number): string | null {
 }
 
 /**
- * Format view count for display.
+ * Format view count for display (number only, no "views" suffix).
  */
 export function formatViewCount(count: number): string {
   if (count >= 1000000) {
-    return `${(count / 1000000).toFixed(1)}M views`;
+    return `${(count / 1000000).toFixed(1)}M`;
   }
   if (count >= 1000) {
-    return `${(count / 1000).toFixed(1)}K views`;
+    return `${(count / 1000).toFixed(1)}K`;
   }
-  return `${count} view${count === 1 ? "" : "s"}`;
+  return count.toString();
 }

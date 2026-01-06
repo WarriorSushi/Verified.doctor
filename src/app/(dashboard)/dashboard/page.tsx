@@ -6,13 +6,9 @@ import {
   ThumbsUp,
   Users,
   MessageSquare,
-  QrCode,
-  Download,
-  ExternalLink,
   AlertCircle,
   CheckCircle,
   UserPlus,
-  Edit,
   ChevronRight,
   MapPin,
   Clock,
@@ -23,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { CopyButton } from "@/components/dashboard/copy-button";
 import { formatViewCount } from "@/lib/format-metrics";
 import { InviteDialog } from "@/components/dashboard/invite-dialog";
+import { QRCodeDesigner } from "@/components/dashboard/qr-code-designer";
 
 export default async function DashboardPage() {
   const { profile, userId } = await getProfile();
@@ -137,22 +134,6 @@ export default async function DashboardPage() {
             <CopyButton text={`https://verified.doctor/${profile.handle}`} />
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="border-t border-slate-100 p-3 bg-slate-50/50 flex gap-2">
-          <Button size="sm" className="flex-1 text-xs sm:text-sm" asChild>
-            <Link href={`/${profile.handle}`} target="_blank">
-              <ExternalLink className="w-4 h-4 mr-1.5" />
-              View
-            </Link>
-          </Button>
-          <Button size="sm" variant="outline" className="flex-1 text-xs sm:text-sm" asChild>
-            <Link href="/dashboard/profile-builder">
-              <Edit className="w-4 h-4 mr-1.5" />
-              Edit
-            </Link>
-          </Button>
-        </div>
       </div>
 
       {/* Metrics Row - Compact */}
@@ -183,36 +164,49 @@ export default async function DashboardPage() {
 
       {/* QR Code & Invite - Side by Side */}
       <div className="grid sm:grid-cols-2 gap-4">
-        {/* QR Code */}
+        {/* QR Code - Enhanced */}
         <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
-          <div className="flex items-center gap-2 mb-3">
-            <QrCode className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500" />
-            <h3 className="font-semibold text-slate-900 text-sm sm:text-base">QR Code</h3>
-          </div>
           <div className="flex items-center gap-4">
-            <div className="bg-white p-2 rounded-lg border border-slate-200 flex-shrink-0">
-              <Image
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://verified.doctor/${profile.handle}`}
-                alt="QR Code"
-                width={80}
-                height={80}
-                className="sm:w-[100px] sm:h-[100px]"
-              />
+            {/* QR Preview */}
+            <div className="relative flex-shrink-0">
+              <div
+                className="w-20 h-24 sm:w-24 sm:h-28 rounded-lg flex flex-col items-center justify-center p-2"
+                style={{
+                  backgroundColor: "#FFFFFF",
+                  border: "3px solid #0099F7",
+                }}
+              >
+                <div className="bg-white p-1 rounded">
+                  <Image
+                    src={`https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://verified.doctor/${profile.handle}`}
+                    alt="QR Code"
+                    width={50}
+                    height={50}
+                    className="sm:w-[60px] sm:h-[60px]"
+                  />
+                </div>
+                <p className="text-[6px] sm:text-[7px] font-mono text-slate-600 mt-1 truncate max-w-full">
+                  verified.doctor/{profile.handle}
+                </p>
+              </div>
             </div>
-            <div className="flex-1">
+
+            {/* Info & Action */}
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-slate-900 text-sm sm:text-base mb-1">QR Code</h3>
               <p className="text-xs text-slate-500 mb-3">
-                Display in your clinic for patients to scan and save your contact
+                Print for your clinic - patients can scan to save your contact
               </p>
-              <Button variant="outline" size="sm" className="text-xs w-full" asChild>
-                <a
-                  href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=https://verified.doctor/${profile.handle}`}
-                  download={`qr-${profile.handle}.png`}
-                  target="_blank"
-                >
-                  <Download className="w-3.5 h-3.5 mr-1.5" />
-                  Download
-                </a>
-              </Button>
+              <QRCodeDesigner
+                handle={profile.handle}
+                doctorName={profile.full_name}
+                specialty={profile.specialty}
+                trigger={
+                  <Button size="sm" className="text-xs bg-[#0099F7] hover:bg-[#0080CC]">
+                    Choose Design & Download
+                  </Button>
+                }
+              />
             </div>
           </div>
         </div>
@@ -247,36 +241,6 @@ export default async function DashboardPage() {
             />
           </div>
         </div>
-      </div>
-
-      {/* Quick Links */}
-      <div className="flex flex-wrap gap-2">
-        <Link
-          href="/dashboard/messages"
-          className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900 transition-colors"
-        >
-          <MessageSquare className="w-3.5 h-3.5" />
-          Messages
-          {unreadCount ? (
-            <span className="px-1.5 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">
-              {unreadCount}
-            </span>
-          ) : null}
-        </Link>
-        <Link
-          href="/dashboard/connections"
-          className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900 transition-colors"
-        >
-          <Users className="w-3.5 h-3.5" />
-          Connections
-        </Link>
-        <Link
-          href="/dashboard/analytics"
-          className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:border-slate-300 hover:text-slate-900 transition-colors"
-        >
-          <Eye className="w-3.5 h-3.5" />
-          Analytics
-        </Link>
       </div>
     </div>
   );
