@@ -1,9 +1,11 @@
 export interface TourStep {
   id: string;
-  target: string; // CSS selector for target element
+  target: string; // CSS selector for target element (desktop)
+  mobileTarget?: string; // CSS selector for mobile target (if different)
   title: string;
   description: string;
   placement: "top" | "bottom" | "left" | "right";
+  mobilePlacement?: "top" | "bottom" | "left" | "right"; // Override placement for mobile
   route?: string; // If step requires navigation
 }
 
@@ -11,72 +13,80 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
   {
     id: "welcome",
     target: "[data-tour='profile-preview']",
-    title: "Welcome to Your Dashboard",
-    description: "This is your command center. Here you can see your profile preview, stats, and quick actions at a glance.",
+    title: "Your Profile at a Glance",
+    description: "Welcome! This card shows how you appear to patients. Your photo, name, specialty, and profile link are all here.",
     placement: "bottom",
     route: "/dashboard",
   },
   {
     id: "metrics",
     target: "[data-tour='metrics-row']",
-    title: "Your Profile Stats",
-    description: "Track your views, recommendations, connections, and messages. These metrics show how patients are engaging with your profile.",
+    title: "Track Your Impact",
+    description: "See real-time stats: profile views, patient recommendations, professional connections, and unread messages.",
     placement: "bottom",
   },
   {
     id: "qr-code",
     target: "[data-tour='qr-code']",
-    title: "Your QR Code",
-    description: "Download and print this QR code for your clinic. When patients scan it, they can instantly save your contact and access your profile.",
-    placement: "left",
+    title: "Your Clinic QR Code",
+    description: "Print this for your reception desk. Patients scan to instantly save your contact and access your profile.",
+    placement: "top",
+    mobilePlacement: "top",
   },
   {
     id: "invite",
     target: "[data-tour='invite-section']",
-    title: "Grow Your Network",
-    description: "Invite colleagues to connect. A larger network builds credibility and increases your visibility to patients.",
-    placement: "left",
+    title: "Build Your Network",
+    description: "Invite colleagues to connect. Doctors with larger networks appear more credible to patients.",
+    placement: "top",
+    mobilePlacement: "top",
   },
   {
     id: "messages",
     target: "[data-tour='nav-messages']",
-    title: "Patient Messages",
-    description: "Receive and respond to patient inquiries here. Your personal number stays private - replies are sent via SMS.",
+    mobileTarget: "[data-tour='mobile-nav-messages']",
+    title: "Patient Inquiries",
+    description: "Receive and reply to patient messages. Your personal number stays private — replies go via SMS.",
     placement: "bottom",
+    mobilePlacement: "top",
   },
   {
     id: "connections",
     target: "[data-tour='nav-connections']",
-    title: "Professional Network",
-    description: "Manage your connections with other verified doctors. Accept requests and grow your professional network.",
+    mobileTarget: "[data-tour='mobile-nav-connections']",
+    title: "Your Connections",
+    description: "Manage your professional network. Accept connection requests from colleagues.",
     placement: "bottom",
+    mobilePlacement: "top",
   },
   {
     id: "analytics",
     target: "[data-tour='nav-analytics']",
-    title: "Profile Analytics",
-    description: "Coming soon: Detailed analytics about your profile views, popular times, and patient demographics.",
+    mobileTarget: "[data-tour='mobile-nav-analytics']",
+    title: "Analytics Dashboard",
+    description: "Coming soon: Deep insights into your profile performance, visitor trends, and engagement metrics.",
     placement: "bottom",
+    mobilePlacement: "top",
   },
   {
     id: "edit-profile",
     target: "[data-tour='edit-profile-btn']",
-    title: "Edit Your Profile",
-    description: "Customize your public profile here. Add your bio, education, services, and more to make your profile stand out.",
+    title: "Customize Your Page",
+    description: "Add your bio, education, services, and more. A complete profile gets more patient trust.",
     placement: "bottom",
   },
   {
     id: "view-profile",
     target: "[data-tour='view-profile-btn']",
-    title: "View Public Profile",
-    description: "See how patients see your profile. Share this link with patients or add it to your social media.",
+    title: "Preview & Share",
+    description: "See exactly what patients see. Copy the link to share on social media or your website.",
     placement: "bottom",
   },
   {
     id: "user-menu",
     target: "[data-tour='user-menu']",
-    title: "Account Menu",
-    description: "Access settings, help, and restart this tour anytime from here. You're all set to start building your professional presence!",
+    title: "You're All Set!",
+    description: "Access settings, help, or restart this tour anytime from your profile menu. Welcome aboard!",
     placement: "bottom",
   },
 ];
