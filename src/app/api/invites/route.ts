@@ -142,7 +142,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://verified.doctor"}/sign-up?invite=${inviteCode}`;
+    // Ensure the base URL has the protocol
+    let baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://verified.doctor";
+    if (!baseUrl.startsWith("http://") && !baseUrl.startsWith("https://")) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    const inviteUrl = `${baseUrl}/sign-up?invite=${inviteCode}`;
 
     // Track email send result
     let emailSent = false;
