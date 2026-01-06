@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOut, User, Settings, ChevronDown, HelpCircle, FileText, Shield, Mail } from "lucide-react";
+import { LogOut, User, Settings, ChevronDown, HelpCircle, FileText, Shield, Mail, Compass } from "lucide-react";
+import { useTour } from "@/components/tour";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +26,7 @@ interface UserMenuProps {
 export function UserMenu({ fullName, handle, profilePhotoUrl }: UserMenuProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { startTour } = useTour();
 
   const initials = fullName
     .split(" ")
@@ -93,6 +95,15 @@ export function UserMenu({ fullName, handle, profilePhotoUrl }: UserMenuProps) {
         >
           <Settings className="w-4 h-4 mr-2" />
           Settings
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => {
+            startTour();
+          }}
+          className="cursor-pointer"
+        >
+          <Compass className="w-4 h-4 mr-2" />
+          Take a Tour
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => router.push("/dashboard/help")}

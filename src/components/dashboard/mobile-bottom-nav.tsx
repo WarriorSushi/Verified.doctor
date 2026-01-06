@@ -11,10 +11,10 @@ interface MobileBottomNavProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages" },
-  { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, tourId: "mobile-nav-overview" },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages", tourId: "mobile-nav-messages" },
+  { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections", tourId: "mobile-nav-connections" },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, tourId: "mobile-nav-analytics" },
 ];
 
 export function MobileBottomNav({ unreadCount, pendingConnectionsCount = 0 }: MobileBottomNavProps) {
@@ -41,6 +41,7 @@ export function MobileBottomNav({ unreadCount, pendingConnectionsCount = 0 }: Mo
             <Link
               key={item.href}
               href={item.href}
+              data-tour={item.tourId}
               className={cn(
                 "relative flex flex-col items-center justify-center gap-1 flex-1 mx-0.5 my-1.5 rounded-xl transition-all",
                 isActive

@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   Check,
@@ -14,10 +14,23 @@ import {
   Copy,
   Sparkles,
   X,
+  MessageCircle,
+  Link2,
+  Users,
+  AlertCircle,
+  Share2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -29,6 +42,10 @@ function SuccessContent() {
   const [invitesSent, setInvitesSent] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
+  const [showSkipDialog, setShowSkipDialog] = useState(false);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [isGeneratingLink, setIsGeneratingLink] = useState(false);
 
   const profileUrl = `https://verified.doctor/${handle}`;
 
@@ -86,7 +103,55 @@ function SuccessContent() {
   };
 
   const goToDashboard = () => {
+    // Set flag to auto-trigger guided tour on dashboard
+    localStorage.setItem("verified_doctor_show_tour", "true");
     router.push("/dashboard");
+  };
+
+  const handleSkipClick = () => {
+    setShowSkipDialog(true);
+  };
+
+  const generateInviteLink = async () => {
+    if (inviteLink) return inviteLink;
+
+    setIsGeneratingLink(true);
+    try {
+      const response = await fetch("/api/invites", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await response.json();
+      if (data.inviteCode) {
+        const link = `https://verified.doctor/sign-up?invite=${data.inviteCode}`;
+        setInviteLink(link);
+        return link;
+      }
+    } catch (err) {
+      console.error("Failed to generate invite link:", err);
+    } finally {
+      setIsGeneratingLink(false);
+    }
+    return null;
+  };
+
+  const copyInviteLink = async () => {
+    const link = await generateInviteLink();
+    if (link) {
+      await navigator.clipboard.writeText(link);
+      setInviteLinkCopied(true);
+      setTimeout(() => setInviteLinkCopied(false), 2000);
+    }
+  };
+
+  const shareViaWhatsApp = async () => {
+    const link = await generateInviteLink();
+    if (link) {
+      const message = `Hey! I just joined Verified.Doctor - it's like a blue checkmark for doctors. Join me and we'll be connected: ${link}`;
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, "_blank");
+    }
   };
 
   return (
@@ -200,6 +265,45 @@ function SuccessContent() {
                 Doctors with strong networks get more visibility. Invite colleagues and you&apos;ll automatically be connected!
               </p>
 
+              {/* Quick Share Buttons - WhatsApp & Copy Link */}
+              <div className="flex gap-3 mb-5">
+                <Button
+                  onClick={shareViaWhatsApp}
+                  disabled={isGeneratingLink}
+                  className="flex-1 h-11 bg-[#25D366] hover:bg-[#20BD5A] text-white font-semibold text-sm shadow-lg shadow-[#25D366]/20"
+                >
+                  {isGeneratingLink ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : (
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                  )}
+                  WhatsApp
+                </Button>
+                <Button
+                  onClick={copyInviteLink}
+                  disabled={isGeneratingLink}
+                  variant="outline"
+                  className="flex-1 h-11 font-semibold text-sm border-slate-300 hover:bg-slate-50"
+                >
+                  {isGeneratingLink ? (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  ) : inviteLinkCopied ? (
+                    <Check className="w-4 h-4 mr-2 text-emerald-500" />
+                  ) : (
+                    <Link2 className="w-4 h-4 mr-2" />
+                  )}
+                  {inviteLinkCopied ? "Copied!" : "Copy Link"}
+                </Button>
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="flex-1 h-px bg-slate-200" />
+                <span className="text-xs text-slate-400 font-medium">or send via email</span>
+                <div className="flex-1 h-px bg-slate-200" />
+              </div>
+
+              {/* Email Inputs */}
               <div className="space-y-3">
                 {emails.map((email, index) => (
                   <div key={index} className="relative">
@@ -240,11 +344,11 @@ function SuccessContent() {
                   Send {validEmails.length > 0 ? `${validEmails.length} ` : ""}Invite{validEmails.length !== 1 ? "s" : ""}
                 </Button>
                 <Button
-                  onClick={goToDashboard}
+                  onClick={handleSkipClick}
                   variant="outline"
-                  className="h-10 sm:h-11 text-sm sm:text-base"
+                  className="h-10 sm:h-11 text-sm sm:text-base text-slate-500"
                 >
-                  Skip for now
+                  Skip for now <span className="text-slate-400 ml-1">(go to dashboard)</span>
                 </Button>
               </div>
             </div>
@@ -280,6 +384,65 @@ function SuccessContent() {
           <span className="text-[#0099F7] font-medium">verified badge</span> on your profile.
         </p>
       </div>
+
+      {/* Skip Confirmation Dialog */}
+      <Dialog open={showSkipDialog} onOpenChange={setShowSkipDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+                <Users className="w-8 h-8 text-amber-600" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-xl">
+              Before You Go...
+            </DialogTitle>
+            <DialogDescription className="text-center space-y-3 pt-2">
+              <p className="text-slate-600">
+                Doctors with <span className="font-semibold text-slate-800">more connections</span> appear more credible to patients.
+              </p>
+              <div className="bg-slate-50 rounded-xl p-4 text-left">
+                <p className="text-sm text-slate-700 mb-2">
+                  When colleagues join through your invite:
+                </p>
+                <ul className="space-y-2 text-sm">
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-600">You&apos;re automatically connected</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-600">Your connection count increases</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                    <span className="text-slate-600">Your profile ranks higher in search</span>
+                  </li>
+                </ul>
+              </div>
+              <p className="text-xs text-slate-500 italic">
+                Top doctors on our platform have 20+ connections
+              </p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col sm:flex-row gap-2 sm:gap-3 mt-4">
+            <Button
+              onClick={() => setShowSkipDialog(false)}
+              className="flex-1 h-11 bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white font-semibold"
+            >
+              <UserPlus className="w-4 h-4 mr-2" />
+              I&apos;ll Invite Colleagues
+            </Button>
+            <Button
+              onClick={goToDashboard}
+              variant="ghost"
+              className="flex-1 h-11 text-slate-500 hover:text-slate-700"
+            >
+              Go to Dashboard
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -11,10 +11,10 @@ interface DashboardNavProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard },
-  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages" },
-  { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections" },
-  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, tourId: "nav-overview" },
+  { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages", tourId: "nav-messages" },
+  { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections", tourId: "nav-connections" },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, tourId: "nav-analytics" },
 ];
 
 export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: DashboardNavProps) {
@@ -44,6 +44,7 @@ export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: Dashb
               <Link
                 key={item.href}
                 href={item.href}
+                data-tour={item.tourId}
                 className={cn(
                   // Mobile: flex-col with icon on top, label below
                   // Desktop: flex-row inline

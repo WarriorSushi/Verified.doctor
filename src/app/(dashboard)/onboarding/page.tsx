@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Loader2,
   ArrowRight,
@@ -21,6 +21,10 @@ import {
   MapPin,
   Clock,
   ThumbsUp,
+  Calendar,
+  Smartphone,
+  GraduationCap,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,151 +37,361 @@ import { uploadProfilePhoto } from "@/lib/upload";
 import { getUser } from "@/lib/auth/client";
 import { LAYOUTS, THEMES, ThemeConfig } from "@/lib/theme-config";
 
-// Mini preview components for layout and theme selection
-function LayoutPreview({ layoutId }: { layoutId: string }) {
-  const previewImage = "/doctor-3.jpg";
+// Progress Bar Component
+function ProgressBar({ step, totalSteps }: { step: number; totalSteps: number }) {
+  const progress = (step / totalSteps) * 100;
 
-  // Each layout gets a unique visual preview showing its structure
+  return (
+    <div className="w-full max-w-md mx-auto mb-6">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs font-medium text-slate-500">Step {step} of {totalSteps}</span>
+        <span className="text-xs font-semibold text-[#0099F7]">{Math.round(progress)}%</span>
+      </div>
+      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+        <motion.div
+          className="h-full bg-gradient-to-r from-[#0099F7] to-[#0080CC] rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${progress}%` }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// Doctor Data Interface for Previews
+interface DoctorPreviewData {
+  fullName: string;
+  specialty: string;
+  profilePhoto: string | null;
+  clinicLocation: string;
+  qualifications: string;
+  yearsExperience: string;
+}
+
+// Phone Frame Wrapper for Preview Cards
+function PhoneFrame({ children, selected }: { children: React.ReactNode; selected?: boolean }) {
+  return (
+    <div className={`relative transition-all duration-300 ${selected ? 'scale-[1.02]' : ''}`}>
+      {/* Phone Frame */}
+      <div className="relative rounded-[16px] bg-slate-900 p-1 shadow-xl">
+        {/* Screen */}
+        <div className="relative rounded-[12px] overflow-hidden bg-white aspect-[9/16] w-full">
+          {/* Status Bar */}
+          <div className="absolute top-0 left-0 right-0 h-4 bg-black/5 flex items-center justify-between px-3 z-10">
+            <span className="text-[6px] text-slate-400 font-medium">9:41</span>
+            <div className="flex items-center gap-0.5">
+              <div className="w-2 h-1.5 bg-slate-400 rounded-sm" />
+              <div className="w-1 h-1 bg-slate-400 rounded-full" />
+            </div>
+          </div>
+          {/* Content */}
+          <div className="absolute inset-0 pt-4 overflow-hidden">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Mini preview components for layout selection with actual doctor data
+function LayoutPreview({ layoutId, doctor }: { layoutId: string; doctor: DoctorPreviewData }) {
+  const displayName = doctor.fullName || "Dr. Your Name";
+  const displaySpecialty = doctor.specialty || "Your Specialty";
+  const displayLocation = doctor.clinicLocation || "Location";
+  const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
+
+  // Profile Photo Component
+  const ProfilePhoto = ({ size = "w-8 h-8", className = "" }: { size?: string; className?: string }) => (
+    <div className={`${size} rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center ${className}`}>
+      {doctor.profilePhoto ? (
+        <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
+      ) : (
+        <span className="text-white text-[8px] font-bold">{initials}</span>
+      )}
+    </div>
+  );
+
   switch (layoutId) {
     case "classic":
       return (
-        <div className="absolute inset-2 flex flex-col items-center">
-          {/* Single column centered layout */}
-          <div className="w-8 h-8 rounded-full bg-slate-300 mb-2 overflow-hidden">
-            <Image src={previewImage} alt="" fill className="object-cover" />
+        <div className="h-full flex flex-col items-center p-3 bg-white">
+          {/* Classic: Clean centered single-column */}
+          <ProfilePhoto size="w-10 h-10" className="mb-2 relative" />
+          <div className="flex items-center gap-1 mb-0.5">
+            <p className="text-[7px] font-semibold text-slate-800 truncate max-w-[60px]">{displayName}</p>
+            <div className="w-2.5 h-2.5 relative flex-shrink-0">
+              <Image src="/verified-doctor-logo.svg" alt="" fill />
+            </div>
           </div>
-          <div className="w-12 h-1.5 bg-slate-300 rounded mb-1" />
-          <div className="w-8 h-1 bg-slate-200 rounded mb-2" />
-          <div className="w-full h-px bg-slate-200 my-2" />
-          <div className="w-full space-y-1.5">
-            <div className="h-1.5 bg-slate-200 rounded w-full" />
-            <div className="h-1.5 bg-slate-200 rounded w-3/4" />
+          <p className="text-[6px] text-[#0099F7] font-medium mb-1">{displaySpecialty}</p>
+          <div className="flex items-center gap-0.5 text-[5px] text-slate-400 mb-2">
+            <MapPin className="w-1.5 h-1.5" />
+            <span className="truncate max-w-[50px]">{displayLocation}</span>
+          </div>
+          <div className="w-full h-px bg-slate-100 my-2" />
+          <div className="flex gap-3 text-center">
+            <div>
+              <p className="text-[8px] font-bold text-slate-800">42</p>
+              <p className="text-[5px] text-slate-400 uppercase">Recs</p>
+            </div>
+            <div>
+              <p className="text-[8px] font-bold text-slate-800">18</p>
+              <p className="text-[5px] text-slate-400 uppercase">Conns</p>
+            </div>
+          </div>
+          <div className="w-full mt-auto">
+            <div className="bg-[#0099F7] text-white text-[5px] py-1.5 rounded-full text-center font-medium">
+              Book Appointment
+            </div>
           </div>
         </div>
       );
+
     case "hero":
       return (
-        <div className="absolute inset-0 flex flex-col">
-          {/* Full-width hero banner */}
-          <div className="h-1/2 bg-gradient-to-r from-slate-400 to-slate-300 relative">
-            <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white border-2 border-white overflow-hidden shadow-lg">
-              <Image src={previewImage} alt="" fill className="object-cover" />
+        <div className="h-full flex flex-col bg-white">
+          {/* Hero: Bold full-bleed header */}
+          <div className="h-[45%] bg-gradient-to-br from-[#0099F7] to-[#0080CC] relative">
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2">
+              <div className="w-12 h-12 rounded-full border-2 border-white shadow-lg overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center">
+                {doctor.profilePhoto ? (
+                  <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
+                ) : (
+                  <span className="text-white text-[10px] font-bold">{initials}</span>
+                )}
+              </div>
             </div>
           </div>
-          <div className="flex-1 bg-white p-2 pt-5">
-            <div className="w-10 h-1.5 bg-slate-300 rounded mx-auto mb-1" />
-            <div className="w-6 h-1 bg-slate-200 rounded mx-auto" />
+          <div className="flex-1 pt-6 px-3 text-center">
+            <div className="flex items-center justify-center gap-1 mb-0.5">
+              <p className="text-[7px] font-bold text-slate-800 truncate max-w-[60px]">{displayName}</p>
+              <div className="w-2.5 h-2.5 relative flex-shrink-0">
+                <Image src="/verified-doctor-logo.svg" alt="" fill />
+              </div>
+            </div>
+            <p className="text-[5px] text-[#0099F7] font-medium">{displaySpecialty}</p>
+            <div className="flex justify-center gap-2 mt-2">
+              <div className="bg-slate-100 rounded-lg px-2 py-1">
+                <p className="text-[6px] font-bold text-slate-700">42</p>
+                <p className="text-[4px] text-slate-400">Recs</p>
+              </div>
+              <div className="bg-slate-100 rounded-lg px-2 py-1">
+                <p className="text-[6px] font-bold text-slate-700">18</p>
+                <p className="text-[4px] text-slate-400">Conns</p>
+              </div>
+            </div>
           </div>
         </div>
       );
+
     case "timeline":
       return (
-        <div className="absolute inset-2 flex">
-          {/* Vertical timeline on left */}
-          <div className="w-px bg-slate-300 mr-2 relative">
-            <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-400" />
-            <div className="absolute top-5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-300" />
-            <div className="absolute top-9 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-slate-200" />
-          </div>
-          <div className="flex-1 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-slate-200 overflow-hidden">
-                <Image src={previewImage} alt="" fill className="object-cover" />
+        <div className="h-full bg-[#FFFBF7] p-3">
+          {/* Timeline: Editorial with vertical line */}
+          <div className="flex gap-2">
+            <div className="flex flex-col items-center">
+              <ProfilePhoto size="w-8 h-8" className="relative" />
+              <div className="w-px flex-1 bg-amber-200 mt-1" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-center gap-1">
+                <p className="text-[7px] font-serif font-semibold text-amber-900 truncate max-w-[50px]">{displayName}</p>
+                <div className="w-2 h-2 relative flex-shrink-0">
+                  <Image src="/verified-doctor-logo.svg" alt="" fill />
+                </div>
               </div>
-              <div className="flex-1">
-                <div className="h-1.5 bg-slate-300 rounded w-3/4" />
+              <p className="text-[5px] text-amber-600 italic">{displaySpecialty}</p>
+              <div className="mt-2 space-y-1.5">
+                <div className="flex items-start gap-1">
+                  <div className="w-1 h-1 rounded-full bg-amber-400 mt-0.5" />
+                  <p className="text-[5px] text-amber-700">MBBS, MD</p>
+                </div>
+                <div className="flex items-start gap-1">
+                  <div className="w-1 h-1 rounded-full bg-amber-300 mt-0.5" />
+                  <p className="text-[5px] text-amber-600">12+ Years</p>
+                </div>
               </div>
             </div>
-            <div className="h-1 bg-slate-200 rounded w-full" />
-            <div className="h-1 bg-slate-200 rounded w-2/3" />
           </div>
         </div>
       );
+
     case "magazine":
       return (
-        <div className="absolute inset-2 flex gap-2">
-          {/* Asymmetric 2-column layout */}
-          <div className="w-1/2 rounded bg-slate-200 overflow-hidden">
-            <Image src={previewImage} alt="" fill className="object-cover" />
+        <div className="h-full flex bg-white">
+          {/* Magazine: Asymmetric split layout */}
+          <div className="w-[45%] bg-gradient-to-br from-slate-100 to-slate-200 relative overflow-hidden">
+            {doctor.profilePhoto ? (
+              <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#0099F7]/20 to-[#0080CC]/20">
+                <span className="text-[#0099F7] text-lg font-bold">{initials}</span>
+              </div>
+            )}
           </div>
-          <div className="flex-1 flex flex-col justify-center">
-            <div className="h-2 bg-slate-300 rounded w-full mb-1" />
-            <div className="h-1.5 bg-slate-200 rounded w-3/4 mb-2" />
-            <div className="h-1 bg-slate-200 rounded w-1/2" />
-          </div>
-        </div>
-      );
-    case "grid":
-      return (
-        <div className="absolute inset-2 grid grid-cols-3 gap-1">
-          {/* Bento grid layout */}
-          <div className="col-span-2 row-span-2 rounded bg-slate-200 flex items-center justify-center overflow-hidden">
-            <div className="w-6 h-6 rounded-full overflow-hidden">
-              <Image src={previewImage} alt="" fill className="object-cover" />
+          <div className="flex-1 p-3 flex flex-col justify-center">
+            <p className="text-[5px] text-[#0099F7] font-medium uppercase tracking-wider mb-0.5">{displaySpecialty}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-[8px] font-bold text-slate-800 leading-tight">{displayName}</p>
+              <div className="w-2.5 h-2.5 relative flex-shrink-0">
+                <Image src="/verified-doctor-logo.svg" alt="" fill />
+              </div>
+            </div>
+            <div className="flex items-center gap-0.5 text-[4px] text-slate-400 mt-1">
+              <MapPin className="w-1.5 h-1.5" />
+              <span className="truncate max-w-[40px]">{displayLocation}</span>
+            </div>
+            <div className="flex gap-1 mt-2">
+              <div className="text-[4px] px-1 py-0.5 bg-slate-100 rounded text-slate-600">42 Recs</div>
+              <div className="text-[4px] px-1 py-0.5 bg-slate-100 rounded text-slate-600">18 Conns</div>
             </div>
           </div>
-          <div className="rounded bg-slate-300" />
-          <div className="rounded bg-slate-200" />
-          <div className="col-span-2 rounded bg-slate-200" />
-          <div className="rounded bg-slate-300" />
         </div>
       );
+
+    case "grid":
+      return (
+        <div className="h-full bg-slate-50 p-2">
+          {/* Grid: Bento-style cards */}
+          <div className="grid grid-cols-3 gap-1 h-full">
+            <div className="col-span-2 row-span-2 bg-white rounded-lg p-2 flex flex-col items-center justify-center shadow-sm">
+              <ProfilePhoto size="w-8 h-8" className="mb-1 relative" />
+              <p className="text-[6px] font-bold text-slate-800 truncate max-w-[50px]">{displayName}</p>
+              <p className="text-[4px] text-[#0099F7]">{displaySpecialty}</p>
+            </div>
+            <div className="bg-[#0099F7] rounded-lg p-1 flex flex-col items-center justify-center">
+              <p className="text-[8px] font-bold text-white">42</p>
+              <p className="text-[4px] text-white/80">Recs</p>
+            </div>
+            <div className="bg-white rounded-lg p-1 flex flex-col items-center justify-center shadow-sm">
+              <p className="text-[8px] font-bold text-slate-800">18</p>
+              <p className="text-[4px] text-slate-400">Conns</p>
+            </div>
+            <div className="col-span-2 bg-white rounded-lg p-1.5 flex items-center gap-1 shadow-sm">
+              <MapPin className="w-2 h-2 text-slate-400" />
+              <p className="text-[5px] text-slate-600 truncate">{displayLocation}</p>
+            </div>
+            <div className="bg-gradient-to-br from-[#0099F7] to-[#0080CC] rounded-lg flex items-center justify-center">
+              <Calendar className="w-3 h-3 text-white" />
+            </div>
+          </div>
+        </div>
+      );
+
     case "minimal":
       return (
-        <div className="absolute inset-3 flex flex-col justify-center">
-          {/* Ultra minimal typography-focused */}
-          <div className="text-[8px] font-bold text-slate-400 mb-1">DR. JANE DOE</div>
-          <div className="w-6 h-6 rounded-full bg-slate-200 mb-2 overflow-hidden">
-            <Image src={previewImage} alt="" fill className="object-cover" />
+        <div className="h-full bg-white p-4 flex flex-col justify-center">
+          {/* Minimal: Swiss/Bauhaus typography-focused */}
+          <p className="text-[5px] text-slate-400 uppercase tracking-[0.2em] mb-2">Verified Doctor</p>
+          <div className="flex items-center gap-1.5 mb-1">
+            <h1 className="text-[10px] font-bold text-slate-900 tracking-tight">{displayName}</h1>
+            <div className="w-3 h-3 relative flex-shrink-0">
+              <Image src="/verified-doctor-logo.svg" alt="" fill />
+            </div>
           </div>
-          <div className="h-1 bg-slate-300 rounded w-1/2 mb-1" />
-          <div className="h-0.5 bg-slate-200 rounded w-1/3" />
+          <p className="text-[6px] text-[#0099F7] font-medium mb-3">{displaySpecialty}</p>
+          <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center mb-3">
+            {doctor.profilePhoto ? (
+              <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
+            ) : (
+              <span className="text-white text-[10px] font-bold">{initials}</span>
+            )}
+          </div>
+          <div className="flex gap-4">
+            <div>
+              <p className="text-[10px] font-bold text-slate-800">42</p>
+              <p className="text-[4px] text-slate-400 uppercase tracking-wider">Recommendations</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold text-slate-800">18</p>
+              <p className="text-[4px] text-slate-400 uppercase tracking-wider">Connections</p>
+            </div>
+          </div>
         </div>
       );
+
     default:
       return null;
   }
 }
 
-function ThemePreview({ theme }: { theme: ThemeConfig }) {
+// Theme preview with actual doctor data
+function ThemePreview({ theme, doctor }: { theme: ThemeConfig; doctor: DoctorPreviewData }) {
   const { colors } = theme;
+  const displayName = doctor.fullName || "Dr. Your Name";
+  const displaySpecialty = doctor.specialty || "Your Specialty";
+  const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="absolute inset-3 flex flex-col">
-      {/* Mini profile card preview with theme colors */}
+    <div
+      className="h-full flex flex-col p-3"
+      style={{ backgroundColor: colors.background }}
+    >
+      {/* Mini profile card with theme colors */}
       <div
-        className="rounded-lg p-2 flex-1 flex flex-col"
-        style={{ backgroundColor: colors.card, borderColor: colors.cardBorder, borderWidth: 1 }}
+        className="rounded-xl p-2.5 flex-1 flex flex-col border"
+        style={{ backgroundColor: colors.card, borderColor: colors.cardBorder }}
       >
+        {/* Header */}
         <div className="flex items-center gap-2 mb-2">
           <div
-            className="w-6 h-6 rounded-full"
-            style={{ backgroundColor: colors.accent }}
-          />
-          <div className="flex-1">
-            <div
-              className="h-1.5 rounded w-3/4 mb-1"
-              style={{ backgroundColor: colors.text }}
-            />
-            <div
-              className="h-1 rounded w-1/2"
-              style={{ backgroundColor: colors.textMuted }}
-            />
+            className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
+            style={{ backgroundColor: `${colors.primary}20` }}
+          >
+            {doctor.profilePhoto ? (
+              <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
+            ) : (
+              <span className="text-[8px] font-bold" style={{ color: colors.primary }}>{initials}</span>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <p
+                className="text-[7px] font-semibold truncate max-w-[50px]"
+                style={{ color: colors.text }}
+              >
+                {displayName}
+              </p>
+              <div className="w-2 h-2 relative flex-shrink-0">
+                <Image src="/verified-doctor-logo.svg" alt="" fill />
+              </div>
+            </div>
+            <p
+              className="text-[5px] font-medium"
+              style={{ color: colors.primary }}
+            >
+              {displaySpecialty}
+            </p>
           </div>
         </div>
+
+        {/* Stats */}
+        <div className="flex gap-2 mb-2">
+          <div
+            className="flex-1 rounded-lg p-1.5 text-center"
+            style={{ backgroundColor: colors.backgroundAlt }}
+          >
+            <p className="text-[7px] font-bold" style={{ color: colors.text }}>42</p>
+            <p className="text-[4px]" style={{ color: colors.textMuted }}>Recs</p>
+          </div>
+          <div
+            className="flex-1 rounded-lg p-1.5 text-center"
+            style={{ backgroundColor: colors.backgroundAlt }}
+          >
+            <p className="text-[7px] font-bold" style={{ color: colors.text }}>18</p>
+            <p className="text-[4px]" style={{ color: colors.textMuted }}>Conns</p>
+          </div>
+        </div>
+
+        {/* Button */}
         <div
-          className="h-1 rounded w-full mb-1"
-          style={{ backgroundColor: colors.backgroundAlt }}
-        />
-        <div
-          className="h-1 rounded w-2/3 mb-2"
-          style={{ backgroundColor: colors.backgroundAlt }}
-        />
-        <div
-          className="h-4 rounded flex items-center justify-center mt-auto"
+          className="mt-auto rounded-lg py-1.5 flex items-center justify-center gap-1"
           style={{ backgroundColor: colors.primary }}
         >
-          <Star className="w-2 h-2" style={{ color: colors.textOnPrimary }} />
+          <Calendar className="w-2 h-2" style={{ color: colors.textOnPrimary }} />
+          <span className="text-[5px] font-medium" style={{ color: colors.textOnPrimary }}>Book</span>
         </div>
       </div>
     </div>
@@ -447,17 +661,8 @@ function OnboardingForm() {
           </span>
         </Link>
 
-        {/* Progress */}
-        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
-          {[1, 2, 3, 4, 5, 6].map((s) => (
-            <div
-              key={s}
-              className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full transition-colors ${
-                s <= step ? "bg-[#0099F7]" : "bg-slate-200"
-              }`}
-            />
-          ))}
-        </div>
+        {/* Progress Bar */}
+        <ProgressBar step={step} totalSteps={6} />
 
         {/* Card */}
         <motion.div
@@ -982,39 +1187,78 @@ function OnboardingForm() {
                     Choose Your Layout
                   </h1>
                   <p className="text-sm sm:text-base text-slate-600">
-                    Select how your profile will be structured
+                    See how your profile will look with each style
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Layout Preview Grid with Phone Frames */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
                   {LAYOUTS.map((layout) => (
                     <button
                       key={layout.id}
                       type="button"
                       onClick={() => setProfileLayout(layout.id)}
-                      className={`group relative overflow-hidden rounded-xl border-2 text-left transition-all ${
+                      className={`group relative flex flex-col items-center transition-all duration-300 ${
                         profileLayout === layout.id
-                          ? "border-[#0099F7] ring-2 ring-[#0099F7]/20"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "transform scale-105"
+                          : "hover:scale-102"
                       }`}
                     >
-                      {/* Preview Image Area */}
-                      <div className="relative aspect-[4/3] bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
-                        {/* Mini Preview based on layout type */}
-                        <LayoutPreview layoutId={layout.id} />
-                        {profileLayout === layout.id && (
-                          <div className="absolute inset-0 bg-[#0099F7]/10 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full bg-[#0099F7] flex items-center justify-center">
-                              <Check className="w-5 h-5 text-white" />
+                      {/* Phone Frame Preview */}
+                      <div className={`relative rounded-[20px] p-1.5 transition-all duration-300 ${
+                        profileLayout === layout.id
+                          ? "bg-gradient-to-br from-[#0099F7] to-[#0080CC] shadow-lg shadow-[#0099F7]/30"
+                          : "bg-slate-800 shadow-xl"
+                      }`}>
+                        {/* Screen */}
+                        <div className="relative rounded-[14px] overflow-hidden bg-white w-[110px] sm:w-[120px] aspect-[9/16]">
+                          {/* Status Bar */}
+                          <div className="absolute top-0 left-0 right-0 h-3 bg-black/5 flex items-center justify-between px-2 z-10">
+                            <span className="text-[5px] text-slate-400 font-medium">9:41</span>
+                            <div className="flex items-center gap-0.5">
+                              <div className="w-1.5 h-1 bg-slate-400 rounded-sm" />
                             </div>
                           </div>
-                        )}
+                          {/* Content */}
+                          <div className="absolute inset-0 pt-3 overflow-hidden">
+                            <LayoutPreview
+                              layoutId={layout.id}
+                              doctor={{
+                                fullName,
+                                specialty,
+                                profilePhoto,
+                                clinicLocation,
+                                qualifications,
+                                yearsExperience,
+                              }}
+                            />
+                          </div>
+                          {/* Selection Overlay */}
+                          {profileLayout === layout.id && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="absolute inset-0 bg-[#0099F7]/20 flex items-center justify-center"
+                            >
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="w-8 h-8 rounded-full bg-[#0099F7] flex items-center justify-center shadow-lg"
+                              >
+                                <Check className="w-5 h-5 text-white" />
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </div>
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <p className="font-semibold text-slate-900 text-sm sm:text-base">
+                      {/* Label */}
+                      <div className="mt-3 text-center">
+                        <p className={`font-semibold text-sm transition-colors ${
+                          profileLayout === layout.id ? "text-[#0099F7]" : "text-slate-700"
+                        }`}>
                           {layout.name}
                         </p>
-                        <p className="text-xs text-slate-500 line-clamp-2 mt-0.5">
+                        <p className="text-[10px] text-slate-400 mt-0.5 line-clamp-1 max-w-[100px]">
                           {layout.description}
                         </p>
                       </div>
@@ -1061,47 +1305,93 @@ function OnboardingForm() {
                     Pick Your Colors
                   </h1>
                   <p className="text-sm sm:text-base text-slate-600">
-                    Choose a color theme for your profile
+                    See your profile with different color themes
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {/* Theme Preview Grid with Phone Frames */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
                   {THEMES.map((theme) => (
                     <button
                       key={theme.id}
                       type="button"
                       onClick={() => setProfileTheme(theme.id)}
-                      className={`group relative overflow-hidden rounded-xl border-2 text-left transition-all ${
+                      className={`group relative flex flex-col items-center transition-all duration-300 ${
                         profileTheme === theme.id
-                          ? "border-[#0099F7] ring-2 ring-[#0099F7]/20"
-                          : "border-slate-200 hover:border-slate-300"
+                          ? "transform scale-105"
+                          : "hover:scale-102"
                       }`}
                     >
-                      {/* Color Preview */}
-                      <div
-                        className="relative aspect-[4/3] overflow-hidden"
-                        style={{ backgroundColor: theme.colors.background }}
+                      {/* Phone Frame Preview */}
+                      <div className={`relative rounded-[20px] p-1.5 transition-all duration-300 ${
+                        profileTheme === theme.id
+                          ? `shadow-lg`
+                          : "bg-slate-800 shadow-xl"
+                      }`}
+                      style={profileTheme === theme.id ? {
+                        background: `linear-gradient(135deg, ${theme.colors.primary}, ${theme.colors.primaryHover})`
+                      } : {}}
                       >
-                        <ThemePreview theme={theme} />
-                        {profileTheme === theme.id && (
-                          <div className="absolute inset-0 bg-black/10 flex items-center justify-center">
-                            <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-lg">
-                              <Check className="w-5 h-5 text-[#0099F7]" />
+                        {/* Screen */}
+                        <div className="relative rounded-[14px] overflow-hidden w-[110px] sm:w-[120px] aspect-[9/16]"
+                          style={{ backgroundColor: theme.colors.background }}
+                        >
+                          {/* Status Bar */}
+                          <div className="absolute top-0 left-0 right-0 h-3 flex items-center justify-between px-2 z-10"
+                            style={{ backgroundColor: `${theme.colors.text}08` }}
+                          >
+                            <span className="text-[5px] font-medium" style={{ color: theme.colors.textMuted }}>9:41</span>
+                            <div className="flex items-center gap-0.5">
+                              <div className="w-1.5 h-1 rounded-sm" style={{ backgroundColor: theme.colors.textMuted }} />
                             </div>
                           </div>
-                        )}
+                          {/* Content */}
+                          <div className="absolute inset-0 pt-3 overflow-hidden">
+                            <ThemePreview
+                              theme={theme}
+                              doctor={{
+                                fullName,
+                                specialty,
+                                profilePhoto,
+                                clinicLocation,
+                                qualifications,
+                                yearsExperience,
+                              }}
+                            />
+                          </div>
+                          {/* Selection Overlay */}
+                          {profileTheme === theme.id && (
+                            <motion.div
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              className="absolute inset-0 flex items-center justify-center"
+                              style={{ backgroundColor: `${theme.colors.primary}20` }}
+                            >
+                              <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                className="w-8 h-8 rounded-full bg-white flex items-center justify-center shadow-lg"
+                              >
+                                <Check className="w-5 h-5" style={{ color: theme.colors.primary }} />
+                              </motion.div>
+                            </motion.div>
+                          )}
+                        </div>
                       </div>
-                      <div className="p-3 sm:p-4">
-                        <div className="flex items-center gap-2 mb-1">
+                      {/* Label */}
+                      <div className="mt-3 text-center">
+                        <div className="flex items-center justify-center gap-1.5">
                           <div
-                            className="w-4 h-4 rounded-full"
+                            className="w-3 h-3 rounded-full shadow-sm"
                             style={{ backgroundColor: theme.colors.primary }}
                           />
-                          <p className="font-semibold text-slate-900 text-sm sm:text-base">
+                          <p className={`font-semibold text-sm transition-colors ${
+                            profileTheme === theme.id ? "text-slate-900" : "text-slate-700"
+                          }`}>
                             {theme.name}
                           </p>
                         </div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-[10px] text-slate-400 mt-0.5">
                           {theme.description}
                         </p>
                       </div>

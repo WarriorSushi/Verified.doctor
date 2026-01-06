@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Navbar } from "@/components/layout/navbar";
 import { HeroSection } from "@/components/landing/hero-section";
+import { ProfileShowcase } from "@/components/landing/profile-showcase";
 import { RecentlyClaimed } from "@/components/landing/recently-claimed";
 import { FeaturesSection } from "@/components/landing/features-section";
 import { UseCasesSection } from "@/components/landing/use-cases-section";
@@ -22,6 +23,7 @@ export default function Home() {
     <main id="top" className="min-h-screen bg-white">
       <Navbar />
       <HeroSection />
+      <ProfileShowcase />
       <RecentlyClaimed />
       <FeaturesSection />
       <UseCasesSection />

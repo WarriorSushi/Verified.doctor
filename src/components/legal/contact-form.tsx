@@ -129,9 +129,9 @@ export function ContactForm() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {/* Contact Options */}
-          <div className="md:col-span-1 space-y-4">
+        <div className="flex flex-col md:grid md:grid-cols-3 gap-8">
+          {/* Contact Options - Shows after form on mobile */}
+          <div className="order-2 md:order-1 md:col-span-1 space-y-4">
             <div className="bg-white rounded-xl p-6 border border-slate-200">
               <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center mb-4">
                 <Mail className="w-5 h-5 text-sky-600" />
@@ -163,8 +163,8 @@ export function ContactForm() {
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="md:col-span-2">
+          {/* Contact Form - Shows first on mobile */}
+          <div className="order-1 md:order-2 md:col-span-2">
             <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
               <div className="space-y-6">
                 <div className="grid sm:grid-cols-2 gap-4">

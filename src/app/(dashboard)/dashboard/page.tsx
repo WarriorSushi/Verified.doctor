@@ -41,7 +41,7 @@ export default async function DashboardPage() {
 
   const metrics = [
     { label: "Views", value: profile.view_count || 0, icon: Eye, format: formatViewCount },
-    { label: "Recommendations", value: profile.recommendation_count || 0, icon: ThumbsUp },
+    { label: "Recommends", value: profile.recommendation_count || 0, icon: ThumbsUp },
     { label: "Connections", value: profile.connection_count || 0, icon: Users },
     { label: "Messages", value: unreadCount || 0, icon: MessageSquare, href: "/dashboard/messages" },
   ];
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
       )}
 
       {/* Mini Profile Preview Card */}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div data-tour="profile-preview" className="bg-white rounded-xl border border-slate-200 overflow-hidden">
         <div className="p-4 sm:p-5">
           <div className="flex items-start gap-4">
             {/* Profile Photo */}
@@ -137,7 +137,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* Metrics Row - Compact */}
-      <div className="grid grid-cols-4 gap-2 sm:gap-3">
+      <div data-tour="metrics-row" className="grid grid-cols-4 gap-2 sm:gap-3">
         {metrics.map((metric) => {
           const Icon = metric.icon;
           const content = (
@@ -165,7 +165,7 @@ export default async function DashboardPage() {
       {/* QR Code & Invite - Side by Side */}
       <div className="grid sm:grid-cols-2 gap-4">
         {/* QR Code - Enhanced */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+        <div data-tour="qr-code" className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
           <div className="flex items-center gap-4">
             {/* QR Preview */}
             <div className="relative flex-shrink-0">
@@ -212,7 +212,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Invite Colleagues */}
-        <div className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl border border-sky-200/50 p-4 sm:p-5">
+        <div data-tour="invite-section" className="bg-gradient-to-br from-sky-50 to-blue-50 rounded-xl border border-sky-200/50 p-4 sm:p-5">
           <div className="flex items-center gap-2 mb-3">
             <UserPlus className="w-4 h-4 sm:w-5 sm:h-5 text-sky-600" />
             <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Grow Your Network</h3>
