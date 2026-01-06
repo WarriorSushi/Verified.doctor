@@ -328,7 +328,7 @@ export function HeroSection() {
                 onFocus={() => setIsInputFocused(true)}
                 onBlur={() => setIsInputFocused(false)}
                 onKeyDown={handleKeyDown}
-                placeholder="yourname"
+                placeholder="type your name"
                 className="border-0 bg-transparent text-sm sm:text-lg font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-4 px-1 sm:px-2 min-w-0 flex-1"
               />
 
