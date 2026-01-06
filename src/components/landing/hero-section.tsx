@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight, Loader2 } from "lucide-react";
+import { Check, ArrowRight, Loader2, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -479,6 +479,27 @@ export function HeroSection() {
                 {" "}doctors claimed their domain today
               </p>
               <p className="text-slate-500 text-sm mt-0.5">Join the verified medical professional network</p>
+            </motion.div>
+          </motion.div>
+
+          {/* Scroll Indicator */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.4, duration: 0.6 }}
+            className="mt-16 sm:mt-20 flex flex-col items-center gap-3"
+          >
+            <p className="text-slate-500 text-sm sm:text-base font-medium text-center px-4">
+              Scroll to see stunning profiles created by doctors
+            </p>
+            <motion.div
+              animate={{ y: [0, 8, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+              className="flex flex-col items-center"
+            >
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-sky-50 to-white border border-sky-100 shadow-lg shadow-sky-100/50 flex items-center justify-center">
+                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
+              </div>
             </motion.div>
           </motion.div>
         </motion.div>
