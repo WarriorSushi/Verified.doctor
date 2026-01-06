@@ -11,12 +11,19 @@ export interface TourStep {
 
 export const DASHBOARD_TOUR_STEPS: TourStep[] = [
   {
-    id: "welcome",
-    target: "[data-tour='profile-preview']",
-    title: "Your Profile at a Glance",
-    description: "Welcome! This card shows how you appear to patients. Your photo, name, specialty, and profile link are all here.",
+    id: "view-profile",
+    target: "[data-tour='view-profile-btn']",
+    title: "See Your Public Page",
+    description: "Click here to see how patients view your profile. Pro tip: Adding more details makes your page look more professional and trustworthy.",
     placement: "bottom",
     route: "/dashboard",
+  },
+  {
+    id: "edit-profile",
+    target: "[data-tour='edit-profile-btn']",
+    title: "Customize Everything",
+    description: "This is where the magic happens! Add your bio, education, hospital affiliations, services, conditions treated, consultation fees, and much more. A complete profile stands out.",
+    placement: "bottom",
   },
   {
     id: "metrics",
@@ -46,7 +53,7 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     target: "[data-tour='nav-messages']",
     mobileTarget: "[data-tour='mobile-nav-messages']",
     title: "Patient Inquiries",
-    description: "Receive and reply to patient messages. Your personal number stays private — replies go via SMS.",
+    description: "Receive and reply to patient messages directly from here. Your personal contact stays private.",
     placement: "bottom",
     mobilePlacement: "top",
   },
@@ -64,23 +71,9 @@ export const DASHBOARD_TOUR_STEPS: TourStep[] = [
     target: "[data-tour='nav-analytics']",
     mobileTarget: "[data-tour='mobile-nav-analytics']",
     title: "Analytics Dashboard",
-    description: "Coming soon: Deep insights into your profile performance, visitor trends, and engagement metrics.",
+    description: "View detailed insights about your profile performance, visitor trends, and engagement metrics.",
     placement: "bottom",
     mobilePlacement: "top",
-  },
-  {
-    id: "edit-profile",
-    target: "[data-tour='edit-profile-btn']",
-    title: "Customize Your Page",
-    description: "Add your bio, education, services, and more. A complete profile gets more patient trust.",
-    placement: "bottom",
-  },
-  {
-    id: "view-profile",
-    target: "[data-tour='view-profile-btn']",
-    title: "Preview & Share",
-    description: "See exactly what patients see. Copy the link to share on social media or your website.",
-    placement: "bottom",
   },
   {
     id: "user-menu",

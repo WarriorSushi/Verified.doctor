@@ -75,10 +75,16 @@ export function TourOverlay() {
     let left = 0;
     let finalPlacement = placement;
 
+    // Check if target is in bottom nav area (bottom 80px of screen on mobile)
+    const isBottomNavTarget = isMobile && rect.top > viewportHeight - 100;
+
     // Calculate initial position based on placement
     const positions = {
       top: {
-        top: rect.top - spotlightPadding - tooltipHeight - padding,
+        // For bottom nav targets on mobile, position tooltip much higher (middle of screen)
+        top: isBottomNavTarget
+          ? Math.min(viewportHeight / 2 - tooltipHeight / 2, rect.top - spotlightPadding - tooltipHeight - 40)
+          : rect.top - spotlightPadding - tooltipHeight - padding,
         left: rect.left + rect.width / 2 - tooltipWidth / 2,
       },
       bottom: {
@@ -436,10 +442,14 @@ export function TourOverlay() {
                 <h3 className="text-lg font-bold text-slate-900 text-center mb-2">
                   Skip the tour?
                 </h3>
-                <p className="text-sm text-slate-600 text-center mb-6 leading-relaxed">
+                <p className="text-sm text-slate-600 text-center mb-3 leading-relaxed">
                   No worries! You can restart anytime from your{" "}
                   <span className="font-semibold text-slate-800">profile menu</span>{" "}
                   → <span className="font-semibold text-[#0099F7]">&quot;Take a Tour&quot;</span>
+                </p>
+                <p className="text-xs text-center mb-5 px-3 py-2 bg-gradient-to-r from-sky-50 to-cyan-50 rounded-lg">
+                  <span className="font-semibold text-[#0099F7]">We recommend completing the tour</span>
+                  <span className="text-slate-500"> for the best experience</span>
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-2.5">
