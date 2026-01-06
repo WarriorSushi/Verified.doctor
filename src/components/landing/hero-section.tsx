@@ -271,7 +271,7 @@ export function HeroSection() {
             <span className="hidden sm:inline"> Stand out with a professional presence that patients can trust.</span>
           </motion.p>
 
-          {/* Demo URL Preview - Softer, more elegant design */}
+          {/* Demo URL Preview - Clean text without box */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -281,14 +281,14 @@ export function HeroSection() {
             <p className="text-sm sm:text-base text-slate-500 mb-3 font-medium">
               Here&apos;s how your personal verified domain will appear
             </p>
-            <div className="inline-flex items-center justify-center bg-white rounded-2xl px-6 sm:px-10 py-4 sm:py-5 shadow-lg shadow-slate-200/60 border border-slate-100">
-              <span className="text-slate-400 text-lg sm:text-2xl font-mono tracking-tight">verified.doctor/</span>
-              <span className="text-sky-600 text-lg sm:text-2xl font-mono font-bold tracking-tight min-w-[90px] sm:min-w-[140px] text-left">
+            <div className="inline-flex items-center justify-center">
+              <span className="text-slate-400 text-xl sm:text-3xl font-mono tracking-tight">verified.doctor/</span>
+              <span className="text-sky-600 text-xl sm:text-3xl font-mono font-bold tracking-tight min-w-[100px] sm:min-w-[160px] text-left">
                 {demoName}
                 <motion.span
                   animate={{ opacity: [1, 0] }}
                   transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                  className="inline-block w-[2px] h-5 sm:h-7 bg-sky-500 ml-0.5 align-middle rounded-full"
+                  className="inline-block w-[2px] h-6 sm:h-8 bg-sky-500 ml-0.5 align-middle rounded-full"
                 />
               </span>
             </div>
@@ -301,66 +301,92 @@ export function HeroSection() {
             transition={{ delay: 0.6, duration: 0.6 }}
             className="max-w-xl mx-auto"
           >
+            {/* Input Row - URL prefix and input always on same line */}
             <div
               className={`
-                relative flex flex-col sm:flex-row items-stretch sm:items-center rounded-2xl bg-white border-2 transition-all duration-300 shadow-xl shadow-slate-200/50
+                relative flex items-center rounded-2xl bg-white border-2 transition-all duration-300 shadow-xl shadow-slate-200/50
                 ${isInputFocused ? "border-sky-400 shadow-sky-100/50" : "border-slate-200/80"}
                 ${status === "available" ? "border-emerald-400 shadow-emerald-100/50" : ""}
                 ${status === "taken" ? "border-red-300 shadow-red-100/50" : ""}
               `}
             >
               {/* URL Prefix */}
-              <div className="flex-shrink-0 px-4 sm:pl-6 sm:pr-2 py-3 sm:py-4 flex items-center border-b sm:border-b-0 border-slate-100 bg-slate-50/50 sm:bg-transparent rounded-t-2xl sm:rounded-none">
-                <span className="text-slate-500 font-medium text-base sm:text-lg">
+              <div className="flex-shrink-0 pl-3 sm:pl-6 pr-0 sm:pr-2 py-3 sm:py-4 flex items-center">
+                <span className="text-slate-500 font-medium text-sm sm:text-lg whitespace-nowrap">
                   verified.doctor/
                 </span>
               </div>
 
-              {/* Input + Button */}
-              <div className="flex items-center flex-1">
-                <Input
-                  type="text"
-                  value={handle}
-                  onChange={(e) => {
-                    setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-                    setStatus("idle");
-                  }}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="type your name"
-                  className="border-0 bg-transparent text-base sm:text-lg font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3.5 sm:py-4 px-4 sm:px-2"
-                />
+              {/* Input Field */}
+              <Input
+                type="text"
+                value={handle}
+                onChange={(e) => {
+                  setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                  setStatus("idle");
+                }}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setIsInputFocused(false)}
+                onKeyDown={handleKeyDown}
+                placeholder="yourname"
+                className="border-0 bg-transparent text-sm sm:text-lg font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-4 px-1 sm:px-2 min-w-0 flex-1"
+              />
 
-                <div className="flex-shrink-0 pr-2 sm:pr-3">
-                  {status === "available" ? (
-                    <Button
-                      onClick={handleClaim}
-                      className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-4 sm:px-6 py-5 sm:py-6 rounded-xl font-semibold transition-all duration-200 text-sm sm:text-base shadow-lg shadow-emerald-500/25"
-                    >
-                      <Check className="w-4 h-4 sm:w-5 sm:h-5 sm:mr-2" />
-                      <span className="hidden sm:inline">Claim This Name</span>
-                      <span className="sm:hidden">Claim</span>
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={checkAvailability}
-                      disabled={!handle.trim() || status === "checking"}
-                      className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-4 sm:px-6 py-5 sm:py-6 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base shadow-lg shadow-sky-500/25"
-                    >
-                      {status === "checking" ? (
-                        <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
-                      ) : (
-                        <>
-                          <span className="hidden sm:inline">Check Availability</span>
-                          <span className="sm:hidden">Check</span>
-                          <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1.5 sm:ml-2" />
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
+              {/* Desktop Button - Inside input box */}
+              <div className="hidden sm:block flex-shrink-0 pr-3">
+                {status === "available" ? (
+                  <Button
+                    onClick={handleClaim}
+                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-6 rounded-xl font-semibold transition-all duration-200 text-base shadow-lg shadow-emerald-500/25"
+                  >
+                    <Check className="w-5 h-5 mr-2" />
+                    Claim This Name
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={checkAvailability}
+                    disabled={!handle.trim() || status === "checking"}
+                    className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-6 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg shadow-sky-500/25"
+                  >
+                    {status === "checking" ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <>
+                        Check Availability
+                        <ArrowRight className="w-5 h-5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                )}
               </div>
+            </div>
+
+            {/* Mobile Button - Below input box */}
+            <div className="sm:hidden mt-3">
+              {status === "available" ? (
+                <Button
+                  onClick={handleClaim}
+                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 text-base shadow-lg shadow-emerald-500/25"
+                >
+                  <Check className="w-5 h-5 mr-2" />
+                  Claim This Name
+                </Button>
+              ) : (
+                <Button
+                  onClick={checkAvailability}
+                  disabled={!handle.trim() || status === "checking"}
+                  className="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg shadow-sky-500/25"
+                >
+                  {status === "checking" ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      Check Availability
+                      <ArrowRight className="w-5 h-5 ml-2" />
+                    </>
+                  )}
+                </Button>
+              )}
             </div>
 
             {/* Status Messages */}
