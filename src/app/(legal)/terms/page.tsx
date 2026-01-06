@@ -2,9 +2,14 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+const baseUrl = "https://verified.doctor";
+
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "Terms of Service for Verified.Doctor - The Blue Checkmark for Medical Professionals",
+  alternates: {
+    canonical: `${baseUrl}/terms`,
+  },
 };
 
 export default function TermsPage() {

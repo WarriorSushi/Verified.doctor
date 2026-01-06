@@ -2,9 +2,14 @@ import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
+const baseUrl = "https://verified.doctor";
+
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "Privacy Policy for Verified.Doctor - How we collect, use, and protect your data",
+  alternates: {
+    canonical: `${baseUrl}/privacy`,
+  },
 };
 
 export default function PrivacyPage() {

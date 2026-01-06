@@ -107,9 +107,8 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  alternates: {
-    canonical: baseUrl,
-  },
+  // NOTE: Don't set a global canonical here - each page should define its own
+  // canonical URL to prevent all pages from pointing to the homepage
   category: "healthcare",
   classification: "Medical Professional Directory",
   referrer: "origin-when-cross-origin",
