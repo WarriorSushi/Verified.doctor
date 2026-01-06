@@ -112,13 +112,11 @@ The January 4, 2026 audit identified issues that have been verified as **already
 | Function search_path | ✅ Fixed: `current_user_id()` now has `SET search_path = ''` |
 | .env.local exposed | ✅ Verified: Properly in .gitignore |
 
-### Remaining Optional Improvements
+### Future Enhancements (Not Blocking)
 
-These are nice-to-haves, not blockers:
+These are optional improvements for later:
 
-- [ ] Enable leaked password protection in Supabase Auth dashboard
 - [ ] Add unit tests for core business logic
-- [ ] Add CSRF protection (low risk for API routes)
 - [ ] Dynamic import for Recharts (bundle optimization)
 
 ### Email Automation
