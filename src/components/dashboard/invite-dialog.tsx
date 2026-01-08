@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Loader2, Mail, Link2, UserPlus } from "lucide-react";
+import { Copy, Check, Loader2, Mail, Link2, UserPlus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,6 +55,29 @@ export function InviteDialog({ trigger }: InviteDialogProps) {
     await navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const shareViaWhatsApp = () => {
+    if (!inviteUrl) return;
+
+    const message = `🎉 *You're invited to Verified.Doctor!*
+
+I wanted to share my exclusive invite with you.
+
+✨ It's like a blue checkmark for doctors - build your verified professional profile.
+
+👉 Join using my invite: ${inviteUrl}
+
+We'll be automatically connected when you sign up!`;
+    const encodedMessage = encodeURIComponent(message);
+
+    // For mobile devices, use whatsapp:// protocol
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+      window.location.href = `whatsapp://send?text=${encodedMessage}`;
+    } else {
+      window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, "_blank");
+    }
   };
 
   const resetDialog = () => {
@@ -178,6 +201,22 @@ export function InviteDialog({ trigger }: InviteDialogProps) {
                   )}
                 </Button>
               </div>
+              {copied && (
+                <p className="text-xs text-emerald-600">
+                  ✓ Copied! Paste and send to a colleague
+                </p>
+              )}
+            </div>
+
+            {/* Quick share options */}
+            <div className="flex gap-2">
+              <Button
+                onClick={shareViaWhatsApp}
+                className="flex-1 bg-[#25D366] hover:bg-[#20BD5A] text-white"
+              >
+                <MessageCircle className="w-4 h-4 mr-2" />
+                Share via WhatsApp
+              </Button>
             </div>
 
             <p className="text-sm text-muted-foreground text-center">
