@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, MessageSquare, Users, BarChart3 } from "lucide-react";
+import { Home, MessageSquare, Users, BarChart3 } from "lucide-react";
 
 interface MobileBottomNavProps {
   unreadCount: number;
@@ -11,7 +11,7 @@ interface MobileBottomNavProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, tourId: "mobile-nav-overview" },
+  { href: "/dashboard", label: "Home", icon: Home, tourId: "mobile-nav-home" },
   { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages", tourId: "mobile-nav-messages" },
   { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections", tourId: "mobile-nav-connections" },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, tourId: "mobile-nav-analytics" },

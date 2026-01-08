@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
@@ -29,7 +29,7 @@ import {
   AlertTriangle,
   Upload,
   User,
-  Sparkles,
+  Layers,
   ChevronRight,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -197,6 +197,50 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   }, []);
+
+  // Detect if there are unsaved changes
+  const hasChanges = useMemo(() => {
+    // Check basic fields
+    if (fullName !== profile.full_name) return true;
+    if (specialty !== (profile.specialty || "")) return true;
+    if (clinicName !== (profile.clinic_name || "")) return true;
+    if (clinicLocation !== (profile.clinic_location || "")) return true;
+    if (yearsExperience !== (profile.years_experience?.toString() || "")) return true;
+    if (externalBookingUrl !== (profile.external_booking_url || "")) return true;
+    if (bio !== (profile.bio || "")) return true;
+    if (qualifications !== (profile.qualifications || "")) return true;
+    if (languages !== (profile.languages || "")) return true;
+    if (consultationFee !== (profile.consultation_fee || "")) return true;
+    if (services !== (profile.services || "")) return true;
+    if (registrationNumber !== (profile.registration_number || "")) return true;
+
+    // Check content fields
+    if (formData.videoIntroductionUrl !== (profile.video_introduction_url || "")) return true;
+    if (formData.approachToCare !== (profile.approach_to_care || "")) return true;
+    if (formData.firstVisitGuide !== (profile.first_visit_guide || "")) return true;
+    if (formData.availabilityNote !== (profile.availability_note || "")) return true;
+    if (formData.conditionsTreated !== (profile.conditions_treated || "")) return true;
+    if (formData.proceduresPerformed !== (profile.procedures_performed || "")) return true;
+    if (formData.isAvailable !== (profile.is_available ?? true)) return true;
+    if (formData.offersTelemedicine !== (profile.offers_telemedicine ?? false)) return true;
+
+    // Check visibility changes
+    if (JSON.stringify(visibility) !== JSON.stringify(profile.section_visibility || {})) return true;
+
+    // Check array fields (simplified comparison)
+    if (JSON.stringify(formData.educationTimeline) !== JSON.stringify(profile.education_timeline || [])) return true;
+    if (JSON.stringify(formData.hospitalAffiliations) !== JSON.stringify(profile.hospital_affiliations || [])) return true;
+    if (JSON.stringify(formData.caseStudies) !== JSON.stringify(profile.case_studies || [])) return true;
+    if (JSON.stringify(formData.clinicGallery) !== JSON.stringify(profile.clinic_gallery || [])) return true;
+    if (JSON.stringify(formData.professionalMemberships) !== JSON.stringify(profile.professional_memberships || [])) return true;
+    if (JSON.stringify(formData.mediaPublications) !== JSON.stringify(profile.media_publications || [])) return true;
+
+    return false;
+  }, [
+    fullName, specialty, clinicName, clinicLocation, yearsExperience, externalBookingUrl,
+    bio, qualifications, languages, consultationFee, services, registrationNumber,
+    formData, visibility, profile
+  ]);
 
   // Photo upload handlers
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -398,36 +442,52 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
 
       {/* Tabs Navigation - Scrollable on mobile */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full h-auto p-1 bg-slate-100/80 rounded-xl grid grid-cols-4 gap-1">
+        <TabsList className="w-full h-auto p-1.5 bg-slate-100/80 rounded-xl grid grid-cols-4 gap-1.5">
           <TabsTrigger
             value="basics"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-medium"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2 sm:py-2.5 px-1.5 sm:px-4 text-xs sm:text-sm font-medium flex flex-col sm:flex-row items-center gap-1 sm:gap-2"
           >
-            <User className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Basics</span>
+            <User className="w-4 h-4" />
+            <span className="text-[10px] sm:text-sm">Basics</span>
           </TabsTrigger>
           <TabsTrigger
             value="appearance"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-medium"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2 sm:py-2.5 px-1.5 sm:px-4 text-xs sm:text-sm font-medium flex flex-col sm:flex-row items-center gap-1 sm:gap-2"
           >
-            <Palette className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Appearance</span>
+            <Palette className="w-4 h-4" />
+            <span className="text-[10px] sm:text-sm">Look</span>
           </TabsTrigger>
           <TabsTrigger
             value="content"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-medium"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2 sm:py-2.5 px-1.5 sm:px-4 text-xs sm:text-sm font-medium flex flex-col sm:flex-row items-center gap-1 sm:gap-2"
           >
-            <Sparkles className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Content</span>
+            <Layers className="w-4 h-4" />
+            <span className="text-[10px] sm:text-sm">Content</span>
           </TabsTrigger>
           <TabsTrigger
             value="settings"
-            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2.5 px-2 sm:px-4 text-xs sm:text-sm font-medium"
+            className="data-[state=active]:bg-white data-[state=active]:shadow-sm rounded-lg py-2 sm:py-2.5 px-1.5 sm:px-4 text-xs sm:text-sm font-medium flex flex-col sm:flex-row items-center gap-1 sm:gap-2"
           >
-            <Shield className="w-4 h-4 sm:mr-2" />
-            <span className="hidden sm:inline">Settings</span>
+            <Shield className="w-4 h-4" />
+            <span className="text-[10px] sm:text-sm">Settings</span>
           </TabsTrigger>
         </TabsList>
+
+        {/* Tab descriptions - shows what each tab contains */}
+        <div className="mt-3 px-1">
+          {activeTab === "basics" && (
+            <p className="text-xs text-slate-500">Name, photo, specialty, location & contact info</p>
+          )}
+          {activeTab === "appearance" && (
+            <p className="text-xs text-slate-500">Choose layout style and color theme</p>
+          )}
+          {activeTab === "content" && (
+            <p className="text-xs text-slate-500">Education, procedures, videos & more sections</p>
+          )}
+          {activeTab === "settings" && (
+            <p className="text-xs text-slate-500">Verification, visibility & account settings</p>
+          )}
+        </div>
 
         {/* BASICS TAB */}
         <TabsContent value="basics" className="space-y-5 mt-5">
@@ -1097,31 +1157,33 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
         </TabsContent>
       </Tabs>
 
-      {/* Bottom Save Button */}
-      <div className="sticky bottom-20 sm:bottom-4 pt-3 pb-2">
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className={cn(
-            "w-full flex items-center justify-center gap-2 py-3 rounded-xl font-semibold text-sm transition-all active:scale-[0.98] shadow-md",
-            isSaving
-              ? "bg-slate-200 text-slate-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:from-sky-600 hover:to-blue-600"
-          )}
-        >
-          {isSaving ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span>Saving...</span>
-            </>
-          ) : (
-            <>
-              <Check className="w-4 h-4" />
-              <span>Save All Changes</span>
-            </>
-          )}
-        </button>
-      </div>
+      {/* Bottom Save Button - Only shows when there are unsaved changes */}
+      {hasChanges && (
+        <div className="sticky bottom-[68px] sm:bottom-4 z-30 pt-2 pb-1">
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className={cn(
+              "w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-medium text-sm transition-all active:scale-[0.98] shadow-lg",
+              isSaving
+                ? "bg-slate-200 text-slate-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:from-sky-600 hover:to-blue-600"
+            )}
+          >
+            {isSaving ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Check className="w-3.5 h-3.5" />
+                <span>Save Changes</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
