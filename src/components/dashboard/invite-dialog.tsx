@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Copy, Check, Loader2, Mail, Link2, UserPlus, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +20,7 @@ interface InviteDialogProps {
 }
 
 export function InviteDialog({ trigger }: InviteDialogProps) {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +46,8 @@ export function InviteDialog({ trigger }: InviteDialogProps) {
       }
 
       setInviteUrl(data.inviteUrl);
+      // Refresh the page to update the "Invites Sent" count
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
