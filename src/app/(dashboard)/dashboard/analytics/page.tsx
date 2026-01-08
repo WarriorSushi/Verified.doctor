@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BarChart3, Calendar, Loader2, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, Calendar, Loader2, RefreshCw, Lock, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -150,15 +151,25 @@ export default function AnalyticsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Select value={days} onValueChange={setDays}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-[160px]">
               <Calendar className="w-4 h-4 mr-2 text-slate-500" />
               <SelectValue placeholder="Time period" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="7">Last 7 days</SelectItem>
               <SelectItem value="30">Last 30 days</SelectItem>
-              <SelectItem value="90">Last 90 days</SelectItem>
-              <SelectItem value="365">Last year</SelectItem>
+              <SelectItem value="90">
+                <span className="flex items-center gap-2">
+                  Last 90 days
+                  <Crown className="w-3 h-3 text-amber-500" />
+                </span>
+              </SelectItem>
+              <SelectItem value="365">
+                <span className="flex items-center gap-2">
+                  Last year
+                  <Crown className="w-3 h-3 text-amber-500" />
+                </span>
+              </SelectItem>
             </SelectContent>
           </Select>
           <Button
@@ -191,15 +202,21 @@ export default function AnalyticsPage() {
       <div className="mt-8 p-4 sm:p-6 rounded-xl bg-gradient-to-r from-[#0099F7]/10 to-[#A4FDFF]/10 border border-[#0099F7]/20">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="font-semibold text-slate-800">
-              Unlock Advanced Analytics
-            </h3>
-            <p className="text-sm text-slate-600 mt-1">
-              Get detailed insights, export data, and track more metrics with Pro.
+            <div className="flex items-center gap-2 mb-1">
+              <Crown className="w-5 h-5 text-amber-500" />
+              <h3 className="font-semibold text-slate-800">
+                Unlock Advanced Analytics
+              </h3>
+            </div>
+            <p className="text-sm text-slate-600">
+              Extended date ranges, export data, and detailed insights with Pro.
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white">
-            Upgrade to Pro
+          <Button asChild className="bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white">
+            <Link href="/dashboard/upgrade">
+              <Crown className="w-4 h-4 mr-2" />
+              Upgrade to Pro
+            </Link>
           </Button>
         </div>
       </div>
