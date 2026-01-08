@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Copy,
   Check,
@@ -23,6 +24,7 @@ interface InvitePanelProps {
 }
 
 export function InvitePanel({ doctorName, currentConnectionCount }: InvitePanelProps) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [inviteUrl, setInviteUrl] = useState("");
@@ -45,6 +47,8 @@ export function InvitePanel({ doctorName, currentConnectionCount }: InvitePanelP
       }
 
       setInviteUrl(data.inviteUrl);
+      // Refresh the page to update the "Invites Sent" count
+      router.refresh();
       if (withEmail) {
         // Check if email was actually sent successfully
         if (data.emailSent) {

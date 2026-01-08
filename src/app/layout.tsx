@@ -219,9 +219,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        {/* Critical resource hints */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        {/* Preload critical assets */}
+        <link rel="preload" href="/verified-doctor-logo.svg" as="image" type="image/svg+xml" />
+        {/* Preconnect to Supabase for faster auth/data */}
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL || ""} />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
