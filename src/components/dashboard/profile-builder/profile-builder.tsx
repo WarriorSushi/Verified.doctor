@@ -794,6 +794,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<Video className="w-5 h-5" />}
             isVisible={isSectionVisible("video")}
             onVisibilityChange={(v) => toggleVisibility("video", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <VideoEmbedPreview
               value={formData.videoIntroductionUrl}
@@ -808,6 +811,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<GraduationCap className="w-5 h-5" />}
             isVisible={isSectionVisible("education")}
             onVisibilityChange={(v) => toggleVisibility("education", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ArrayEditor<EducationItem>
               items={formData.educationTimeline}
@@ -830,6 +836,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<Building2 className="w-5 h-5" />}
             isVisible={isSectionVisible("hospitals")}
             onVisibilityChange={(v) => toggleVisibility("hospitals", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ArrayEditor<HospitalItem>
               items={formData.hospitalAffiliations}
@@ -853,6 +862,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             isVisible={isSectionVisible("conditions")}
             onVisibilityChange={(v) => toggleVisibility("conditions", v)}
             hasAI
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="space-y-4">
               <TagInput
@@ -884,6 +896,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             isVisible={isSectionVisible("procedures")}
             onVisibilityChange={(v) => toggleVisibility("procedures", v)}
             hasAI
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="space-y-4">
               <TagInput
@@ -915,6 +930,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             isVisible={isSectionVisible("approach")}
             onVisibilityChange={(v) => toggleVisibility("approach", v)}
             hasAI
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="space-y-3">
               <Textarea
@@ -939,6 +957,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             isVisible={isSectionVisible("cases")}
             onVisibilityChange={(v) => toggleVisibility("cases", v)}
             badge="PRO"
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ArrayEditor<CaseStudyItem>
               items={formData.caseStudies}
@@ -962,6 +983,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             isVisible={isSectionVisible("firstVisit")}
             onVisibilityChange={(v) => toggleVisibility("firstVisit", v)}
             hasAI
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="space-y-3">
               <Textarea
@@ -985,6 +1009,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<Clock className="w-5 h-5" />}
             isVisible={isSectionVisible("availability")}
             onVisibilityChange={(v) => toggleVisibility("availability", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
@@ -1011,6 +1038,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<MonitorSmartphone className="w-5 h-5" />}
             isVisible={isSectionVisible("telemedicine")}
             onVisibilityChange={(v) => toggleVisibility("telemedicine", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
               <div className="flex items-center gap-3">
@@ -1028,6 +1058,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<Users className="w-5 h-5" />}
             isVisible={isSectionVisible("memberships")}
             onVisibilityChange={(v) => toggleVisibility("memberships", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ArrayEditor<MembershipItem>
               items={formData.professionalMemberships}
@@ -1049,6 +1082,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<Newspaper className="w-5 h-5" />}
             isVisible={isSectionVisible("media")}
             onVisibilityChange={(v) => toggleVisibility("media", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ArrayEditor<MediaItem>
               items={formData.mediaPublications}
@@ -1072,6 +1108,9 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
             icon={<ImageIcon className="w-5 h-5" />}
             isVisible={isSectionVisible("gallery")}
             onVisibilityChange={(v) => toggleVisibility("gallery", v)}
+            hasChanges={hasChanges}
+            isSaving={isSaving}
+            onSave={handleSave}
           >
             <ImageGalleryEditor
               images={formData.clinicGallery}
@@ -1156,34 +1195,6 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Bottom Save Button - Only shows when there are unsaved changes */}
-      {hasChanges && (
-        <div className="sticky bottom-[68px] sm:bottom-4 z-30 pt-2 pb-1">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className={cn(
-              "w-full flex items-center justify-center gap-1.5 py-2.5 rounded-lg font-medium text-sm transition-all active:scale-[0.98] shadow-lg",
-              isSaving
-                ? "bg-slate-200 text-slate-500 cursor-not-allowed"
-                : "bg-gradient-to-r from-sky-500 to-blue-500 text-white hover:from-sky-600 hover:to-blue-600"
-            )}
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Saving...</span>
-              </>
-            ) : (
-              <>
-                <Check className="w-3.5 h-3.5" />
-                <span>Save Changes</span>
-              </>
-            )}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
