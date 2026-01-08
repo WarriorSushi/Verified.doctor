@@ -148,9 +148,39 @@ function SuccessContent() {
   const shareViaWhatsApp = async () => {
     const link = await generateInviteLink();
     if (link) {
-      const message = `Hey! I just joined Verified.Doctor - it's like a blue checkmark for doctors. Join me and we'll be connected: ${link}`;
-      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-      window.open(whatsappUrl, "_blank");
+      const message = `🎉 *You're invited to Verified.Doctor!*
+
+I just joined and wanted to share my exclusive invite with you.
+
+✨ It's like a blue checkmark for doctors - build your verified professional profile.
+
+👉 Join using my invite: ${link}
+
+We'll be automatically connected when you sign up!`;
+      const encodedMessage = encodeURIComponent(message);
+
+      // Use Web Share API if available (works best on mobile)
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "Join me on Verified.Doctor",
+            text: message,
+          });
+          return;
+        } catch {
+          // User cancelled or share failed, fall back to WhatsApp
+        }
+      }
+
+      // For mobile devices, use whatsapp:// protocol which opens the app directly
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobile) {
+        // This opens WhatsApp app directly and shows contact picker
+        window.location.href = `whatsapp://send?text=${encodedMessage}`;
+      } else {
+        // Desktop - open WhatsApp Web
+        window.open(`https://web.whatsapp.com/send?text=${encodedMessage}`, "_blank");
+      }
     }
   };
 
@@ -283,7 +313,7 @@ function SuccessContent() {
                   onClick={copyInviteLink}
                   disabled={isGeneratingLink}
                   variant="outline"
-                  className="flex-1 h-11 font-semibold text-sm border-slate-300 hover:bg-slate-50"
+                  className={`flex-1 h-11 font-semibold text-sm border-slate-300 hover:bg-slate-50 ${inviteLinkCopied ? "border-emerald-300 bg-emerald-50" : ""}`}
                 >
                   {isGeneratingLink ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -295,6 +325,17 @@ function SuccessContent() {
                   {inviteLinkCopied ? "Copied!" : "Copy Link"}
                 </Button>
               </div>
+
+              {/* Copy success helper text */}
+              {inviteLinkCopied && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-xs text-emerald-600 text-center mb-3"
+                >
+                  ✓ Link copied! Now paste and send it to a colleague
+                </motion.p>
+              )}
 
               {/* Divider */}
               <div className="flex items-center gap-3 mb-5">

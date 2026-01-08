@@ -503,6 +503,11 @@ function OnboardingForm() {
     if (storedInviteCode) localStorage.removeItem("invite_code");
   }, [urlHandle, urlInviteCode]);
 
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [step]);
+
   const checkHandle = async () => {
     if (!handle.trim() || handle.length < 3) return;
 
@@ -1189,6 +1194,9 @@ function OnboardingForm() {
                   <p className="text-sm sm:text-base text-slate-600">
                     See how your profile will look with each style
                   </p>
+                  <p className="text-xs text-slate-400 mt-2">
+                    You can change this anytime from your dashboard
+                  </p>
                 </div>
 
                 {/* Layout Preview Grid with Phone Frames */}
@@ -1306,6 +1314,9 @@ function OnboardingForm() {
                   </h1>
                   <p className="text-sm sm:text-base text-slate-600">
                     See your profile with different color themes
+                  </p>
+                  <p className="text-xs text-slate-400 mt-2">
+                    You can change this anytime from your dashboard
                   </p>
                 </div>
 

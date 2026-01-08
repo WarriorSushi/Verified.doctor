@@ -48,28 +48,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    // Save the support message to database (table may not exist yet)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: supportMessage, error: insertError } = await (supabase as any)
-      .from("support_messages")
-      .insert({
-        profile_id: profile.id,
-        subject,
-        message,
-        status: "open",
-      })
-      .select()
-      .single();
+    // Save the support message to database (optional - table may not exist yet)
+    let supportMessageId: string | undefined;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: supportMessage, error: insertError } = await (supabase as any)
+        .from("support_messages")
+        .insert({
+          profile_id: profile.id,
+          subject,
+          message,
+          status: "open",
+        })
+        .select()
+        .single();
 
-    if (insertError) {
-      console.error("[support] Insert error:", insertError);
-      // If table doesn't exist, still try to send email
-      if (insertError.code !== "42P01") {
-        return NextResponse.json(
-          { error: "Failed to save message" },
-          { status: 500 }
-        );
+      if (insertError) {
+        console.warn("[support] DB insert skipped:", insertError.message);
+      } else {
+        supportMessageId = supportMessage?.id;
       }
+    } catch (dbError) {
+      // Database insert is optional - we'll still send the email
+      console.warn("[support] DB insert failed, continuing with email:", dbError);
     }
 
     // Send email notification to admin
@@ -169,7 +170,7 @@ View in Admin Panel: ${adminPanelUrl}
     return NextResponse.json({
       success: true,
       message: "Support request submitted successfully",
-      ticketId: supportMessage?.id,
+      ticketId: supportMessageId,
     });
   } catch (error) {
     console.error("[support] Error:", error);

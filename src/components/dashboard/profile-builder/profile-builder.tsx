@@ -56,6 +56,7 @@ import { cn } from "@/lib/utils";
 
 interface ProfileBuilderProps {
   profile: Profile;
+  initialTab?: string;
 }
 
 type EducationItem = {
@@ -100,10 +101,14 @@ interface GalleryImage {
 
 type SectionVisibility = Record<string, boolean>;
 
-export function ProfileBuilder({ profile }: ProfileBuilderProps) {
+export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
   const router = useRouter();
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState("basics");
+  // Valid tabs: basics, appearance, content, settings
+  const validTabs = ["basics", "appearance", "content", "settings"];
+  const [activeTab, setActiveTab] = useState(
+    initialTab && validTabs.includes(initialTab) ? initialTab : "basics"
+  );
 
   // Basic profile state
   const [fullName, setFullName] = useState(profile.full_name);
