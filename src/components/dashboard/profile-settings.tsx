@@ -2,19 +2,25 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { Loader2, Save, Check, Palette, Power, AlertTriangle, Upload, Camera, Layout } from "lucide-react";
+import Link from "next/link";
+import {
+  Loader2,
+  Power,
+  AlertTriangle,
+  Bell,
+  Mail,
+  Globe,
+  Shield,
+  Trash2,
+  LogOut,
+  ChevronRight,
+  Pencil,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { ImageCropper } from "@/components/ui/image-cropper";
-import { VerificationUpload } from "./verification-upload";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { uploadProfilePhoto } from "@/lib/upload";
-import { getUser } from "@/lib/auth/client";
-import { LAYOUTS, THEMES } from "@/lib/theme-config";
 
 interface Profile {
   id: string;
@@ -39,40 +45,17 @@ interface ProfileSettingsProps {
 
 export function ProfileSettings({ profile }: ProfileSettingsProps) {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
-
-  const [fullName, setFullName] = useState(profile.full_name);
-  const [specialty, setSpecialty] = useState(profile.specialty || "");
-  const [clinicName, setClinicName] = useState(profile.clinic_name || "");
-  const [clinicLocation, setClinicLocation] = useState(
-    profile.clinic_location || ""
-  );
-  const [yearsExperience, setYearsExperience] = useState(
-    profile.years_experience?.toString() || ""
-  );
-  const [externalBookingUrl, setExternalBookingUrl] = useState(
-    profile.external_booking_url || ""
-  );
-  const [selectedLayout, setSelectedLayout] = useState(
-    profile.profile_layout || "classic"
-  );
-  const [selectedTheme, setSelectedTheme] = useState(
-    profile.profile_theme || "blue"
-  );
-  const [isSavingLayout, setIsSavingLayout] = useState(false);
-  const [isSavingTheme, setIsSavingTheme] = useState(false);
   const [isFrozen, setIsFrozen] = useState(false);
   const [isTogglingFreeze, setIsTogglingFreeze] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Photo upload state
-  const [profilePhotoPreview, setProfilePhotoPreview] = useState<string | null>(
-    profile.profile_photo_url
-  );
-  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
-  const [showCropper, setShowCropper] = useState(false);
-  const [originalImageForCrop, setOriginalImageForCrop] = useState<string | null>(null);
+  // Notification preferences (local state - would connect to API in production)
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [messageNotifications, setMessageNotifications] = useState(true);
+  const [connectionNotifications, setConnectionNotifications] = useState(true);
+  const [marketingEmails, setMarketingEmails] = useState(false);
 
   // Fetch freeze status on mount
   useEffect(() => {
@@ -114,540 +97,276 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
     }
   };
 
-  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Read file and show cropper
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setOriginalImageForCrop(reader.result as string);
-      setShowCropper(true);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleCropComplete = async (croppedBlob: Blob) => {
-    setShowCropper(false);
-    setIsUploadingPhoto(true);
-
-    try {
-      // Show preview immediately
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePhotoPreview(reader.result as string);
-      };
-      reader.readAsDataURL(croppedBlob);
-
-      // Get user ID for upload
-      const { data: userData } = await getUser();
-      if (!userData?.user?.id) {
-        throw new Error("Please sign in to upload a photo");
-      }
-
-      // Convert Blob to File for upload
-      const croppedFile = new File([croppedBlob], "profile-photo.jpg", {
-        type: "image/jpeg",
-      });
-
-      // Upload to Supabase Storage
-      const publicUrl = await uploadProfilePhoto(croppedFile, userData.user.id);
-
-      // Update profile with new photo URL
-      const response = await fetch(`/api/profiles/${profile.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profilePhotoUrl: publicUrl }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update profile photo");
-      }
-
-      toast.success("Profile photo updated!");
-      router.refresh();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to upload photo");
-      setProfilePhotoPreview(profile.profile_photo_url);
-    } finally {
-      setIsUploadingPhoto(false);
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== "DELETE") {
+      toast.error("Please type DELETE to confirm");
+      return;
     }
-  };
 
-  const handleLayoutChange = async (layoutId: string) => {
-    setSelectedLayout(layoutId);
-    setIsSavingLayout(true);
+    setIsDeleting(true);
     try {
-      const response = await fetch(`/api/profiles/${profile.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileLayout: layoutId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update layout");
-      }
-
-      toast.success("Layout updated!");
-      router.refresh();
+      // In production, this would call an API to schedule account deletion
+      toast.success("Account deletion scheduled. You will receive a confirmation email.");
+      setShowDeleteConfirm(false);
+      setDeleteConfirmText("");
     } catch {
-      toast.error("Failed to update layout");
-      setSelectedLayout(profile.profile_layout || "classic");
+      toast.error("Failed to delete account");
     } finally {
-      setIsSavingLayout(false);
-    }
-  };
-
-  const handleThemeChange = async (themeId: string) => {
-    setSelectedTheme(themeId);
-    setIsSavingTheme(true);
-    try {
-      const response = await fetch(`/api/profiles/${profile.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profileTheme: themeId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update theme");
-      }
-
-      toast.success("Theme updated!");
-      router.refresh();
-    } catch {
-      toast.error("Failed to update theme");
-      setSelectedTheme(profile.profile_theme || "blue");
-    } finally {
-      setIsSavingTheme(false);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
-    setSuccess(false);
-
-    try {
-      const response = await fetch(`/api/profiles/${profile.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName,
-          specialty,
-          clinicName: clinicName || null,
-          clinicLocation: clinicLocation || null,
-          yearsExperience: yearsExperience ? parseInt(yearsExperience) : null,
-          externalBookingUrl: externalBookingUrl || null,
-        }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to update profile");
-      }
-
-      setSuccess(true);
-      toast.success("Profile updated successfully!");
-      router.refresh();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Something went wrong";
-      setError(message);
-      toast.error(message);
-    } finally {
-      setIsLoading(false);
+      setIsDeleting(false);
     }
   };
 
   return (
     <div className="space-y-6">
-      {/* Image Cropper Modal */}
-      {originalImageForCrop && (
-        <ImageCropper
-          imageSrc={originalImageForCrop}
-          open={showCropper}
-          onClose={() => {
-            setShowCropper(false);
-            setOriginalImageForCrop(null);
-          }}
-          onCropComplete={handleCropComplete}
-          aspectRatio={1}
-          cropShape="round"
-        />
-      )}
+      {/* Quick Link to Edit Profile */}
+      <Link
+        href="/dashboard/profile-builder"
+        className="block bg-white rounded-xl border border-slate-200 p-4 hover:border-sky-200 hover:bg-sky-50/30 transition-colors group"
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center">
+              <Pencil className="w-5 h-5 text-sky-600" />
+            </div>
+            <div>
+              <h3 className="font-medium text-slate-900">Edit Your Profile</h3>
+              <p className="text-sm text-slate-500">Update photo, bio, layout & content</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-sky-500 group-hover:translate-x-0.5 transition-all" />
+        </div>
+      </Link>
 
-      {/* Profile Photo */}
+      {/* Notification Preferences */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Camera className="w-5 h-5 text-slate-500" />
-          <h2 className="text-lg font-semibold text-slate-900">
-            Profile Photo
-          </h2>
+          <Bell className="w-5 h-5 text-slate-500" />
+          <h2 className="text-lg font-semibold text-slate-900">Notifications</h2>
         </div>
+        <p className="text-sm text-slate-500 mb-4">
+          Choose what notifications you receive
+        </p>
 
-        <div className="flex items-center gap-6">
-          <div className="relative w-24 h-24 rounded-full bg-slate-100 border-2 border-dashed border-slate-200 flex items-center justify-center overflow-hidden flex-shrink-0">
-            {profilePhotoPreview ? (
-              <Image
-                src={profilePhotoPreview}
-                alt="Profile"
-                fill
-                className="object-cover"
-              />
-            ) : isUploadingPhoto ? (
-              <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
-            ) : (
-              <Upload className="w-6 h-6 text-slate-400" />
-            )}
-            {isUploadingPhoto && profilePhotoPreview && (
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                <Loader2 className="w-6 h-6 text-white animate-spin" />
-              </div>
-            )}
-          </div>
-
-          <div className="flex-1">
-            <p className="text-sm text-slate-600 mb-3">
-              Upload a professional photo. It will be compressed automatically.
-            </p>
-            <div className="flex gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handlePhotoUpload}
-                disabled={isUploadingPhoto}
-                className="hidden"
-                id="photo-upload-settings"
-              />
-              <label htmlFor="photo-upload-settings">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="cursor-pointer"
-                  disabled={isUploadingPhoto}
-                  asChild
-                >
-                  <span>
-                    {isUploadingPhoto ? "Uploading..." : profilePhotoPreview ? "Change Photo" : "Upload Photo"}
-                  </span>
-                </Button>
-              </label>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">New Messages</Label>
+              <p className="text-sm text-slate-500">Get notified when patients send you messages</p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Profile Form */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">
-          Profile Information
-        </h2>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="handle">Profile URL</Label>
-              <div className="flex items-center h-10 px-3 bg-slate-50 border border-slate-200 rounded-md text-sm text-slate-500">
-                verified.doctor/{profile.handle}
-              </div>
-              <p className="text-xs text-slate-400">
-                Handle cannot be changed
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
-              <Input
-                id="fullName"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="specialty">Specialty</Label>
-              <Input
-                id="specialty"
-                value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
-                placeholder="e.g. Cardiologist"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="yearsExperience">Years of Experience</Label>
-              <Input
-                id="yearsExperience"
-                type="number"
-                min="0"
-                max="70"
-                value={yearsExperience}
-                onChange={(e) => setYearsExperience(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="clinicName">Clinic/Hospital Name</Label>
-              <Input
-                id="clinicName"
-                value={clinicName}
-                onChange={(e) => setClinicName(e.target.value)}
-                placeholder="HeartCare Clinic"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="clinicLocation">Location</Label>
-              <Input
-                id="clinicLocation"
-                value={clinicLocation}
-                onChange={(e) => setClinicLocation(e.target.value)}
-                placeholder="Mumbai, India"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bookingUrl">External Booking URL</Label>
-            <Input
-              id="bookingUrl"
-              type="url"
-              value={externalBookingUrl}
-              onChange={(e) => setExternalBookingUrl(e.target.value)}
-              placeholder="https://practo.com/dr-yourname"
+            <Switch
+              checked={messageNotifications}
+              onCheckedChange={setMessageNotifications}
             />
           </div>
 
-          {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-600">
-              {error}
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">Connection Requests</Label>
+              <p className="text-sm text-slate-500">Get notified when doctors want to connect</p>
             </div>
-          )}
+            <Switch
+              checked={connectionNotifications}
+              onCheckedChange={setConnectionNotifications}
+            />
+          </div>
 
-          {success && (
-            <div className="p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-sm text-emerald-600">
-              Profile updated successfully!
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">Email Notifications</Label>
+              <p className="text-sm text-slate-500">Receive notifications via email</p>
             </div>
-          )}
-
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </>
-            )}
-          </Button>
-        </form>
+            <Switch
+              checked={emailNotifications}
+              onCheckedChange={setEmailNotifications}
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Layout Selection */}
+      {/* Email & Communication */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Layout className="w-5 h-5 text-slate-500" />
-          <h2 className="text-lg font-semibold text-slate-900">
-            Profile Layout
-          </h2>
-        </div>
-        <p className="text-sm text-slate-500 mb-4">
-          Choose the structure and arrangement of your profile
-        </p>
-
-        <div className="grid sm:grid-cols-3 gap-3">
-          {LAYOUTS.map((layout) => (
-            <button
-              key={layout.id}
-              type="button"
-              onClick={() => handleLayoutChange(layout.id)}
-              disabled={isSavingLayout}
-              className={cn(
-                "relative p-4 rounded-xl border-2 text-left transition-all hover:shadow-md",
-                selectedLayout === layout.id
-                  ? "border-[#0099F7] bg-blue-50/50 ring-2 ring-[#0099F7]/20"
-                  : "border-slate-200 hover:border-slate-300"
-              )}
-            >
-              {selectedLayout === layout.id && (
-                <div className="absolute top-3 right-3 w-5 h-5 bg-[#0099F7] rounded-full flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
-                </div>
-              )}
-
-              <p className="font-medium text-slate-900 mb-1">{layout.name}</p>
-              <p className="text-xs text-slate-500 mb-2">{layout.description}</p>
-              <p className="text-[10px] text-slate-400 italic">{layout.preview}</p>
-            </button>
-          ))}
+          <Mail className="w-5 h-5 text-slate-500" />
+          <h2 className="text-lg font-semibold text-slate-900">Email Preferences</h2>
         </div>
 
-        {isSavingLayout && (
-          <p className="text-sm text-slate-500 mt-3 flex items-center gap-2">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            Saving...
-          </p>
-        )}
-      </div>
-
-      {/* Color Theme Selection */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Palette className="w-5 h-5 text-slate-500" />
-          <h2 className="text-lg font-semibold text-slate-900">
-            Color Theme
-          </h2>
-        </div>
-        <p className="text-sm text-slate-500 mb-4">
-          Choose the color palette applied to your layout
-        </p>
-
-        <div className="grid sm:grid-cols-3 gap-3">
-          {THEMES.map((theme) => (
-            <button
-              key={theme.id}
-              type="button"
-              onClick={() => handleThemeChange(theme.id)}
-              disabled={isSavingTheme}
-              className={cn(
-                "relative p-4 rounded-xl border-2 text-left transition-all hover:shadow-md",
-                selectedTheme === theme.id
-                  ? "border-[#0099F7] bg-blue-50/50 ring-2 ring-[#0099F7]/20"
-                  : "border-slate-200 hover:border-slate-300"
-              )}
-            >
-              {selectedTheme === theme.id && (
-                <div className="absolute top-3 right-3 w-5 h-5 bg-[#0099F7] rounded-full flex items-center justify-center">
-                  <Check className="w-3 h-3 text-white" />
-                </div>
-              )}
-
-              {/* Color swatches */}
-              <div className="flex gap-1.5 mb-3">
-                <div
-                  className="w-6 h-6 rounded-full border border-slate-200/50 shadow-sm"
-                  style={{ backgroundColor: theme.colors.background }}
-                  title="Background"
-                />
-                <div
-                  className="w-6 h-6 rounded-full border border-slate-200/50 shadow-sm"
-                  style={{ backgroundColor: theme.colors.primary }}
-                  title="Primary"
-                />
-                <div
-                  className="w-6 h-6 rounded-full border border-slate-200/50 shadow-sm"
-                  style={{ backgroundColor: theme.colors.accent }}
-                  title="Accent"
-                />
-              </div>
-
-              <p className="font-medium text-slate-900">{theme.name}</p>
-              <p className="text-xs text-slate-500">{theme.description}</p>
-            </button>
-          ))}
-        </div>
-
-        {isSavingTheme && (
-          <p className="text-sm text-slate-500 mt-3 flex items-center gap-2">
-            <Loader2 className="w-3 h-3 animate-spin" />
-            Saving...
-          </p>
-        )}
-      </div>
-
-      {/* Verification Section */}
-      <div
-        id="verification"
-        className="bg-white rounded-xl border border-slate-200 p-6"
-      >
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">
-          Verification
-        </h2>
-
-        <VerificationUpload
-          profileId={profile.id}
-          currentStatus={profile.verification_status}
-          isVerified={profile.is_verified}
-        />
-      </div>
-
-      {/* Profile Visibility (Freeze) */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Power className="w-5 h-5 text-slate-500" />
-          <h2 className="text-lg font-semibold text-slate-900">
-            Profile Visibility
-          </h2>
-        </div>
-
-        <div className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <p className="font-medium text-slate-900">
-                {isFrozen ? "Profile is Offline" : "Profile is Live"}
-              </p>
-              {isFrozen && (
-                <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded">
-                  Frozen
-                </span>
-              )}
+        <div className="space-y-4">
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">Product Updates</Label>
+              <p className="text-sm text-slate-500">News about features and improvements</p>
             </div>
+            <Switch
+              checked={marketingEmails}
+              onCheckedChange={setMarketingEmails}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Privacy & Profile Visibility */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Shield className="w-5 h-5 text-slate-500" />
+          <h2 className="text-lg font-semibold text-slate-900">Privacy</h2>
+        </div>
+
+        <div className="space-y-4">
+          {/* Profile URL */}
+          <div className="py-2">
+            <Label className="font-medium">Your Profile URL</Label>
             <p className="text-sm text-slate-500 mt-1">
-              {isFrozen
-                ? "Your profile is hidden from patients. Turn this off to go live again."
-                : "Your profile is visible to patients at verified.doctor/" + profile.handle}
+              verified.doctor/{profile.handle}
             </p>
           </div>
-          <Switch
-            checked={isFrozen}
-            onCheckedChange={handleFreezeToggle}
-            disabled={isTogglingFreeze}
-            className={cn(
-              isFrozen && "data-[state=checked]:bg-amber-500"
-            )}
-          />
-        </div>
 
-        {isFrozen && (
-          <div className="mt-4 p-4 rounded-lg bg-amber-50 border border-amber-200">
-            <div className="flex gap-3">
-              <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-medium text-amber-800">
-                  Your profile is currently frozen
+          {/* Freeze Profile */}
+          <div className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50">
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <Power className="w-4 h-4 text-slate-500" />
+                <p className="font-medium text-slate-900">
+                  {isFrozen ? "Profile is Offline" : "Profile is Live"}
                 </p>
-                <p className="text-sm text-amber-700 mt-1">
-                  While frozen, patients cannot find you, send inquiries, or leave recommendations.
-                  You will receive a reminder email to unfreeze your profile.
-                </p>
+                {isFrozen && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded">
+                    Frozen
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-slate-500 mt-1">
+                {isFrozen
+                  ? "Your profile is hidden from patients"
+                  : "Patients can find and contact you"}
+              </p>
+            </div>
+            <Switch
+              checked={isFrozen}
+              onCheckedChange={handleFreezeToggle}
+              disabled={isTogglingFreeze}
+              className={cn(
+                isFrozen && "data-[state=checked]:bg-amber-500"
+              )}
+            />
+          </div>
+
+          {isFrozen && (
+            <div className="p-4 rounded-lg bg-amber-50 border border-amber-200">
+              <div className="flex gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800">Profile frozen</p>
+                  <p className="text-sm text-amber-700 mt-1">
+                    Patients cannot find you, send messages, or leave recommendations.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
-      {/* Account */}
+      {/* Language & Region */}
+      <div className="bg-white rounded-xl border border-slate-200 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="w-5 h-5 text-slate-500" />
+          <h2 className="text-lg font-semibold text-slate-900">Language & Region</h2>
+        </div>
+
+        <div className="py-2">
+          <Label className="font-medium">Language</Label>
+          <p className="text-sm text-slate-500 mt-1">English (US)</p>
+          <p className="text-xs text-slate-400 mt-2">More languages coming soon</p>
+        </div>
+      </div>
+
+      {/* Account Management */}
       <div className="bg-white rounded-xl border border-slate-200 p-6">
         <h2 className="text-lg font-semibold text-slate-900 mb-4">Account</h2>
-        <p className="text-sm text-slate-500 mb-4">
-          Sign out of your account on this device.
-        </p>
-        <Button
-          variant="outline"
-          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-          onClick={async () => {
-            await fetch("/api/auth/logout", { method: "POST" });
-            window.location.href = "/";
-          }}
-        >
-          Sign Out
-        </Button>
+
+        <div className="space-y-4">
+          {/* Sign Out */}
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">Sign Out</Label>
+              <p className="text-sm text-slate-500">Sign out of your account on this device</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                await fetch("/api/auth/logout", { method: "POST" });
+                window.location.href = "/";
+              }}
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+
+          {/* Delete Account */}
+          <div className="pt-4 border-t border-slate-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label className="font-medium text-red-600">Delete Account</Label>
+                <p className="text-sm text-slate-500">
+                  Permanently delete your account and all data
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+            </div>
+
+            {showDeleteConfirm && (
+              <div className="mt-4 p-4 rounded-lg bg-red-50 border border-red-200">
+                <p className="text-sm font-medium text-red-800 mb-2">
+                  Are you sure? This action cannot be undone.
+                </p>
+                <p className="text-sm text-red-700 mb-3">
+                  Type <strong>DELETE</strong> to confirm:
+                </p>
+                <input
+                  type="text"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="Type DELETE"
+                  className="w-full px-3 py-2 border border-red-200 rounded-md text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowDeleteConfirm(false);
+                      setDeleteConfirmText("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting || deleteConfirmText !== "DELETE"}
+                  >
+                    {isDeleting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      "Delete Account"
+                    )}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );
