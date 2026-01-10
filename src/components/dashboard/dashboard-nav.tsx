@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, MessageSquare, Users, BarChart3 } from "lucide-react";
+import { Home, MessageSquare, Users, BarChart3, Crown } from "lucide-react";
 
 interface DashboardNavProps {
   unreadCount: number;
@@ -11,10 +11,11 @@ interface DashboardNavProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Overview", icon: LayoutDashboard, tourId: "nav-overview" },
+  { href: "/dashboard", label: "Home", icon: Home, tourId: "nav-home" },
   { href: "/dashboard/messages", label: "Messages", icon: MessageSquare, badgeKey: "messages", tourId: "nav-messages" },
   { href: "/dashboard/connections", label: "Connections", icon: Users, badgeKey: "connections", tourId: "nav-connections" },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, tourId: "nav-analytics" },
+  { href: "/dashboard/upgrade", label: "Pro", icon: Crown, tourId: "nav-upgrade", isPro: true },
 ];
 
 export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: DashboardNavProps) {
@@ -39,6 +40,7 @@ export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: Dashb
                 : pathname.startsWith(item.href);
             const Icon = item.icon;
             const badgeCount = getBadgeCount(item.badgeKey);
+            const isPro = "isPro" in item && item.isPro;
 
             return (
               <Link
@@ -49,9 +51,13 @@ export function DashboardNav({ unreadCount, pendingConnectionsCount = 0 }: Dashb
                   // Mobile: flex-col with icon on top, label below
                   // Desktop: flex-row inline
                   "relative flex flex-col sm:flex-row items-center gap-0.5 sm:gap-2 px-2 sm:px-4 py-2 sm:py-3 font-medium border-b-2 -mb-px transition-colors",
-                  isActive
-                    ? "border-[#0099F7] text-[#0099F7]"
-                    : "border-transparent text-slate-500 hover:text-slate-900"
+                  isPro
+                    ? isActive
+                      ? "border-amber-500 text-amber-600"
+                      : "border-transparent text-amber-500 hover:text-amber-600"
+                    : isActive
+                      ? "border-[#0099F7] text-[#0099F7]"
+                      : "border-transparent text-slate-500 hover:text-slate-900"
                 )}
               >
                 <div className="relative">

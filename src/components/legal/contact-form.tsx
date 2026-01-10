@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Send, Loader2, Mail, MessageSquare, HelpCircle } from "lucide-react";
 
-export function ContactForm() {
+export function ContactFormContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -55,226 +54,163 @@ export function ContactForm() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        {/* Header */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-          <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="relative w-8 h-8">
-                <Image
-                  src="/verified-doctor-logo.svg"
-                  alt="Verified.Doctor"
-                  fill
-                  className="object-contain"
-                />
-              </div>
-              <span className="text-lg font-semibold text-slate-800">
-                verified<span className="text-sky-600">.doctor</span>
-              </span>
-            </Link>
-          </div>
-        </header>
-
-        <main className="max-w-2xl mx-auto px-4 py-20 text-center">
-          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
-            <Send className="w-10 h-10 text-emerald-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-slate-900 mb-4">Message Sent!</h1>
-          <p className="text-slate-600 mb-8">
-            Thank you for reaching out. We&apos;ve received your message and will get back to you within 24-48 hours.
-          </p>
-          <Link href="/">
-            <Button className="bg-sky-600 hover:bg-sky-700">
-              Return to Homepage
-            </Button>
-          </Link>
-        </main>
+      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
+          <Send className="w-10 h-10 text-emerald-600" />
+        </div>
+        <h1 className="text-3xl font-bold text-slate-900 mb-4">Message Sent!</h1>
+        <p className="text-slate-600 mb-8">
+          Thank you for reaching out. We&apos;ve received your message and will get back to you within 24-48 hours.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative w-8 h-8">
-              <Image
-                src="/verified-doctor-logo.svg"
-                alt="Verified.Doctor"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <span className="text-lg font-semibold text-slate-800">
-              verified<span className="text-sky-600">.doctor</span>
-            </span>
-          </Link>
-          <Link
-            href="/"
-            className="text-sm text-slate-600 hover:text-sky-600 transition-colors"
-          >
-            Back to Home
-          </Link>
-        </div>
-      </header>
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-bold text-slate-900 mb-3">Contact Us</h1>
+        <p className="text-slate-600 max-w-xl mx-auto">
+          Have a question, feedback, or need assistance? We&apos;re here to help. Fill out the form below and our team will get back to you.
+        </p>
+      </div>
 
-      {/* Content */}
-      <main className="max-w-4xl mx-auto px-4 py-12">
-        <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">Contact Us</h1>
-          <p className="text-slate-600 max-w-xl mx-auto">
-            Have a question, feedback, or need assistance? We&apos;re here to help. Fill out the form below and our team will get back to you.
-          </p>
-        </div>
-
-        <div className="flex flex-col md:grid md:grid-cols-3 gap-8">
-          {/* Contact Options - Shows after form on mobile */}
-          <div className="order-2 md:order-1 md:col-span-1 space-y-4">
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center mb-4">
-                <Mail className="w-5 h-5 text-sky-600" />
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-1">General Inquiries</h3>
-              <p className="text-sm text-slate-600">
-                Questions about the platform, features, or getting started.
-              </p>
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-8">
+        {/* Contact Options - Shows after form on mobile */}
+        <div className="order-2 md:order-1 md:col-span-1 space-y-4">
+          <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center mb-4">
+              <Mail className="w-5 h-5 text-sky-600" />
             </div>
-
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-4">
-                <HelpCircle className="w-5 h-5 text-emerald-600" />
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-1">Support</h3>
-              <p className="text-sm text-slate-600">
-                Technical issues, account problems, or verification help.
-              </p>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 border border-slate-200">
-              <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center mb-4">
-                <MessageSquare className="w-5 h-5 text-violet-600" />
-              </div>
-              <h3 className="font-semibold text-slate-900 mb-1">Feedback</h3>
-              <p className="text-sm text-slate-600">
-                Share your suggestions to help us improve the platform.
-              </p>
-            </div>
+            <h3 className="font-semibold text-slate-900 mb-1">General Inquiries</h3>
+            <p className="text-sm text-slate-600">
+              Questions about the platform, features, or getting started.
+            </p>
           </div>
 
-          {/* Contact Form - Shows first on mobile */}
-          <div className="order-1 md:order-2 md:col-span-2">
-            <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-              <div className="space-y-6">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="name"
-                      placeholder="Dr. John Smith"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="john@example.com"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
+          <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-4">
+              <HelpCircle className="w-5 h-5 text-emerald-600" />
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-1">Support</h3>
+            <p className="text-sm text-slate-600">
+              Technical issues, account problems, or verification help.
+            </p>
+          </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="type">Inquiry Type</Label>
-                  <select
-                    id="type"
-                    value={formData.type}
-                    onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-                  >
-                    <option value="general">General Inquiry</option>
-                    <option value="support">Technical Support</option>
-                    <option value="verification">Verification Help</option>
-                    <option value="billing">Billing Question</option>
-                    <option value="partnership">Partnership Inquiry</option>
-                    <option value="feedback">Feedback</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
+          <div className="bg-white rounded-xl p-6 border border-slate-200">
+            <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center mb-4">
+              <MessageSquare className="w-5 h-5 text-violet-600" />
+            </div>
+            <h3 className="font-semibold text-slate-900 mb-1">Feedback</h3>
+            <p className="text-sm text-slate-600">
+              Share your suggestions to help us improve the platform.
+            </p>
+          </div>
+        </div>
 
+        {/* Contact Form - Shows first on mobile */}
+        <div className="order-1 md:order-2 md:col-span-2">
+          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <div className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="subject">Subject</Label>
+                  <Label htmlFor="name">Full Name <span className="text-red-500">*</span></Label>
                   <Input
-                    id="subject"
-                    placeholder="What is your inquiry about?"
-                    value={formData.subject}
-                    onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message <span className="text-red-500">*</span></Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Please describe your inquiry in detail..."
-                    rows={6}
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                    id="name"
+                    placeholder="Dr. John Smith"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
-                    className="resize-none"
                   />
-                  <p className="text-xs text-slate-500">{formData.message.length}/2000 characters</p>
                 </div>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-sky-600 hover:bg-sky-700 py-6 text-base"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Message
-                    </>
-                  )}
-                </Button>
-
-                <p className="text-xs text-slate-500 text-center">
-                  By submitting this form, you agree to our{" "}
-                  <Link href="/privacy" className="text-sky-600 hover:underline">
-                    Privacy Policy
-                  </Link>
-                  . We typically respond within 24-48 hours.
-                </p>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    required
+                  />
+                </div>
               </div>
-            </form>
-          </div>
-        </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 mt-12">
-        <div className="max-w-4xl mx-auto px-4 text-center text-sm text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Verified.Doctor. All rights reserved.</p>
-          <div className="mt-2 space-x-4">
-            <Link href="/terms" className="hover:text-sky-600">Terms</Link>
-            <Link href="/privacy" className="hover:text-sky-600">Privacy</Link>
-            <Link href="/contact" className="hover:text-sky-600">Contact</Link>
-          </div>
+              <div className="space-y-2">
+                <Label htmlFor="type">Inquiry Type</Label>
+                <select
+                  id="type"
+                  value={formData.type}
+                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+                  className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                >
+                  <option value="general">General Inquiry</option>
+                  <option value="support">Technical Support</option>
+                  <option value="verification">Verification Help</option>
+                  <option value="billing">Billing Question</option>
+                  <option value="partnership">Partnership Inquiry</option>
+                  <option value="feedback">Feedback</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="subject">Subject</Label>
+                <Input
+                  id="subject"
+                  placeholder="What is your inquiry about?"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="message">Message <span className="text-red-500">*</span></Label>
+                <Textarea
+                  id="message"
+                  placeholder="Please describe your inquiry in detail..."
+                  rows={6}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  required
+                  className="resize-none"
+                />
+                <p className="text-xs text-slate-500">{formData.message.length}/2000 characters</p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-sky-600 hover:bg-sky-700 py-6 text-base"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Message
+                  </>
+                )}
+              </Button>
+
+              <p className="text-xs text-slate-500 text-center">
+                By submitting this form, you agree to our{" "}
+                <Link href="/privacy" className="text-sky-600 hover:underline">
+                  Privacy Policy
+                </Link>
+                . We typically respond within 24-48 hours.
+              </p>
+            </div>
+          </form>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }
+
+// Keep old export for backwards compatibility if needed elsewhere
+export const ContactForm = ContactFormContent;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, Eye, EyeOff, Info, Sparkles } from "lucide-react";
+import { ChevronDown, Eye, EyeOff, Info, Sparkles, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -15,6 +15,9 @@ interface SectionWrapperProps {
   defaultOpen?: boolean;
   badge?: string;
   hasAI?: boolean;
+  hasChanges?: boolean;
+  isSaving?: boolean;
+  onSave?: () => void;
 }
 
 // Custom Toggle Switch Component
@@ -85,6 +88,9 @@ export function SectionWrapper({
   defaultOpen = false,
   badge,
   hasAI = false,
+  hasChanges = false,
+  isSaving = false,
+  onSave,
 }: SectionWrapperProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -244,6 +250,39 @@ export function SectionWrapper({
                 </motion.div>
               )}
               {children}
+
+              {/* Inline save button - appears when there are unsaved changes */}
+              {hasChanges && onSave && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-4 pt-4 border-t border-slate-100"
+                >
+                  <button
+                    type="button"
+                    onClick={onSave}
+                    disabled={isSaving}
+                    className={cn(
+                      "w-full flex items-center justify-center gap-1.5 py-2 px-4 rounded-lg text-sm font-medium transition-all",
+                      isSaving
+                        ? "bg-slate-100 text-slate-400 cursor-not-allowed"
+                        : "bg-sky-500 hover:bg-sky-600 text-white active:scale-[0.98]"
+                    )}
+                  >
+                    {isSaving ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Saving...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Check className="w-3.5 h-3.5" />
+                        <span>Save Changes</span>
+                      </>
+                    )}
+                  </button>
+                </motion.div>
+              )}
             </div>
           </motion.div>
         )}

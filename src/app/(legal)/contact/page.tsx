@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ContactForm } from "@/components/legal/contact-form";
+import { ContactFormContent } from "@/components/legal/contact-form";
 
 const baseUrl = "https://verified.doctor";
 
@@ -12,5 +12,5 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactForm />;
+  return <ContactFormContent />;
 }
