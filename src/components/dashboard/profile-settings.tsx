@@ -220,14 +220,19 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
             </p>
           </div>
 
-          {/* Freeze Profile */}
+          {/* Profile Live Toggle - ON means Live, OFF means Frozen */}
           <div className="flex items-center justify-between p-4 rounded-lg border border-slate-200 bg-slate-50">
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <Power className="w-4 h-4 text-slate-500" />
                 <p className="font-medium text-slate-900">
-                  {isFrozen ? "Profile is Offline" : "Profile is Live"}
+                  {!isFrozen ? "Profile is Live" : "Profile is Offline"}
                 </p>
+                {!isFrozen && (
+                  <span className="px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700 rounded">
+                    Active
+                  </span>
+                )}
                 {isFrozen && (
                   <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded">
                     Frozen
@@ -235,17 +240,17 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
                 )}
               </div>
               <p className="text-sm text-slate-500 mt-1">
-                {isFrozen
-                  ? "Your profile is hidden from patients"
-                  : "Patients can find and contact you"}
+                {!isFrozen
+                  ? "Patients can find and contact you"
+                  : "Your profile is hidden from patients"}
               </p>
             </div>
             <Switch
-              checked={isFrozen}
-              onCheckedChange={handleFreezeToggle}
+              checked={!isFrozen}
+              onCheckedChange={(checked) => handleFreezeToggle(!checked)}
               disabled={isTogglingFreeze}
               className={cn(
-                isFrozen && "data-[state=checked]:bg-amber-500"
+                !isFrozen && "data-[state=checked]:bg-emerald-500"
               )}
             />
           </div>

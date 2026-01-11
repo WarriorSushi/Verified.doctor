@@ -7,6 +7,7 @@ export {
   sendTrialOfferEmail,
   sendTrialClaimedEmail,
   sendInviteEmail,
+  sendAdminMessageEmail,
   type SendEmailParams,
   type SendEmailResult,
 } from "./send";

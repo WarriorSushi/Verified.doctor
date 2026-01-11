@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_identifier: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_profile_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_identifier: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_profile_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_identifier?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_actions_target_profile_id_fkey"
+            columns: ["target_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       admin_audit_logs: {
         Row: {
           action: string
@@ -535,6 +570,9 @@ export type Database = {
           ai_suggestions_used_this_month: number | null
           approach_to_care: string | null
           availability_note: string | null
+          ban_reason: string | null
+          banned_at: string | null
+          banned_by: string | null
           bio: string | null
           case_studies: Json | null
           clinic_gallery: Json | null
@@ -557,6 +595,7 @@ export type Database = {
           initial_boost_applied: boolean | null
           initial_boost_applied_at: string | null
           is_available: boolean | null
+          is_banned: boolean | null
           is_frozen: boolean | null
           is_verified: boolean | null
           languages: string | null
@@ -601,6 +640,9 @@ export type Database = {
           ai_suggestions_used_this_month?: number | null
           approach_to_care?: string | null
           availability_note?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
           bio?: string | null
           case_studies?: Json | null
           clinic_gallery?: Json | null
@@ -623,6 +665,7 @@ export type Database = {
           initial_boost_applied?: boolean | null
           initial_boost_applied_at?: string | null
           is_available?: boolean | null
+          is_banned?: boolean | null
           is_frozen?: boolean | null
           is_verified?: boolean | null
           languages?: string | null
@@ -667,6 +710,9 @@ export type Database = {
           ai_suggestions_used_this_month?: number | null
           approach_to_care?: string | null
           availability_note?: string | null
+          ban_reason?: string | null
+          banned_at?: string | null
+          banned_by?: string | null
           bio?: string | null
           case_studies?: Json | null
           clinic_gallery?: Json | null
@@ -689,6 +735,7 @@ export type Database = {
           initial_boost_applied?: boolean | null
           initial_boost_applied_at?: string | null
           is_available?: boolean | null
+          is_banned?: boolean | null
           is_frozen?: boolean | null
           is_verified?: boolean | null
           languages?: string | null
@@ -807,40 +854,40 @@ export type Database = {
       }
       trial_invites: {
         Row: {
+          completed_at: string | null
+          created_at: string | null
           id: string
-          profile_id: string
           invite_code: string
           invitee_profile_id: string | null
-          created_at: string | null
-          completed_at: string | null
+          profile_id: string
         }
         Insert: {
+          completed_at?: string | null
+          created_at?: string | null
           id?: string
-          profile_id: string
           invite_code: string
           invitee_profile_id?: string | null
-          created_at?: string | null
-          completed_at?: string | null
+          profile_id: string
         }
         Update: {
+          completed_at?: string | null
+          created_at?: string | null
           id?: string
-          profile_id?: string
           invite_code?: string
           invitee_profile_id?: string | null
-          created_at?: string | null
-          completed_at?: string | null
+          profile_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "trial_invites_profile_id_fkey"
-            columns: ["profile_id"]
+            foreignKeyName: "trial_invites_invitee_profile_id_fkey"
+            columns: ["invitee_profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "trial_invites_invitee_profile_id_fkey"
-            columns: ["invitee_profile_id"]
+            foreignKeyName: "trial_invites_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1067,18 +1114,5 @@ export const Constants = {
   },
 } as const
 
-// Convenience types
+// Convenience type alias for profiles table row
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"]
-export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"]
-export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"]
-
-export type Connection = Database["public"]["Tables"]["connections"]["Row"]
-export type Message = Database["public"]["Tables"]["messages"]["Row"]
-export type Invite = Database["public"]["Tables"]["invites"]["Row"]
-export type Recommendation = Database["public"]["Tables"]["recommendations"]["Row"]
-export type AnalyticsEvent = Database["public"]["Tables"]["analytics_events"]["Row"]
-export type AnalyticsDailyStats = Database["public"]["Tables"]["analytics_daily_stats"]["Row"]
-export type ContactMessage = Database["public"]["Tables"]["contact_messages"]["Row"]
-export type AdminAuditLog = Database["public"]["Tables"]["admin_audit_logs"]["Row"]
-export type SubscriptionEvent = Database["public"]["Tables"]["subscription_events"]["Row"]
-export type TrialInvite = Database["public"]["Tables"]["trial_invites"]["Row"]

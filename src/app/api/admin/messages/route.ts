@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { sendAdminMessageEmail } from "@/lib/email";
 import { z } from "zod";
 
 const adminMessageSchema = z.object({
@@ -21,10 +22,10 @@ export async function POST(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Verify the profile exists
+    // Verify the profile exists and get user info
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select("id, full_name")
+      .select("id, full_name, user_id")
       .eq("id", profileId)
       .single();
 
@@ -55,7 +56,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    return NextResponse.json({ success: true });
+    // Get user email from Supabase Auth and send notification email
+    let emailSent = false;
+    try {
+      // Use service role to get user email
+      const { data: userData } = await supabase.auth.admin.getUserById(profile.user_id);
+
+      if (userData?.user?.email) {
+        const result = await sendAdminMessageEmail(
+          userData.user.email,
+          profile.full_name,
+          message
+        );
+        emailSent = result.success;
+        if (!result.success) {
+          console.warn("[admin] Failed to send admin message email:", result.error);
+        }
+      }
+    } catch (emailError) {
+      // Don't fail the whole request if email fails
+      console.error("[admin] Error sending admin message email:", emailError);
+    }
+
+    // Log admin action
+    try {
+      await supabase.from("admin_actions").insert({
+        admin_identifier: "admin",
+        action_type: "send_message",
+        target_profile_id: profileId,
+        details: {
+          message_preview: message.slice(0, 100),
+          email_sent: emailSent,
+        },
+      });
+    } catch (logError) {
+      console.error("[admin] Failed to log action:", logError);
+    }
+
+    return NextResponse.json({ success: true, emailSent });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

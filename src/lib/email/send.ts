@@ -769,3 +769,92 @@ Explore Pro features: ${dashboardUrl}
 
   return sendEmail({ to, subject, html, text });
 }
+
+/**
+ * Send an admin message notification email
+ */
+export async function sendAdminMessageEmail(
+  to: string,
+  doctorName: string,
+  message: string
+): Promise<SendEmailResult> {
+  const dashboardUrl = "https://verified.doctor/dashboard/messages";
+
+  const subject = `Important message from the Verified.Doctor Team`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; background: #f8fafc; }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .logo { width: 48px; height: 48px; margin-bottom: 16px; }
+    .badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #EC4899 0%, #DB2777 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+    h1 { color: #0f172a; font-size: 22px; margin: 16px 0 8px 0; }
+    p { color: #475569; line-height: 1.6; margin: 0 0 16px 0; }
+    .message-box { background: linear-gradient(135deg, #FDF2F8 0%, #FCE7F3 100%); border: 1px solid #FBCFE8; border-left: 4px solid #EC4899; border-radius: 8px; padding: 20px; margin: 24px 0; }
+    .message-box p { margin: 0; color: #831843; line-height: 1.7; }
+    .button { display: inline-block; background: linear-gradient(135deg, #0099F7 0%, #0080CC 100%); color: white !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <img src="https://verified.doctor/verified-doctor-logo.svg" alt="Verified.Doctor" class="logo" />
+        <div class="badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Admin Message
+        </div>
+        <h1>Hello, Dr. ${doctorName}</h1>
+        <p>You have an important message from our team:</p>
+      </div>
+
+      <div class="message-box">
+        <p>${message.replace(/\\n/g, '<br>')}</p>
+      </div>
+
+      <p>This message has also been added to your inbox on Verified.Doctor.</p>
+
+      <center>
+        <a href="${dashboardUrl}" class="button">View in Dashboard</a>
+      </center>
+    </div>
+
+    <div class="footer">
+      <p>Verified.Doctor - Your Digital Identity, Verified.</p>
+      <p style="font-size: 12px; margin-top: 8px;">
+        This is an official communication from the Verified.Doctor team.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Hello, Dr. ${doctorName}
+
+You have an important message from the Verified.Doctor Team:
+
+---
+${message}
+---
+
+This message has also been added to your inbox on Verified.Doctor.
+
+View in dashboard: ${dashboardUrl}
+
+- The Verified.Doctor Team
+  `.trim();
+
+  return sendEmail({ to, subject, html, text });
+}
