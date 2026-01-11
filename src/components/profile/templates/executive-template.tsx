@@ -167,12 +167,14 @@ export function ExecutiveTemplate({ profile, connectedDoctors, invitedBy }: Exec
             </span>
           </Link>
 
-          <Link
-            href="/"
-            className="text-xs sm:text-sm font-medium text-[#d4af37] hover:text-[#f5e6c4] transition-colors tracking-wide"
-          >
-            Claim yours →
-          </Link>
+          {!isPro && (
+            <Link
+              href="/"
+              className="text-xs sm:text-sm font-medium text-[#d4af37] hover:text-[#f5e6c4] transition-colors tracking-wide"
+            >
+              Claim yours →
+            </Link>
+          )}
         </div>
       </nav>
 

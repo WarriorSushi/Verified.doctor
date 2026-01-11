@@ -234,12 +234,14 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             </span>
           </Link>
 
-          <Link
-            href="/"
-            className="text-xs sm:text-sm font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors"
-          >
-            Claim yours →
-          </Link>
+          {!isPro && (
+            <Link
+              href="/"
+              className="text-xs sm:text-sm font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors"
+            >
+              Claim yours →
+            </Link>
+          )}
         </div>
       </nav>
 

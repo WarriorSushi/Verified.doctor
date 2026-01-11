@@ -176,14 +176,16 @@ export function OceanTemplate({ profile, connectedDoctors, invitedBy }: OceanTem
             </span>
           </Link>
 
-          <Link
-            href="/"
-            className="text-xs sm:text-sm font-medium transition-colors flex items-center gap-1"
-            style={{ color: theme.primary }}
-          >
-            <Waves className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            Claim yours
-          </Link>
+          {!isPro && (
+            <Link
+              href="/"
+              className="text-xs sm:text-sm font-medium transition-colors flex items-center gap-1"
+              style={{ color: theme.primary }}
+            >
+              <Waves className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              Claim yours
+            </Link>
+          )}
         </div>
       </nav>
 
