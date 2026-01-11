@@ -2,10 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { NotificationCard, TrialOfferNotification } from "./notification-card";
+import { NotificationCard } from "./notification-card";
 import { InviteDialog } from "./invite-dialog";
 import { Button } from "@/components/ui/button";
-import { Users, Sparkles } from "lucide-react";
+import { Users, Crown, Sparkles, Gift, Shield } from "lucide-react";
+
+interface AdminAction {
+  action_type: string;
+  details: unknown;
+  created_at: string | null;
+}
 
 interface DashboardNotificationsProps {
   profileId: string;
@@ -16,7 +22,10 @@ interface DashboardNotificationsProps {
   trialStatus: string;
   trialInvitesCompleted: number;
   trialInvitesRequired: number;
+  trialExpiresAt?: string | null;
+  subscriptionPlan?: string | null;
   isPro: boolean;
+  recentAdminActions?: AdminAction[];
 }
 
 export function DashboardNotifications({
@@ -28,7 +37,10 @@ export function DashboardNotifications({
   trialStatus,
   trialInvitesCompleted,
   trialInvitesRequired,
+  trialExpiresAt,
+  subscriptionPlan,
   isPro,
+  recentAdminActions = [],
 }: DashboardNotificationsProps) {
   const router = useRouter();
   const [dismissed, setDismissed] = useState<string[]>(initialDismissed);
@@ -89,17 +101,51 @@ export function DashboardNotifications({
 
   const isNotDismissed = (id: string) => !dismissed.includes(id);
 
-  // Don't show trial notification if user is already Pro or has active trial
+  // Check for admin-granted actions
+  const grantTrialAction = recentAdminActions.find(
+    (a) => a.action_type === "grant_trial"
+  );
+  const grantProAction = recentAdminActions.find(
+    (a) => a.action_type === "grant_pro"
+  );
+  const verifyAction = recentAdminActions.find(
+    (a) => a.action_type === "verify"
+  );
+
+  // Calculate trial days remaining
+  let trialDaysRemaining = 0;
+  if (trialStatus === "active" && trialExpiresAt) {
+    const expiresAt = new Date(trialExpiresAt);
+    const now = new Date();
+    trialDaysRemaining = Math.ceil(
+      (expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+    );
+  }
+
+  // Show admin-granted Pro notification
+  const showAdminProNotification =
+    grantProAction &&
+    subscriptionPlan === "admin_granted" &&
+    isNotDismissed(`admin-pro-${grantProAction.created_at}`);
+
+  // Show admin-granted trial notification (active trial)
+  const showAdminTrialNotification =
+    grantTrialAction &&
+    trialStatus === "active" &&
+    trialDaysRemaining > 0 &&
+    isNotDismissed(`admin-trial-${grantTrialAction.created_at}`);
+
+  // Show admin verification notification
+  const showAdminVerifyNotification =
+    verifyAction && isNotDismissed(`admin-verify-${verifyAction.created_at}`);
+
+  // Don't show trial offer if user is already Pro or has active trial
   const showTrialOffer =
-    trialStatus === "eligible" &&
-    !isPro &&
-    isNotDismissed("trial-offer");
+    trialStatus === "eligible" && !isPro && isNotDismissed("trial-offer");
 
   // Show boost success notification
   const showBoostNotification =
-    showBoostSuccess &&
-    boostAmount > 0 &&
-    isNotDismissed("view-boost-success");
+    showBoostSuccess && boostAmount > 0 && isNotDismissed("view-boost-success");
 
   // Show views milestone notification (after boost, if they have good view count)
   const showViewsMilestone =
@@ -108,12 +154,78 @@ export function DashboardNotifications({
     viewCount >= 10 &&
     isNotDismissed("views-milestone");
 
-  if (!showTrialOffer && !showBoostNotification && !showViewsMilestone) {
+  const hasAnyNotification =
+    showAdminProNotification ||
+    showAdminTrialNotification ||
+    showAdminVerifyNotification ||
+    showTrialOffer ||
+    showBoostNotification ||
+    showViewsMilestone;
+
+  if (!hasAnyNotification) {
     return null;
   }
 
   return (
     <div className="space-y-3">
+      {/* Admin Granted Pro Notification */}
+      {showAdminProNotification && (
+        <NotificationCard
+          id={`admin-pro-${grantProAction.created_at}`}
+          type="success"
+          title="You've been upgraded to Pro!"
+          description="Congratulations! The Verified.Doctor team has granted you Pro access. Enjoy all premium features including advanced analytics, unlimited connections, and premium templates."
+          onDismiss={handleDismiss}
+        >
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold">
+              <Crown className="w-3.5 h-3.5" />
+              PRO MEMBER
+            </div>
+            <span className="text-xs text-slate-500">Lifetime access</span>
+          </div>
+        </NotificationCard>
+      )}
+
+      {/* Admin Granted Trial Notification */}
+      {showAdminTrialNotification && (
+        <NotificationCard
+          id={`admin-trial-${grantTrialAction.created_at}`}
+          type="trial_offer"
+          title="You've received a free Pro trial!"
+          description={`The Verified.Doctor team has gifted you ${trialDaysRemaining} day${trialDaysRemaining !== 1 ? "s" : ""} of Pro access. Explore all premium features and see the difference!`}
+          onDismiss={handleDismiss}
+        >
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs font-bold">
+              <Gift className="w-3.5 h-3.5" />
+              FREE TRIAL
+            </div>
+            <span className="text-xs text-violet-600 font-medium">
+              {trialDaysRemaining} day{trialDaysRemaining !== 1 ? "s" : ""} remaining
+            </span>
+          </div>
+        </NotificationCard>
+      )}
+
+      {/* Admin Verified Notification */}
+      {showAdminVerifyNotification && (
+        <NotificationCard
+          id={`admin-verify-${verifyAction.created_at}`}
+          type="success"
+          title="Your profile has been verified!"
+          description="Congratulations! Your credentials have been reviewed and approved. Your verified badge is now visible on your public profile."
+          onDismiss={handleDismiss}
+        >
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-500 text-white text-xs font-bold">
+              <Shield className="w-3.5 h-3.5" />
+              VERIFIED
+            </div>
+          </div>
+        </NotificationCard>
+      )}
+
       {/* Boost Success Notification */}
       {showBoostNotification && (
         <NotificationCard
@@ -146,7 +258,7 @@ export function DashboardNotifications({
           id="trial-offer"
           type="trial_offer"
           title="You've been selected for free Pro!"
-          description={`Invite ${trialInvitesRequired - trialInvitesCompleted} colleague${(trialInvitesRequired - trialInvitesCompleted) > 1 ? 's' : ''} and get 30 days of Pro features absolutely free.`}
+          description={`Invite ${trialInvitesRequired - trialInvitesCompleted} colleague${trialInvitesRequired - trialInvitesCompleted > 1 ? "s" : ""} and get 30 days of Pro features absolutely free.`}
           onDismiss={handleDismiss}
         >
           {/* Progress indicator */}
@@ -160,7 +272,9 @@ export function DashboardNotifications({
             <div className="h-2 bg-white/80 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-400 to-orange-500 rounded-full transition-all duration-500"
-                style={{ width: `${(trialInvitesCompleted / trialInvitesRequired) * 100}%` }}
+                style={{
+                  width: `${(trialInvitesCompleted / trialInvitesRequired) * 100}%`,
+                }}
               />
             </div>
             <InviteDialog

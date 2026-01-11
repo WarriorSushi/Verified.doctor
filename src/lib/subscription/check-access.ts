@@ -37,14 +37,14 @@ export const PREMIUM_TEMPLATES = ["timeline", "magazine", "grid", "minimal"];
 export const PREMIUM_THEMES = ["sage", "warm", "teal", "executive"];
 
 /**
- * Check if a profile has active Pro subscription
+ * Check if a profile has active Pro subscription or active trial
  */
 export async function hasProAccess(profileId: string): Promise<boolean> {
   const supabase = await createClient();
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("subscription_status, subscription_expires_at")
+    .select("subscription_status, subscription_expires_at, trial_status, trial_expires_at")
     .eq("id", profileId)
     .single();
 
@@ -60,6 +60,12 @@ export async function hasProAccess(profileId: string): Promise<boolean> {
   if (profile.subscription_status === "cancelled") {
     if (!profile.subscription_expires_at) return false;
     return new Date(profile.subscription_expires_at) > new Date();
+  }
+
+  // Active trial with valid expiry
+  if (profile.trial_status === "active") {
+    if (!profile.trial_expires_at) return true; // Admin granted trial without expiry
+    return new Date(profile.trial_expires_at) > new Date();
   }
 
   return false;

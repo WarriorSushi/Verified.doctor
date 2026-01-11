@@ -36,11 +36,34 @@ export default async function DashboardPage() {
   }
 
   const supabase = await createClient();
-  const { count: unreadCount } = await supabase
-    .from("messages")
-    .select("*", { count: "exact", head: true })
-    .eq("profile_id", profile.id)
-    .eq("is_read", false);
+
+  // Run queries in parallel
+  const [messagesResult, adminActionsResult] = await Promise.all([
+    supabase
+      .from("messages")
+      .select("*", { count: "exact", head: true })
+      .eq("profile_id", profile.id)
+      .eq("is_read", false),
+    // Get recent admin actions for this user (last 7 days)
+    supabase
+      .from("admin_actions")
+      .select("action_type, details, created_at")
+      .eq("target_profile_id", profile.id)
+      .in("action_type", ["grant_trial", "grant_pro", "verify"])
+      .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
+
+  const unreadCount = messagesResult.count;
+  const recentAdminActions = adminActionsResult.data || [];
+
+  // Calculate if user has Pro access (includes trial)
+  const isTrialActive: boolean =
+    profile.trial_status === "active" &&
+    !!profile.trial_expires_at &&
+    new Date(profile.trial_expires_at) > new Date();
+  const hasProAccess: boolean = profile.subscription_status === "pro" || isTrialActive;
 
   const metrics = [
     { label: "Views", value: profile.view_count || 0, icon: Eye, format: formatViewCount },
@@ -89,7 +112,10 @@ export default async function DashboardPage() {
         trialStatus={profile.trial_status || "none"}
         trialInvitesCompleted={profile.trial_invites_completed || 0}
         trialInvitesRequired={profile.trial_invites_required || 2}
-        isPro={profile.subscription_status === "pro"}
+        trialExpiresAt={profile.trial_expires_at}
+        subscriptionPlan={profile.subscription_plan}
+        isPro={hasProAccess}
+        recentAdminActions={recentAdminActions}
       />
 
       {/* Mini Profile Preview Card */}

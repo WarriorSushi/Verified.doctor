@@ -54,7 +54,14 @@ export default async function DashboardLayout({
             <Link href="/" className="flex items-center gap-2" prefetch={false}>
               <div className="relative w-7 h-7 sm:w-8 sm:h-8">
                 <Image
-                  src={profile.subscription_status === "pro" ? "/Pro.svg" : "/verified-doctor-logo.svg"}
+                  src={
+                    profile.subscription_status === "pro" ||
+                    (profile.trial_status === "active" &&
+                     profile.trial_expires_at &&
+                     new Date(profile.trial_expires_at) > new Date())
+                      ? "/Pro.svg"
+                      : "/verified-doctor-logo.svg"
+                  }
                   alt="Verified.Doctor"
                   fill
                   className="object-contain"
