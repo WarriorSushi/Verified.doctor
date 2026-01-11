@@ -121,10 +121,70 @@ export async function POST(request: Request) {
       profile2_uuid: profile.id,
     });
 
+    // Track trial invite and check for trial activation
+    let trialActivated = false;
+    try {
+      // Get inviter's trial status
+      const { data: inviterProfile } = await supabase
+        .from("profiles")
+        .select("trial_status, trial_invites_required, trial_invites_completed, full_name")
+        .eq("id", invite.inviter_profile_id)
+        .single();
+
+      if (inviterProfile && inviterProfile.trial_status === "eligible") {
+        // Record the trial invite
+        await supabase.from("trial_invites").insert({
+          profile_id: invite.inviter_profile_id,
+          invite_code: inviteCode,
+          invitee_profile_id: profile.id,
+          completed_at: new Date().toISOString(),
+        });
+
+        // Increment trial invites completed
+        const newCompleted = (inviterProfile.trial_invites_completed || 0) + 1;
+        const required = inviterProfile.trial_invites_required || 2;
+
+        if (newCompleted >= required) {
+          // Activate the trial!
+          const now = new Date();
+          const expiresAt = new Date(now);
+          expiresAt.setDate(expiresAt.getDate() + 30);
+
+          await supabase
+            .from("profiles")
+            .update({
+              trial_status: "active",
+              trial_invites_completed: newCompleted,
+              trial_started_at: now.toISOString(),
+              trial_expires_at: expiresAt.toISOString(),
+            })
+            .eq("id", invite.inviter_profile_id);
+
+          trialActivated = true;
+
+          // Note: Email notification to inviter would require looking up their
+          // email from Clerk. For now, they'll see the trial is active when
+          // they next log in to their dashboard.
+        } else {
+          // Just increment the count
+          await supabase
+            .from("profiles")
+            .update({
+              trial_invites_completed: newCompleted,
+            })
+            .eq("id", invite.inviter_profile_id);
+        }
+      }
+    } catch (trialError) {
+      // Don't fail the connection creation if trial tracking fails
+      console.error("Trial tracking error:", trialError);
+    }
+
     return NextResponse.json({
       success: true,
       connectedWith: invite.inviter,
       message: `You are now connected with Dr. ${(invite.inviter as { full_name: string })?.full_name || "your colleague"}!`,
+      trialActivated,
     });
   } catch (error) {
     console.error("Accept invite error:", error);

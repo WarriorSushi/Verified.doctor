@@ -23,7 +23,7 @@ export const FREE_LIMITS = {
   connections: 20,
   messages_per_month: 50,
   ai_suggestions_per_month: 3,
-  analytics_days: 7,
+  analytics_days: 1, // Today only - 7+ days requires Pro
 } as const;
 
 /**

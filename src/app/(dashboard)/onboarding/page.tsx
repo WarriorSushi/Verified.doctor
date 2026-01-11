@@ -434,9 +434,9 @@ function OnboardingForm() {
   const [bio, setBio] = useState("");
   const [externalBookingUrl, setExternalBookingUrl] = useState("");
 
-  // Step 5 & 6: Layout & Theme (no defaults - user must select)
-  const [profileLayout, setProfileLayout] = useState("");
-  const [profileTheme, setProfileTheme] = useState("");
+  // Step 5 & 6: Layout & Theme (defaults to first option in each)
+  const [profileLayout, setProfileLayout] = useState("classic");
+  const [profileTheme, setProfileTheme] = useState("blue");
 
   // Handle availability check
   const [handleStatus, setHandleStatus] = useState<

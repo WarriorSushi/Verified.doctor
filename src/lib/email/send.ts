@@ -438,3 +438,334 @@ View and reply: ${dashboardUrl}
 
   return sendEmail({ to, subject, html, text });
 }
+
+/**
+ * Send a profile views notification email
+ */
+export async function sendProfileViewsEmail(
+  to: string,
+  name: string,
+  handle: string,
+  viewCount: number
+): Promise<SendEmailResult> {
+  const dashboardUrl = "https://verified.doctor/dashboard";
+  const profileBuilderUrl = "https://verified.doctor/dashboard/profile-builder?tab=content";
+
+  const subject = `${viewCount} people viewed your profile on Verified.Doctor`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; background: #f8fafc; }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .highlight { font-size: 48px; font-weight: bold; background: linear-gradient(135deg, #10B981 0%, #059669 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    h1 { color: #0f172a; font-size: 24px; margin: 0 0 16px 0; text-align: center; }
+    p { color: #475569; line-height: 1.6; margin: 0 0 16px 0; }
+    .tip-box { background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .tip-box h3 { color: #0369a1; font-size: 16px; margin: 0 0 12px 0; }
+    .tip-item { display: flex; align-items: flex-start; margin-bottom: 10px; }
+    .tip-item:last-child { margin-bottom: 0; }
+    .tip-icon { color: #0099F7; margin-right: 10px; font-weight: bold; }
+    .tip-text { color: #475569; font-size: 14px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #0099F7 0%, #0080CC 100%); color: white !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="highlight">${viewCount}</div>
+        <p style="color: #64748b; margin-top: 8px;">people viewed your profile</p>
+      </div>
+
+      <h1>Great news, ${name}!</h1>
+
+      <p>Your profile at <strong>verified.doctor/${handle}</strong> is getting noticed. Keep building your presence to attract more patients and colleagues.</p>
+
+      <div class="tip-box">
+        <h3>Boost your profile with these features:</h3>
+        <div class="tip-item">
+          <span class="tip-icon">+</span>
+          <span class="tip-text"><strong>Video Introduction</strong> - Share a personal message with visitors</span>
+        </div>
+        <div class="tip-item">
+          <span class="tip-icon">+</span>
+          <span class="tip-text"><strong>Education Timeline</strong> - Showcase your qualifications</span>
+        </div>
+        <div class="tip-item">
+          <span class="tip-icon">+</span>
+          <span class="tip-text"><strong>Case Studies</strong> - Highlight your expertise</span>
+        </div>
+        <div class="tip-item">
+          <span class="tip-icon">+</span>
+          <span class="tip-text"><strong>Hospital Affiliations</strong> - Build credibility</span>
+        </div>
+        <div class="tip-item">
+          <span class="tip-icon">+</span>
+          <span class="tip-text"><strong>Clinic Gallery</strong> - Show your practice space</span>
+        </div>
+      </div>
+
+      <center>
+        <a href="${profileBuilderUrl}" class="button">Enhance Your Profile</a>
+      </center>
+    </div>
+
+    <div class="footer">
+      <p>Verified.Doctor - Your Digital Identity, Verified.</p>
+      <p style="font-size: 12px; margin-top: 8px;">
+        <a href="${dashboardUrl}" style="color: #0099F7;">Go to Dashboard</a>
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Great news, ${name}!
+
+${viewCount} people viewed your profile at verified.doctor/${handle}.
+
+Boost your profile with these features:
+- Video Introduction - Share a personal message with visitors
+- Education Timeline - Showcase your qualifications
+- Case Studies - Highlight your expertise
+- Hospital Affiliations - Build credibility
+- Clinic Gallery - Show your practice space
+
+Enhance your profile: ${profileBuilderUrl}
+
+- The Verified.Doctor Team
+  `.trim();
+
+  return sendEmail({ to, subject, html, text });
+}
+
+/**
+ * Send a trial offer email to new users
+ */
+export async function sendTrialOfferEmail(
+  to: string,
+  name: string,
+  handle: string
+): Promise<SendEmailResult> {
+  const dashboardUrl = "https://verified.doctor/dashboard";
+
+  const subject = `You've been selected for free Pro access!`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; background: #f8fafc; }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .badge { display: inline-block; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; padding: 6px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+    h1 { color: #0f172a; font-size: 24px; margin: 16px 0; }
+    p { color: #475569; line-height: 1.6; margin: 0 0 16px 0; }
+    .offer-box { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border: 2px solid #FCD34D; border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center; }
+    .offer-box h2 { color: #92400E; font-size: 20px; margin: 0 0 8px 0; }
+    .offer-box p { color: #A16207; margin: 0; }
+    .features { background: #f8fafc; border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .features h3 { color: #0f172a; font-size: 16px; margin: 0 0 16px 0; }
+    .feature-item { display: flex; align-items: center; margin-bottom: 12px; }
+    .feature-item:last-child { margin-bottom: 0; }
+    .feature-check { color: #10B981; margin-right: 10px; font-weight: bold; }
+    .feature-text { color: #475569; font-size: 14px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white !important; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; }
+    .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 14px; }
+    .fine-print { font-size: 12px; color: #94a3b8; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <span class="badge">Exclusive Offer</span>
+        <h1>Congratulations, ${name}!</h1>
+        <p>Your profile has been randomly selected for our Pro trial program.</p>
+      </div>
+
+      <div class="offer-box">
+        <h2>30 Days of Pro - FREE</h2>
+        <p>Invite 2 colleagues to join Verified.Doctor</p>
+      </div>
+
+      <div class="features">
+        <h3>What you'll unlock with Pro:</h3>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Premium profile templates (Timeline, Magazine, Grid, Minimal)</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Exclusive color themes (Sage, Warm, Teal, Executive)</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Video introduction & clinic gallery</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Unlimited connections & messages</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Extended analytics (90 days, 1 year)</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-check">&#10003;</span>
+          <span class="feature-text">Custom QR code colors</span>
+        </div>
+      </div>
+
+      <center>
+        <a href="${dashboardUrl}" class="button">Claim Your Free Pro</a>
+        <p class="fine-print">No credit card required. No strings attached.</p>
+      </center>
+    </div>
+
+    <div class="footer">
+      <p>Verified.Doctor - Your Digital Identity, Verified.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Congratulations, ${name}!
+
+Your profile has been randomly selected for our Pro trial program.
+
+30 DAYS OF PRO - FREE
+Invite 2 colleagues to join Verified.Doctor
+
+What you'll unlock with Pro:
+- Premium profile templates (Timeline, Magazine, Grid, Minimal)
+- Exclusive color themes (Sage, Warm, Teal, Executive)
+- Video introduction & clinic gallery
+- Unlimited connections & messages
+- Extended analytics (90 days, 1 year)
+- Custom QR code colors
+
+Claim your free Pro: ${dashboardUrl}
+
+No credit card required. No strings attached.
+
+- The Verified.Doctor Team
+  `.trim();
+
+  return sendEmail({ to, subject, html, text });
+}
+
+/**
+ * Send a trial claimed/activated email
+ */
+export async function sendTrialClaimedEmail(
+  to: string,
+  name: string,
+  expiryDate: Date
+): Promise<SendEmailResult> {
+  const dashboardUrl = "https://verified.doctor/dashboard";
+  const formattedExpiry = expiryDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  const subject = `Your 30-day Pro trial is now active!`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; background: #f8fafc; }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .celebration { font-size: 48px; margin-bottom: 16px; }
+    h1 { color: #0f172a; font-size: 24px; margin: 0 0 16px 0; }
+    p { color: #475569; line-height: 1.6; margin: 0 0 16px 0; }
+    .pro-badge { display: inline-block; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 12px 24px; border-radius: 8px; font-weight: 600; margin: 16px 0; }
+    .expiry-box { background: #f8fafc; border-radius: 8px; padding: 16px; text-align: center; margin: 24px 0; }
+    .expiry-box p { margin: 0; color: #64748b; font-size: 14px; }
+    .expiry-box .date { color: #0f172a; font-weight: 600; font-size: 16px; margin-top: 4px; }
+    .button { display: inline-block; background: linear-gradient(135deg, #0099F7 0%, #0080CC 100%); color: white !important; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: 600; }
+    .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="celebration">&#127881;</div>
+        <h1>Welcome to Pro, ${name}!</h1>
+        <p>Your 30-day Pro trial is now active. Enjoy all premium features!</p>
+        <div class="pro-badge">PRO ACCESS UNLOCKED</div>
+      </div>
+
+      <div class="expiry-box">
+        <p>Your trial ends on</p>
+        <p class="date">${formattedExpiry}</p>
+      </div>
+
+      <p>Here's what you can do now:</p>
+      <ul style="color: #475569; line-height: 2;">
+        <li>Switch to premium templates in Profile Builder</li>
+        <li>Try exclusive color themes</li>
+        <li>Add video introduction and clinic gallery</li>
+        <li>View extended analytics</li>
+        <li>Connect with unlimited colleagues</li>
+      </ul>
+
+      <center>
+        <a href="${dashboardUrl}" class="button">Explore Pro Features</a>
+      </center>
+    </div>
+
+    <div class="footer">
+      <p>Verified.Doctor - Your Digital Identity, Verified.</p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Welcome to Pro, ${name}!
+
+Your 30-day Pro trial is now active. Enjoy all premium features!
+
+Your trial ends on: ${formattedExpiry}
+
+Here's what you can do now:
+- Switch to premium templates in Profile Builder
+- Try exclusive color themes
+- Add video introduction and clinic gallery
+- View extended analytics
+- Connect with unlimited colleagues
+
+Explore Pro features: ${dashboardUrl}
+
+- The Verified.Doctor Team
+  `.trim();
+
+  return sendEmail({ to, subject, html, text });
+}

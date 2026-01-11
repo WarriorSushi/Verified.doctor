@@ -22,6 +22,7 @@ import { formatViewCount } from "@/lib/format-metrics";
 import { InviteDialog } from "@/components/dashboard/invite-dialog";
 import { QRCodeDesigner } from "@/components/dashboard/qr-code-designer";
 import { VerifiedBadge } from "@/components/profile/verified-badge";
+import { DashboardNotifications } from "@/components/dashboard/dashboard-notifications";
 
 export default async function DashboardPage() {
   const { profile, userId } = await getProfile();
@@ -77,6 +78,19 @@ export default async function DashboardPage() {
           <p className="font-medium text-emerald-900 text-sm">Verified Physician</p>
         </div>
       )}
+
+      {/* Dashboard Notifications */}
+      <DashboardNotifications
+        profileId={profile.id}
+        initialDismissed={(profile.dismissed_notifications as string[]) || []}
+        createdAt={profile.created_at || new Date().toISOString()}
+        viewCount={profile.view_count || 0}
+        boostApplied={profile.initial_boost_applied || false}
+        trialStatus={profile.trial_status || "none"}
+        trialInvitesCompleted={profile.trial_invites_completed || 0}
+        trialInvitesRequired={profile.trial_invites_required || 2}
+        isPro={profile.subscription_status === "pro"}
+      />
 
       {/* Mini Profile Preview Card */}
       <div data-tour="profile-preview" className="bg-white rounded-xl border border-slate-200 overflow-hidden">

@@ -3,6 +3,10 @@ export {
   sendWelcomeEmail,
   sendVerificationApprovedEmail,
   sendNewMessageEmail,
+  sendProfileViewsEmail,
+  sendTrialOfferEmail,
+  sendTrialClaimedEmail,
+  sendInviteEmail,
   type SendEmailParams,
   type SendEmailResult,
 } from "./send";

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOut, User, Settings, ChevronDown, HelpCircle, FileText, Shield, Mail, Compass } from "lucide-react";
+import { LogOut, User, Settings, ChevronDown, HelpCircle, FileText, Shield, Mail, Compass, Crown, Sparkles } from "lucide-react";
 import { useTour } from "@/components/tour";
 import {
   DropdownMenu,
@@ -21,9 +21,19 @@ interface UserMenuProps {
   fullName: string;
   handle: string;
   profilePhotoUrl?: string | null;
+  subscriptionStatus?: string | null;
+  trialStatus?: string | null;
+  trialExpiresAt?: string | null;
 }
 
-export function UserMenu({ fullName, handle, profilePhotoUrl }: UserMenuProps) {
+export function UserMenu({
+  fullName,
+  handle,
+  profilePhotoUrl,
+  subscriptionStatus,
+  trialStatus,
+  trialExpiresAt,
+}: UserMenuProps) {
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { startTour } = useTour();
@@ -34,6 +44,18 @@ export function UserMenu({ fullName, handle, profilePhotoUrl }: UserMenuProps) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
+  // Determine subscription display
+  const isPro = subscriptionStatus === "pro";
+  const isTrialActive = trialStatus === "active" && trialExpiresAt && new Date(trialExpiresAt) > new Date();
+
+  // Calculate trial days remaining
+  let trialDaysRemaining = 0;
+  if (isTrialActive && trialExpiresAt) {
+    const expiresAt = new Date(trialExpiresAt);
+    const now = new Date();
+    trialDaysRemaining = Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+  }
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -78,8 +100,27 @@ export function UserMenu({ fullName, handle, profilePhotoUrl }: UserMenuProps) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="px-2 py-1.5">
-          <p className="text-sm font-medium text-slate-900">{fullName}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-slate-900">{fullName}</p>
+            {isPro && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-[10px] font-bold">
+                <Crown className="w-2.5 h-2.5" />
+                PRO
+              </span>
+            )}
+            {isTrialActive && !isPro && (
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[10px] font-bold">
+                <Sparkles className="w-2.5 h-2.5" />
+                TRIAL
+              </span>
+            )}
+          </div>
           <p className="text-xs text-slate-500">verified.doctor/{handle}</p>
+          {isTrialActive && !isPro && trialDaysRemaining > 0 && (
+            <p className="text-[10px] text-violet-600 mt-0.5">
+              {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''} left in trial
+            </p>
+          )}
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem

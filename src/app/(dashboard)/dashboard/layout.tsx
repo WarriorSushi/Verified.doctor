@@ -71,6 +71,9 @@ export default async function DashboardLayout({
                 fullName={profile.full_name}
                 handle={profile.handle}
                 profilePhotoUrl={profile.profile_photo_url}
+                subscriptionStatus={profile.subscription_status}
+                trialStatus={profile.trial_status}
+                trialExpiresAt={profile.trial_expires_at}
               />
             </div>
           </div>

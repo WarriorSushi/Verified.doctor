@@ -3,7 +3,7 @@ import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { isBannedHandle } from "@/lib/banned-handles";
-import { sendWelcomeEmail } from "@/lib/email";
+import { sendWelcomeEmail, sendTrialOfferEmail } from "@/lib/email";
 
 const createProfileSchema = z.object({
   handle: z
@@ -146,6 +146,11 @@ export async function POST(request: Request) {
         recommendation_count: 0,
         connection_count: 0,
         view_count: 0,
+        // Trial system: All new users are eligible for the free trial
+        trial_status: "eligible",
+        trial_invites_required: 2,
+        trial_invites_completed: 0,
+        trial_offer_shown_at: new Date().toISOString(),
       })
       .select()
       .single();
@@ -278,6 +283,62 @@ export async function POST(request: Request) {
               }
 
               connectedWith = invite.inviter;
+
+              // Track trial invite for the inviter
+              try {
+                // Get inviter's trial status
+                const { data: inviterTrialData } = await supabase
+                  .from("profiles")
+                  .select("trial_status, trial_invites_required, trial_invites_completed, full_name")
+                  .eq("id", invite.inviter_profile_id)
+                  .single();
+
+                if (inviterTrialData && inviterTrialData.trial_status === "eligible") {
+                  // Record the trial invite
+                  await supabase.from("trial_invites").insert({
+                    profile_id: invite.inviter_profile_id,
+                    invite_code: inviteCode,
+                    invitee_profile_id: profile.id,
+                    completed_at: new Date().toISOString(),
+                  });
+
+                  // Increment trial invites completed
+                  const newCompleted = (inviterTrialData.trial_invites_completed || 0) + 1;
+                  const required = inviterTrialData.trial_invites_required || 2;
+
+                  if (newCompleted >= required) {
+                    // Activate the trial!
+                    const now = new Date();
+                    const expiresAt = new Date(now);
+                    expiresAt.setDate(expiresAt.getDate() + 30);
+
+                    await supabase
+                      .from("profiles")
+                      .update({
+                        trial_status: "active",
+                        trial_invites_completed: newCompleted,
+                        trial_started_at: now.toISOString(),
+                        trial_expires_at: expiresAt.toISOString(),
+                      })
+                      .eq("id", invite.inviter_profile_id);
+
+                    // Note: Email notification would require looking up their
+                    // email from Clerk. They'll see the trial is active when
+                    // they next log in to their dashboard.
+                  } else {
+                    // Just increment the count
+                    await supabase
+                      .from("profiles")
+                      .update({
+                        trial_invites_completed: newCompleted,
+                      })
+                      .eq("id", invite.inviter_profile_id);
+                  }
+                }
+              } catch (trialError) {
+                // Don't fail profile creation if trial tracking fails
+                console.error("[profiles] Trial tracking error:", trialError);
+              }
             }
           }
         }
@@ -292,6 +353,14 @@ export async function POST(request: Request) {
       sendWelcomeEmail(user.email, fullName, handle).catch((err) => {
         console.error("[email] Failed to send welcome email:", err);
       });
+
+      // Send trial offer email (async, don't block response)
+      // Delay slightly so welcome email arrives first
+      setTimeout(() => {
+        sendTrialOfferEmail(user.email!, fullName, handle).catch((err) => {
+          console.error("[email] Failed to send trial offer email:", err);
+        });
+      }, 5000); // 5 second delay
     }
 
     return NextResponse.json({

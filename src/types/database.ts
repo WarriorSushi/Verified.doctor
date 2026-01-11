@@ -544,6 +544,7 @@ export type Database = {
           connection_count: number | null
           consultation_fee: string | null
           created_at: string | null
+          dismissed_notifications: Json | null
           education_timeline: Json | null
           external_booking_url: string | null
           first_visit_guide: string | null
@@ -552,6 +553,9 @@ export type Database = {
           handle: string
           hospital_affiliations: Json | null
           id: string
+          initial_boost_amount: number | null
+          initial_boost_applied: boolean | null
+          initial_boost_applied_at: string | null
           is_available: boolean | null
           is_frozen: boolean | null
           is_verified: boolean | null
@@ -578,6 +582,12 @@ export type Database = {
           subscription_plan: string | null
           subscription_started_at: string | null
           subscription_status: string | null
+          trial_expires_at: string | null
+          trial_invites_completed: number | null
+          trial_invites_required: number | null
+          trial_offer_shown_at: string | null
+          trial_started_at: string | null
+          trial_status: string | null
           updated_at: string | null
           user_id: string
           verification_status: string | null
@@ -600,6 +610,7 @@ export type Database = {
           connection_count?: number | null
           consultation_fee?: string | null
           created_at?: string | null
+          dismissed_notifications?: Json | null
           education_timeline?: Json | null
           external_booking_url?: string | null
           first_visit_guide?: string | null
@@ -608,6 +619,9 @@ export type Database = {
           handle: string
           hospital_affiliations?: Json | null
           id?: string
+          initial_boost_amount?: number | null
+          initial_boost_applied?: boolean | null
+          initial_boost_applied_at?: string | null
           is_available?: boolean | null
           is_frozen?: boolean | null
           is_verified?: boolean | null
@@ -634,6 +648,12 @@ export type Database = {
           subscription_plan?: string | null
           subscription_started_at?: string | null
           subscription_status?: string | null
+          trial_expires_at?: string | null
+          trial_invites_completed?: number | null
+          trial_invites_required?: number | null
+          trial_offer_shown_at?: string | null
+          trial_started_at?: string | null
+          trial_status?: string | null
           updated_at?: string | null
           user_id: string
           verification_status?: string | null
@@ -656,6 +676,7 @@ export type Database = {
           connection_count?: number | null
           consultation_fee?: string | null
           created_at?: string | null
+          dismissed_notifications?: Json | null
           education_timeline?: Json | null
           external_booking_url?: string | null
           first_visit_guide?: string | null
@@ -664,6 +685,9 @@ export type Database = {
           handle?: string
           hospital_affiliations?: Json | null
           id?: string
+          initial_boost_amount?: number | null
+          initial_boost_applied?: boolean | null
+          initial_boost_applied_at?: string | null
           is_available?: boolean | null
           is_frozen?: boolean | null
           is_verified?: boolean | null
@@ -690,6 +714,12 @@ export type Database = {
           subscription_plan?: string | null
           subscription_started_at?: string | null
           subscription_status?: string | null
+          trial_expires_at?: string | null
+          trial_invites_completed?: number | null
+          trial_invites_required?: number | null
+          trial_offer_shown_at?: string | null
+          trial_started_at?: string | null
+          trial_status?: string | null
           updated_at?: string | null
           user_id?: string
           verification_status?: string | null
@@ -769,6 +799,48 @@ export type Database = {
           {
             foreignKeyName: "subscription_events_profile_id_fkey"
             columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trial_invites: {
+        Row: {
+          id: string
+          profile_id: string
+          invite_code: string
+          invitee_profile_id: string | null
+          created_at: string | null
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          invite_code: string
+          invitee_profile_id?: string | null
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          invite_code?: string
+          invitee_profile_id?: string | null
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trial_invites_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trial_invites_invitee_profile_id_fkey"
+            columns: ["invitee_profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1009,3 +1081,4 @@ export type AnalyticsDailyStats = Database["public"]["Tables"]["analytics_daily_
 export type ContactMessage = Database["public"]["Tables"]["contact_messages"]["Row"]
 export type AdminAuditLog = Database["public"]["Tables"]["admin_audit_logs"]["Row"]
 export type SubscriptionEvent = Database["public"]["Tables"]["subscription_events"]["Row"]
+export type TrialInvite = Database["public"]["Tables"]["trial_invites"]["Row"]

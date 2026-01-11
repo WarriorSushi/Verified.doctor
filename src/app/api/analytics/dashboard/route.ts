@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { hasProAccess, FREE_LIMITS } from "@/lib/subscription/check-access";
 
 interface DailyStat {
   date: string;
@@ -42,7 +43,14 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters for date range
     const searchParams = request.nextUrl.searchParams;
-    const days = parseInt(searchParams.get("days") || "30");
+    let days = parseInt(searchParams.get("days") || "1");
+
+    // Enforce Pro-only restriction for analytics beyond today
+    const isPro = await hasProAccess(profile.id);
+    if (!isPro && days > FREE_LIMITS.analytics_days) {
+      days = FREE_LIMITS.analytics_days; // Limit to today only for free users
+    }
+
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 

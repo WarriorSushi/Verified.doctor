@@ -75,7 +75,7 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [days, setDays] = useState("30");
+  const [days, setDays] = useState("1"); // Default to today for all users
   const { subscription } = useSubscription();
   const isPro = subscription?.isPro ?? false;
 
@@ -157,7 +157,7 @@ export default function AnalyticsPage() {
           <Select
             value={days}
             onValueChange={(value) => {
-              const isProOnly = value === "90" || value === "365";
+              const isProOnly = value !== "1";
               if (isProOnly && !isPro) {
                 toast.error("Upgrade to Pro for extended date ranges");
                 return;
@@ -170,8 +170,19 @@ export default function AnalyticsPage() {
               <SelectValue placeholder="Time period" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="7">Last 7 days</SelectItem>
-              <SelectItem value="30">Last 30 days</SelectItem>
+              <SelectItem value="1">Today</SelectItem>
+              <SelectItem value="7" disabled={!isPro}>
+                <span className="flex items-center gap-2">
+                  Last 7 days
+                  {!isPro && <Lock className="w-3 h-3 text-slate-400" />}
+                </span>
+              </SelectItem>
+              <SelectItem value="30" disabled={!isPro}>
+                <span className="flex items-center gap-2">
+                  Last 30 days
+                  {!isPro && <Lock className="w-3 h-3 text-slate-400" />}
+                </span>
+              </SelectItem>
               <SelectItem value="90" disabled={!isPro}>
                 <span className="flex items-center gap-2">
                   Last 90 days
