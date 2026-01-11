@@ -21,6 +21,7 @@ import { CopyButton } from "@/components/dashboard/copy-button";
 import { formatViewCount } from "@/lib/format-metrics";
 import { InviteDialog } from "@/components/dashboard/invite-dialog";
 import { QRCodeDesigner } from "@/components/dashboard/qr-code-designer";
+import { VerifiedBadge } from "@/components/profile/verified-badge";
 
 export default async function DashboardPage() {
   const { profile, userId } = await getProfile();
@@ -96,8 +97,12 @@ export default async function DashboardPage() {
                 </div>
               )}
               {profile.is_verified && (
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 sm:w-6 sm:h-6">
-                  <Image src="/verified-doctor-logo.svg" alt="Verified" fill className="object-contain" />
+                <div className="absolute -bottom-1 -right-1">
+                  <VerifiedBadge
+                    isVerified={profile.is_verified}
+                    isPro={profile.subscription_status === "pro"}
+                    size="sm"
+                  />
                 </div>
               )}
             </div>

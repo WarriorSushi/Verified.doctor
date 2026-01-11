@@ -91,3 +91,4 @@ service-account*.json
 
 # Claude/AI files (optional, remove if you want to track)
 CLAUDE.md
+nul

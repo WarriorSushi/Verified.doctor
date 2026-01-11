@@ -35,6 +35,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -71,6 +72,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -116,6 +118,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 300
     ? profile.bio.slice(0, 300).trim() + "..."
@@ -145,9 +148,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
       <header className="fixed top-0 left-0 right-0 z-50 px-6 lg:px-12 py-6">
         <div className="flex items-center justify-between">
           <Link href="/" className="opacity-60 hover:opacity-100 transition-opacity">
-            <div className="relative w-5 h-5">
-              <Image src="/verified-doctor-logo.svg" alt="Verified.Doctor" fill className="object-contain" />
-            </div>
+            <VerifiedBadge isVerified={true} isPro={isPro} size="sm" showTooltip={false} />
           </Link>
           <Link
             href="/"
@@ -171,11 +172,9 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
                 {/* Verified Tag */}
                 {profile.is_verified && (
                   <div className="flex items-center gap-2 mb-4">
-                    <div className="relative w-4 h-4">
-                      <Image src="/verified-doctor-logo.svg" alt="Verified" fill className="object-contain" />
-                    </div>
+                    <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="xs" />
                     <span className="text-xs font-medium tracking-wider uppercase" style={{ color: colors.primary }}>
-                      Verified
+                      {isPro ? "Pro" : "Verified"}
                     </span>
                   </div>
                 )}

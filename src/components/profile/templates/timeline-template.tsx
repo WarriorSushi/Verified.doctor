@@ -41,6 +41,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 
 interface Profile {
   id: string;
@@ -76,6 +77,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -189,6 +191,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 150
     ? profile.bio.slice(0, 150).trim() + "..."
@@ -220,13 +223,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
       <nav className="relative z-20 px-4 sm:px-6 py-4 border-b border-stone-200/60 bg-[#faf7f2]/90 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-105">
-              <Image
-                src="/verified-doctor-logo.svg"
-                alt="Verified.Doctor"
-                fill
-                className="object-contain"
-              />
+            <div className="transition-transform group-hover:scale-105">
+              <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
             </div>
             <span
               className="text-sm sm:text-base font-semibold text-stone-700"
@@ -299,13 +297,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
 
             {/* Verified badge */}
             {profile.is_verified && (
-              <div className="absolute -bottom-1 -right-1 w-10 h-10 bg-[#faf7f2] rounded-full p-1 shadow-lg">
-                <Image
-                  src="/verified-doctor-logo.svg"
-                  alt="Verified"
-                  fill
-                  className="object-contain p-1"
-                />
+              <div className="absolute -bottom-1 -right-1 bg-[#faf7f2] rounded-full p-1 shadow-lg">
+                <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="md" />
               </div>
             )}
           </motion.div>
@@ -330,8 +323,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
               className="flex justify-center mb-4"
             >
               <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-medium text-emerald-700">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Verified Physician
+                <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="xs" />
+                {isPro ? "Pro Physician" : "Verified Physician"}
               </span>
             </motion.div>
           )}

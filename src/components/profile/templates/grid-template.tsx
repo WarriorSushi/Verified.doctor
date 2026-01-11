@@ -43,6 +43,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -79,6 +80,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -123,6 +125,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 150
     ? profile.bio.slice(0, 150).trim() + "..."
@@ -179,9 +182,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
           }}
         >
           <Link href="/" className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-            <div className="relative w-6 h-6">
-              <Image src="/verified-doctor-logo.svg" alt="Verified.Doctor" fill className="object-contain" />
-            </div>
+            <VerifiedBadge isVerified={true} isPro={isPro} size="sm" showTooltip={false} />
             <span className="text-sm font-semibold tracking-tight" style={{ color: colors.text }}>
               verified<span style={{ color: colors.primary }}>.doctor</span>
             </span>
@@ -240,9 +241,9 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
                 </div>
               )}
               {profile.is_verified && (
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2"
+                <div className="absolute -bottom-1 -right-1 rounded-full border-2"
                   style={{ borderColor: colors.card, backgroundColor: colors.card }}>
-                  <Image src="/verified-doctor-logo.svg" alt="Verified" fill className="object-contain" />
+                  <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="sm" />
                 </div>
               )}
             </div>

@@ -40,6 +40,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 
 interface Profile {
   id: string;
@@ -76,6 +77,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -134,6 +136,7 @@ export function OceanTemplate({ profile, connectedDoctors, invitedBy }: OceanTem
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   // Truncate bio to ~150 chars
   const bioTruncated = profile.bio && profile.bio.length > 150
@@ -165,13 +168,8 @@ export function OceanTemplate({ profile, connectedDoctors, invitedBy }: OceanTem
       >
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-105">
-              <Image
-                src="/verified-doctor-logo.svg"
-                alt="Verified.Doctor"
-                fill
-                className="object-contain"
-              />
+            <div className="transition-transform group-hover:scale-105">
+              <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
             </div>
             <span className="text-sm sm:text-base font-semibold" style={{ color: theme.text }}>
               verified<span style={{ color: theme.primary }}>.doctor</span>
@@ -242,14 +240,7 @@ export function OceanTemplate({ profile, connectedDoctors, invitedBy }: OceanTem
                   {profile.full_name}
                 </h1>
                 {profile.is_verified && (
-                  <div className="relative w-6 h-6 sm:w-8 sm:h-8" title="Verified Doctor">
-                    <Image
-                      src="/verified-doctor-logo.svg"
-                      alt="Verified"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+                  <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="md" />
                 )}
               </div>
 
@@ -258,8 +249,8 @@ export function OceanTemplate({ profile, connectedDoctors, invitedBy }: OceanTem
                 <div className="flex justify-center sm:justify-start mb-2">
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium"
                     style={{ backgroundColor: `${theme.primary}15`, border: `1px solid ${theme.primary}30`, color: theme.primary }}>
-                    <CheckCircle2 className="w-3 h-3" />
-                    Verified Physician
+                    <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="xs" />
+                    {isPro ? "Pro Physician" : "Verified Physician"}
                   </span>
                 </div>
               )}

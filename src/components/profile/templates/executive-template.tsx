@@ -40,6 +40,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 
 interface Profile {
   id: string;
@@ -75,6 +76,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -125,6 +127,7 @@ export function ExecutiveTemplate({ profile, connectedDoctors, invitedBy }: Exec
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 150
     ? profile.bio.slice(0, 150).trim() + "..."
@@ -156,13 +159,8 @@ export function ExecutiveTemplate({ profile, connectedDoctors, invitedBy }: Exec
       <nav className="relative z-20 px-4 sm:px-6 py-4 border-b border-[#d4af37]/10 bg-[#0d0d14]/90 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="relative w-6 h-6 sm:w-7 sm:h-7 transition-transform group-hover:scale-105">
-              <Image
-                src="/verified-doctor-logo.svg"
-                alt="Verified.Doctor"
-                fill
-                className="object-contain brightness-0 invert opacity-80"
-              />
+            <div className="transition-transform group-hover:scale-105 brightness-0 invert opacity-80">
+              <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
             </div>
             <span className="text-sm sm:text-base font-medium text-[#f5f5dc]/80 tracking-wide">
               verified<span className="text-[#d4af37]">.doctor</span>
@@ -227,17 +225,17 @@ export function ExecutiveTemplate({ profile, connectedDoctors, invitedBy }: Exec
                     {/* Verified badge with gold shimmer */}
                     {profile.is_verified && (
                       <motion.div
-                        className="absolute -bottom-1 -right-1 w-10 h-10 sm:w-12 sm:h-12"
+                        className="absolute -bottom-1 -right-1"
                         initial={{ scale: 0, rotate: -180 }}
                         animate={{ scale: 1, rotate: 0 }}
                         transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
                       >
-                        <div className="relative w-full h-full">
+                        <div className="relative">
                           {/* Gold glow */}
                           <div className="absolute inset-0 bg-[#d4af37] rounded-full blur-md opacity-50" />
-                          {/* Badge background */}
-                          <div className="relative w-full h-full rounded-full bg-gradient-to-br from-[#d4af37] to-[#c9a227] flex items-center justify-center shadow-lg shadow-[#d4af37]/30">
-                            <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-[#0d0d14]" />
+                          {/* Badge */}
+                          <div className="relative">
+                            <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="lg" />
                           </div>
                           {/* Shimmer effect */}
                           <motion.div
@@ -267,7 +265,7 @@ export function ExecutiveTemplate({ profile, connectedDoctors, invitedBy }: Exec
                         transition={{ delay: 0.4 }}
                         className="text-[#d4af37] text-xs uppercase tracking-[0.2em] font-medium mb-3"
                       >
-                        ✦ Verified Physician ✦
+                        {isPro ? "✦ Pro Physician ✦" : "✦ Verified Physician ✦"}
                       </motion.p>
                     )}
 

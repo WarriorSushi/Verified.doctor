@@ -61,6 +61,7 @@ interface ExtendedProfile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ProfilePageProps {

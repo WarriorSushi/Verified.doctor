@@ -38,6 +38,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -74,6 +75,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -118,6 +120,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 200
     ? profile.bio.slice(0, 200).trim() + "..."
@@ -143,9 +146,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
       }}>
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-            <div className="relative w-6 h-6">
-              <Image src="/verified-doctor-logo.svg" alt="Verified.Doctor" fill className="object-contain" />
-            </div>
+            <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
             <span className="text-sm font-medium tracking-tight" style={{ color: colors.text }}>
               verified<span style={{ color: colors.primary }}>.doctor</span>
             </span>
@@ -187,11 +188,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
             <h1 className="text-2xl font-semibold tracking-tight" style={{ color: colors.text }}>
               {profile.full_name}
             </h1>
-            {profile.is_verified && (
-              <div className="relative w-5 h-5" title="Verified Doctor">
-                <Image src="/verified-doctor-logo.svg" alt="Verified" fill className="object-contain" />
-              </div>
-            )}
+            <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="sm" />
           </div>
 
           {/* Specialty */}

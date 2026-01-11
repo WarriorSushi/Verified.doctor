@@ -40,6 +40,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -76,6 +77,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -121,6 +123,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 200
     ? profile.bio.slice(0, 200).trim() + "..."
@@ -140,9 +143,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
           className="flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl shadow-lg"
           style={{ backgroundColor: `${colors.card}E6`, border: `1px solid ${colors.cardBorder}` }}
         >
-          <div className="relative w-5 h-5">
-            <Image src="/verified-doctor-logo.svg" alt="Verified.Doctor" fill className="object-contain" />
-          </div>
+          <VerifiedBadge isVerified={true} isPro={isPro} size="sm" showTooltip={false} />
           <span className="text-xs font-medium" style={{ color: colors.text }}>
             Get yours
           </span>
@@ -218,8 +219,8 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
                 className="mb-6"
               >
                 <span className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.3em] uppercase" style={{ color: colors.primary }}>
-                  <Award className="w-4 h-4" />
-                  Verified
+                  <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="sm" />
+                  {isPro ? "Pro" : "Verified"}
                 </span>
               </motion.div>
             )}

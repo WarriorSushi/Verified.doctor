@@ -2,12 +2,15 @@
 
 import { ReactNode } from "react";
 import { TourProvider, TourOverlay } from "@/components/tour";
+import { SubscriptionProvider } from "@/components/subscription/use-subscription";
 
 export function DashboardClientWrapper({ children }: { children: ReactNode }) {
   return (
-    <TourProvider>
-      {children}
-      <TourOverlay />
-    </TourProvider>
+    <SubscriptionProvider>
+      <TourProvider>
+        {children}
+        <TourOverlay />
+      </TourProvider>
+    </SubscriptionProvider>
   );
 }

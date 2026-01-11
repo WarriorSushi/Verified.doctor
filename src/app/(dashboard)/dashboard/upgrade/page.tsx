@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Crown,
   Check,
@@ -13,10 +14,16 @@ import {
   TrendingUp,
   Sparkles,
   ArrowLeft,
-  Globe,
+  Loader2,
+  Layout,
+  Image as ImageIcon,
+  Wand2,
+  Calendar,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Get current month name for dynamic sale messaging
 const getCurrentMonth = () => {
@@ -27,67 +34,166 @@ const proFeatures = [
   {
     icon: BarChart3,
     title: "Advanced Analytics",
-    description: "Monthly, yearly, and custom date range analytics",
+    description: "Unlimited history, referrer tracking, custom date ranges",
   },
   {
     icon: Users,
     title: "Unlimited Connections",
-    description: "Connect with unlimited doctors in your network",
+    description: "Connect with unlimited doctors (Free: 20 max)",
+  },
+  {
+    icon: Layout,
+    title: "Premium Templates",
+    description: "Access Timeline, Magazine, Grid, Minimal layouts",
+  },
+  {
+    icon: Palette,
+    title: "All Color Themes",
+    description: "Sage, Warm, Teal, Executive themes unlocked",
+  },
+  {
+    icon: ImageIcon,
+    title: "Rich Profile Sections",
+    description: "Video intro, clinic gallery, case studies, publications",
+  },
+  {
+    icon: Wand2,
+    title: "Unlimited AI",
+    description: "Unlimited AI profile suggestions (Free: 3/month)",
+  },
+  {
+    icon: MessageSquare,
+    title: "Unlimited Messages",
+    description: "Receive unlimited patient inquiries (Free: 50/month)",
   },
   {
     icon: Headphones,
     title: "Priority Support",
     description: "Get help faster with dedicated support",
   },
-  {
-    icon: Palette,
-    title: "Custom QR Codes",
-    description: "Personalize your QR code with custom colors",
-  },
-  {
-    icon: MessageSquare,
-    title: "Message Templates",
-    description: "Save time with pre-written response templates",
-  },
-  {
-    icon: TrendingUp,
-    title: "Profile Insights",
-    description: "Detailed breakdown of who's viewing your profile",
-  },
 ];
 
-type Region = "IN" | "US";
-
-const pricing = {
-  IN: {
-    currency: "₹",
-    monthly: 199,
-    yearly: 1999,
-    yearlySavings: "17%",
-    locale: "en-IN",
-  },
-  US: {
-    currency: "$",
-    monthly: 4.99,
-    yearly: 39.99,
-    yearlySavings: "33%",
-    locale: "en-US",
-  },
-};
+const comparisonTable = [
+  { feature: "Profile Page", free: true, pro: true },
+  { feature: "Verified Badge", free: true, pro: true },
+  { feature: "Recommendations", free: "Unlimited", pro: "Unlimited" },
+  { feature: "Analytics History", free: "7 days", pro: "Unlimited" },
+  { feature: "Connections", free: "20", pro: "Unlimited" },
+  { feature: "Messages/Month", free: "50", pro: "Unlimited" },
+  { feature: "AI Suggestions/Month", free: "3", pro: "Unlimited" },
+  { feature: "Templates", free: "2", pro: "All 6" },
+  { feature: "Color Themes", free: "2", pro: "All 6" },
+  { feature: "Video Introduction", free: false, pro: true },
+  { feature: "Clinic Gallery", free: false, pro: true },
+  { feature: "Case Studies", free: false, pro: true },
+  { feature: "Custom QR Colors", free: false, pro: true },
+  { feature: "Referrer Analytics", free: false, pro: true },
+];
 
 export default function UpgradePage() {
+  const searchParams = useSearchParams();
   const [selectedPlan, setSelectedPlan] = useState<"monthly" | "yearly">("yearly");
-  const [region, setRegion] = useState<Region>("IN");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(true);
+  const [isPro, setIsPro] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
-  const currentPricing = pricing[region];
-  const monthlyEquivalent = region === "IN"
-    ? Math.round(currentPricing.yearly / 12)
-    : (currentPricing.yearly / 12).toFixed(2);
+  // Check if user just upgraded
+  useEffect(() => {
+    if (searchParams.get("upgraded") === "true") {
+      setShowSuccess(true);
+      // Remove the query param
+      window.history.replaceState({}, "", "/dashboard/upgrade");
+    }
+  }, [searchParams]);
 
-  const handleUpgrade = () => {
-    // TODO: Integrate with payment provider (Dodo Payments / RevenueCat)
-    alert("Payment integration coming soon! Thank you for your interest in Pro.");
+  // Check subscription status
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const response = await fetch("/api/subscription/status");
+        if (response.ok) {
+          const data = await response.json();
+          setIsPro(data.isPro);
+        }
+      } catch (error) {
+        console.error("Failed to check subscription status");
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    }
+    checkStatus();
+  }, []);
+
+  const handleUpgrade = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/subscription/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan: selectedPlan }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to create checkout");
+      }
+
+      // Redirect to Dodo checkout
+      window.location.href = data.checkoutUrl;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
+      setIsLoading(false);
+    }
   };
+
+  // Success state after upgrade
+  if (showSuccess) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-12">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center">
+          <CheckCircle2 className="w-10 h-10 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-3">
+          Welcome to Pro!
+        </h1>
+        <p className="text-slate-600 mb-6">
+          Your account has been upgraded. Enjoy all the premium features!
+        </p>
+        <Link href="/dashboard">
+          <Button className="bg-gradient-to-r from-[#0099F7] to-[#0080CC]">
+            Go to Dashboard
+          </Button>
+        </Link>
+      </div>
+    );
+  }
+
+  // Already Pro state
+  if (!isCheckingStatus && isPro) {
+    return (
+      <div className="max-w-lg mx-auto text-center py-12">
+        <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+          <Crown className="w-10 h-10 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-3">
+          You&apos;re Already Pro!
+        </h1>
+        <p className="text-slate-600 mb-6">
+          You have access to all premium features. Thank you for your support!
+        </p>
+        <div className="flex gap-3 justify-center">
+          <Link href="/dashboard">
+            <Button variant="outline">Go to Dashboard</Button>
+          </Link>
+          <Link href="/dashboard/settings">
+            <Button variant="outline">Manage Subscription</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -109,8 +215,8 @@ export default function UpgradePage() {
           Upgrade to Pro
         </h1>
         <p className="text-slate-600 max-w-lg mx-auto text-sm sm:text-base">
-          83% of our users upgraded to Pro within 5 days. Our service works
-          perfectly free, but Pro is for power users who want maximum value.
+          Unlock premium templates, unlimited connections, advanced analytics, and more.
+          Join thousands of doctors who&apos;ve upgraded their digital presence.
         </p>
       </div>
 
@@ -119,43 +225,13 @@ export default function UpgradePage() {
         <div className="flex items-center justify-center gap-2 mb-1">
           <Sparkles className="w-5 h-5 text-white" />
           <span className="text-white font-bold text-lg">
-            Super {getCurrentMonth()} Sale - 60% OFF!
+            {getCurrentMonth()} Launch Offer
           </span>
           <Sparkles className="w-5 h-5 text-white" />
         </div>
         <p className="text-emerald-100 text-sm">
-          Limited time offer. Lock in this price forever.
+          Lock in early adopter pricing. Prices shown in your local currency at checkout.
         </p>
-      </div>
-
-      {/* Region Selector */}
-      <div className="flex justify-center mb-6">
-        <div className="inline-flex items-center gap-2 bg-slate-100 rounded-lg p-1">
-          <button
-            onClick={() => setRegion("IN")}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors",
-              region === "IN"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <span className="text-base">🇮🇳</span>
-            India
-          </button>
-          <button
-            onClick={() => setRegion("US")}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors",
-              region === "US"
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <Globe className="w-4 h-4" />
-            International
-          </button>
-        </div>
       </div>
 
       {/* Pricing Cards */}
@@ -163,6 +239,7 @@ export default function UpgradePage() {
         {/* Monthly Plan */}
         <button
           onClick={() => setSelectedPlan("monthly")}
+          disabled={isLoading}
           className={cn(
             "relative p-6 rounded-xl border-2 text-left transition-all",
             selectedPlan === "monthly"
@@ -189,16 +266,18 @@ export default function UpgradePage() {
             </div>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-slate-900">
-              {currentPricing.currency}{currentPricing.monthly}
-            </span>
+            <span className="text-3xl font-bold text-slate-900">$4.99</span>
             <span className="text-slate-500">/month</span>
           </div>
+          <p className="text-xs text-slate-400 mt-2">
+            Billed monthly. Cancel anytime.
+          </p>
         </button>
 
         {/* Yearly Plan */}
         <button
           onClick={() => setSelectedPlan("yearly")}
+          disabled={isLoading}
           className={cn(
             "relative p-6 rounded-xl border-2 text-left transition-all",
             selectedPlan === "yearly"
@@ -208,7 +287,7 @@ export default function UpgradePage() {
         >
           <div className="absolute -top-3 left-4">
             <span className="bg-emerald-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-              SAVE {currentPricing.yearlySavings}
+              SAVE 33%
             </span>
           </div>
           <div className="flex justify-between items-start mb-4">
@@ -230,13 +309,12 @@ export default function UpgradePage() {
             </div>
           </div>
           <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold text-slate-900">
-              {currentPricing.currency}{currentPricing.yearly}
-            </span>
+            <span className="text-3xl font-bold text-slate-900">$39.99</span>
             <span className="text-slate-500">/year</span>
           </div>
           <p className="text-sm text-emerald-600 mt-2">
-            Only {currentPricing.currency}{monthlyEquivalent}/month
+            <Calendar className="w-3.5 h-3.5 inline mr-1" />
+            Just $3.33/month — billed annually
           </p>
         </button>
       </div>
@@ -245,15 +323,23 @@ export default function UpgradePage() {
       <div className="mb-10">
         <Button
           onClick={handleUpgrade}
+          disabled={isLoading || isCheckingStatus}
           className="w-full py-6 text-lg font-semibold bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8]"
         >
-          <Crown className="w-5 h-5 mr-2" />
-          Upgrade to Pro - {currentPricing.currency}
-          {selectedPlan === "monthly" ? currentPricing.monthly : currentPricing.yearly}
-          {selectedPlan === "monthly" ? "/mo" : "/yr"}
+          {isLoading ? (
+            <>
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+              Redirecting to checkout...
+            </>
+          ) : (
+            <>
+              <Crown className="w-5 h-5 mr-2" />
+              Upgrade to Pro
+            </>
+          )}
         </Button>
         <p className="text-center text-xs text-slate-500 mt-3">
-          Cancel anytime. No questions asked.
+          Secure checkout powered by Dodo Payments. Cancel anytime.
         </p>
       </div>
 
@@ -295,20 +381,12 @@ export default function UpgradePage() {
             </span>
           </div>
         </div>
-        {[
-          { feature: "Profile Page", free: true, pro: true },
-          { feature: "Basic Analytics", free: "7 days", pro: "Unlimited" },
-          { feature: "Connections", free: "10", pro: "Unlimited" },
-          { feature: "QR Code", free: true, pro: "Custom colors" },
-          { feature: "Support", free: "Email", pro: "Priority" },
-          { feature: "Message Templates", free: false, pro: true },
-          { feature: "Profile Insights", free: false, pro: true },
-        ].map((row, i) => (
+        {comparisonTable.map((row, i) => (
           <div
             key={row.feature}
             className={cn(
               "grid grid-cols-3",
-              i !== 6 && "border-b border-slate-100"
+              i !== comparisonTable.length - 1 && "border-b border-slate-100"
             )}
           >
             <div className="p-4 text-sm text-slate-700">{row.feature}</div>
@@ -351,11 +429,15 @@ export default function UpgradePage() {
             },
             {
               q: "What payment methods do you accept?",
-              a: "We accept all major credit/debit cards, UPI, and net banking for Indian users.",
+              a: "We accept all major credit/debit cards, UPI (India), and many local payment methods. The checkout will show options available in your country.",
             },
             {
               q: "Is my payment information secure?",
-              a: "Absolutely. We use industry-standard encryption and never store your card details on our servers.",
+              a: "Absolutely. Payments are processed by Dodo Payments, a PCI-DSS compliant payment provider. We never store your card details.",
+            },
+            {
+              q: "What happens to my profile if I cancel?",
+              a: "Your profile stays live! You'll just lose access to Pro features. You can always upgrade again later.",
             },
           ].map((faq) => (
             <div

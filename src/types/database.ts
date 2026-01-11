@@ -531,6 +531,8 @@ export type Database = {
       profiles: {
         Row: {
           achievement_badges: Json | null
+          ai_suggestions_reset_at: string | null
+          ai_suggestions_used_this_month: number | null
           approach_to_care: string | null
           availability_note: string | null
           bio: string | null
@@ -555,6 +557,8 @@ export type Database = {
           is_verified: boolean | null
           languages: string | null
           media_publications: Json | null
+          messages_received_this_month: number | null
+          messages_reset_at: string | null
           offers_telemedicine: boolean | null
           procedures_performed: string | null
           professional_memberships: Json | null
@@ -568,6 +572,12 @@ export type Database = {
           section_visibility: Json | null
           services: string | null
           specialty: string | null
+          subscription_cancelled_at: string | null
+          subscription_expires_at: string | null
+          subscription_id: string | null
+          subscription_plan: string | null
+          subscription_started_at: string | null
+          subscription_status: string | null
           updated_at: string | null
           user_id: string
           verification_status: string | null
@@ -577,6 +587,8 @@ export type Database = {
         }
         Insert: {
           achievement_badges?: Json | null
+          ai_suggestions_reset_at?: string | null
+          ai_suggestions_used_this_month?: number | null
           approach_to_care?: string | null
           availability_note?: string | null
           bio?: string | null
@@ -601,6 +613,8 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string | null
           media_publications?: Json | null
+          messages_received_this_month?: number | null
+          messages_reset_at?: string | null
           offers_telemedicine?: boolean | null
           procedures_performed?: string | null
           professional_memberships?: Json | null
@@ -614,6 +628,12 @@ export type Database = {
           section_visibility?: Json | null
           services?: string | null
           specialty?: string | null
+          subscription_cancelled_at?: string | null
+          subscription_expires_at?: string | null
+          subscription_id?: string | null
+          subscription_plan?: string | null
+          subscription_started_at?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
           user_id: string
           verification_status?: string | null
@@ -623,6 +643,8 @@ export type Database = {
         }
         Update: {
           achievement_badges?: Json | null
+          ai_suggestions_reset_at?: string | null
+          ai_suggestions_used_this_month?: number | null
           approach_to_care?: string | null
           availability_note?: string | null
           bio?: string | null
@@ -647,6 +669,8 @@ export type Database = {
           is_verified?: boolean | null
           languages?: string | null
           media_publications?: Json | null
+          messages_received_this_month?: number | null
+          messages_reset_at?: string | null
           offers_telemedicine?: boolean | null
           procedures_performed?: string | null
           professional_memberships?: Json | null
@@ -660,6 +684,12 @@ export type Database = {
           section_visibility?: Json | null
           services?: string | null
           specialty?: string | null
+          subscription_cancelled_at?: string | null
+          subscription_expires_at?: string | null
+          subscription_id?: string | null
+          subscription_plan?: string | null
+          subscription_started_at?: string | null
+          subscription_status?: string | null
           updated_at?: string | null
           user_id?: string
           verification_status?: string | null
@@ -694,6 +724,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "recommendations_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_events: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          currency: string | null
+          dodo_event_id: string | null
+          dodo_subscription_id: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          profile_id: string | null
+        }
+        Insert: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          dodo_event_id?: string | null
+          dodo_subscription_id?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          profile_id?: string | null
+        }
+        Update: {
+          amount?: number | null
+          created_at?: string | null
+          currency?: string | null
+          dodo_event_id?: string | null
+          dodo_subscription_id?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          profile_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_events_profile_id_fkey"
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -934,3 +1008,4 @@ export type AnalyticsEvent = Database["public"]["Tables"]["analytics_events"]["R
 export type AnalyticsDailyStats = Database["public"]["Tables"]["analytics_daily_stats"]["Row"]
 export type ContactMessage = Database["public"]["Tables"]["contact_messages"]["Row"]
 export type AdminAuditLog = Database["public"]["Tables"]["admin_audit_logs"]["Row"]
+export type SubscriptionEvent = Database["public"]["Tables"]["subscription_events"]["Row"]

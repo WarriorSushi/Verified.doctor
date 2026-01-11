@@ -40,6 +40,7 @@ import {
   MediaPublications,
   ClinicGallery,
 } from "../sections";
+import { VerifiedBadge } from "../verified-badge";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -76,6 +77,7 @@ interface Profile {
   professional_memberships: unknown;
   media_publications: unknown;
   section_visibility: unknown;
+  subscription_status: string | null;
 }
 
 interface ConnectedDoctor {
@@ -120,6 +122,7 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
   const services = profile.services?.split(",").map((s) => s.trim()).filter(Boolean) || [];
   const firstName = extractFirstName(profile.full_name);
   const visibility = profile.section_visibility;
+  const isPro = profile.subscription_status === "pro";
 
   const bioTruncated = profile.bio && profile.bio.length > 180
     ? profile.bio.slice(0, 180).trim() + "..."
@@ -188,8 +191,8 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
           <nav className="absolute top-0 left-0 right-0 z-30 px-4 sm:px-6 py-4">
             <div className="max-w-5xl mx-auto flex items-center justify-between">
               <Link href="/" className="flex items-center gap-2 group">
-                <div className="relative w-7 h-7 brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity">
-                  <Image src="/verified-doctor-logo.svg" alt="Verified.Doctor" fill className="object-contain" />
+                <div className="brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity">
+                  <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
                 </div>
                 <span className="text-sm font-semibold text-white/90">
                   verified<span style={{ color: colors.accent }}>.doctor</span>
@@ -217,9 +220,9 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
                   className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full mb-4"
                   style={{ backgroundColor: `${colors.textOnPrimary}20` }}
                 >
-                  <Award className="w-4 h-4" style={{ color: colors.accent }} />
+                  <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="sm" />
                   <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: colors.accent }}>
-                    Verified Physician
+                    {isPro ? "Pro Physician" : "Verified Physician"}
                   </span>
                 </motion.div>
               )}
