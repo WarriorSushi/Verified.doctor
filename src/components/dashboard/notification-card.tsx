@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, Eye, Gift, Sparkles, TrendingUp, Users } from "lucide-react";
+import { X, Eye, Gift, Sparkles, TrendingUp, Users, AlertTriangle, AlertOctagon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-export type NotificationType = "view_boost" | "trial_offer" | "success" | "info";
+export type NotificationType = "view_boost" | "trial_offer" | "success" | "info" | "warning" | "error";
 
 interface NotificationCardProps {
   id: string;
@@ -55,6 +55,20 @@ const typeConfig: Record<NotificationType, {
     iconBg: "bg-violet-100",
     iconColor: "text-violet-600",
     borderColor: "border-violet-200/50",
+  },
+  warning: {
+    icon: AlertTriangle,
+    gradient: "from-amber-50 via-orange-50 to-yellow-50",
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+    borderColor: "border-amber-300/50",
+  },
+  error: {
+    icon: AlertOctagon,
+    gradient: "from-red-50 via-rose-50 to-pink-50",
+    iconBg: "bg-red-100",
+    iconColor: "text-red-600",
+    borderColor: "border-red-300/50",
   },
 };
 

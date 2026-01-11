@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import Image from "next/image";
-import { Shield } from "lucide-react";
+import { MessageSquareWarning } from "lucide-react";
 import { verifyAdminSession } from "@/lib/admin-auth";
-import { AdminVerificationList } from "@/components/admin/verification-list";
 import { AdminLogoutButton } from "@/components/admin/logout-button";
+import { AdminAppealsList } from "@/components/admin/appeals-list";
 
-export default async function AdminDashboardPage() {
+export default async function AdminAppealsPage() {
   const isAdmin = await verifyAdminSession();
 
   if (!isAdmin) {
@@ -43,7 +43,7 @@ export default async function AdminDashboardPage() {
           <div className="flex gap-1">
             <a
               href="/admin"
-              className="px-4 py-3 text-sm font-medium text-white border-b-2 border-[#0099F7]"
+              className="px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent"
             >
               Verifications
             </a>
@@ -55,7 +55,7 @@ export default async function AdminDashboardPage() {
             </a>
             <a
               href="/admin/appeals"
-              className="px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent"
+              className="px-4 py-3 text-sm font-medium text-white border-b-2 border-[#0099F7]"
             >
               Appeals
             </a>
@@ -68,20 +68,20 @@ export default async function AdminDashboardPage() {
         {/* Page Title */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-[#0099F7]" />
+            <MessageSquareWarning className="w-6 h-6 text-amber-500" />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-white">
-              Verification Requests
+              Ban Appeals
             </h1>
             <p className="text-slate-400">
-              Review and approve doctor verification documents
+              Review appeals from suspended accounts
             </p>
           </div>
         </div>
 
-        {/* Verification List */}
-        <AdminVerificationList />
+        {/* Appeals List */}
+        <AdminAppealsList />
       </main>
     </div>
   );

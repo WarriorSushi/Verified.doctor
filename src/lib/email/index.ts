@@ -7,6 +7,7 @@ export {
   sendTrialOfferEmail,
   sendTrialClaimedEmail,
   sendInviteEmail,
+  sendAccountBannedEmail,
   sendAdminMessageEmail,
   type SendEmailParams,
   type SendEmailResult,

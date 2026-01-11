@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { NotificationCard } from "./notification-card";
 import { InviteDialog } from "./invite-dialog";
 import { Button } from "@/components/ui/button";
-import { Users, Crown, Sparkles, Gift, Shield } from "lucide-react";
+import { Users, Crown, Sparkles, Gift, Shield, AlertTriangle, Ban, Send, Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface AdminAction {
   action_type: string;
@@ -25,6 +26,9 @@ interface DashboardNotificationsProps {
   trialExpiresAt?: string | null;
   subscriptionPlan?: string | null;
   isPro: boolean;
+  isBanned?: boolean | null;
+  isFrozen?: boolean | null;
+  banReason?: string | null;
   recentAdminActions?: AdminAction[];
 }
 
@@ -40,6 +44,9 @@ export function DashboardNotifications({
   trialExpiresAt,
   subscriptionPlan,
   isPro,
+  isBanned,
+  isFrozen,
+  banReason,
   recentAdminActions = [],
 }: DashboardNotificationsProps) {
   const router = useRouter();
@@ -48,6 +55,12 @@ export function DashboardNotifications({
   const [boostAmount, setBoostAmount] = useState(0);
   const [showBoostSuccess, setShowBoostSuccess] = useState(false);
   const [isApplyingBoost, setIsApplyingBoost] = useState(false);
+
+  // Appeal state for banned users
+  const [appealMessage, setAppealMessage] = useState("");
+  const [isSubmittingAppeal, setIsSubmittingAppeal] = useState(false);
+  const [appealSubmitted, setAppealSubmitted] = useState(false);
+  const [appealError, setAppealError] = useState<string | null>(null);
 
   // Check and apply boost on mount
   const checkAndApplyBoost = useCallback(async () => {
@@ -99,6 +112,36 @@ export function DashboardNotifications({
     }
   };
 
+  // Submit ban appeal
+  const handleSubmitAppeal = async () => {
+    if (!appealMessage.trim() || isSubmittingAppeal) return;
+
+    setIsSubmittingAppeal(true);
+    setAppealError(null);
+
+    try {
+      const response = await fetch("/api/appeal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: appealMessage.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setAppealSubmitted(true);
+        setAppealMessage("");
+      } else {
+        setAppealError(data.error || "Failed to submit appeal. Please try again.");
+      }
+    } catch (error) {
+      console.error("Failed to submit appeal:", error);
+      setAppealError("Failed to submit appeal. Please try again.");
+    } finally {
+      setIsSubmittingAppeal(false);
+    }
+  };
+
   const isNotDismissed = (id: string) => !dismissed.includes(id);
 
   // Check for admin-granted actions
@@ -110,6 +153,12 @@ export function DashboardNotifications({
   );
   const verifyAction = recentAdminActions.find(
     (a) => a.action_type === "verify"
+  );
+  const freezeAction = recentAdminActions.find(
+    (a) => a.action_type === "freeze"
+  );
+  const banAction = recentAdminActions.find(
+    (a) => a.action_type === "ban"
   );
 
   // Calculate trial days remaining
@@ -139,6 +188,14 @@ export function DashboardNotifications({
   const showAdminVerifyNotification =
     verifyAction && isNotDismissed(`admin-verify-${verifyAction.created_at}`);
 
+  // Show freeze notification (always show if currently frozen, not dismissible)
+  const showFreezeNotification =
+    isFrozen &&
+    !isBanned; // Don't show freeze if also banned (ban takes precedence)
+
+  // Show ban notification (always show if currently banned, not dismissible)
+  const showBanNotification = isBanned;
+
   // Don't show trial offer if user is already Pro or has active trial
   const showTrialOffer =
     trialStatus === "eligible" && !isPro && isNotDismissed("trial-offer");
@@ -158,6 +215,8 @@ export function DashboardNotifications({
     showAdminProNotification ||
     showAdminTrialNotification ||
     showAdminVerifyNotification ||
+    showFreezeNotification ||
+    showBanNotification ||
     showTrialOffer ||
     showBoostNotification ||
     showViewsMilestone;
@@ -222,6 +281,96 @@ export function DashboardNotifications({
               <Shield className="w-3.5 h-3.5" />
               VERIFIED
             </div>
+          </div>
+        </NotificationCard>
+      )}
+
+      {/* Account Banned Notification */}
+      {showBanNotification && (
+        <NotificationCard
+          id="account-banned"
+          type="error"
+          title="Your account has been suspended"
+          description={banReason || "Your account has been suspended by the Verified.Doctor team. You have received an email with more details."}
+          dismissible={false}
+        >
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold">
+              <Ban className="w-3.5 h-3.5" />
+              SUSPENDED
+            </div>
+          </div>
+
+          {/* Appeal Form */}
+          <div className="mt-4 pt-4 border-t border-red-200/50">
+            {appealSubmitted ? (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                <p className="text-sm text-green-800 font-medium">Appeal submitted successfully!</p>
+                <p className="text-xs text-green-600 mt-1">
+                  Our team will review your appeal and respond via email.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <div>
+                  <label className="text-xs font-medium text-slate-700 mb-1.5 block">
+                    Submit an Appeal
+                  </label>
+                  <Textarea
+                    placeholder="Explain why you believe this suspension should be reconsidered..."
+                    value={appealMessage}
+                    onChange={(e) => setAppealMessage(e.target.value)}
+                    className="min-h-[80px] text-sm resize-none bg-white/80"
+                    maxLength={1000}
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1 text-right">
+                    {appealMessage.length}/1000
+                  </p>
+                </div>
+                {appealError && (
+                  <p className="text-xs text-red-600">{appealError}</p>
+                )}
+                <Button
+                  size="sm"
+                  onClick={handleSubmitAppeal}
+                  disabled={!appealMessage.trim() || isSubmittingAppeal}
+                  className="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs"
+                >
+                  {isSubmittingAppeal ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1.5 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-3 h-3 mr-1.5" />
+                      Submit Appeal
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+        </NotificationCard>
+      )}
+
+      {/* Account Frozen Notification */}
+      {showFreezeNotification && (
+        <NotificationCard
+          id="account-frozen"
+          type="warning"
+          title="Your profile has been temporarily frozen"
+          description="Your public profile is temporarily not visible to visitors. This may be due to a review process or pending verification. Contact support if you have questions."
+          dismissible={false}
+        >
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-bold">
+              <AlertTriangle className="w-3.5 h-3.5" />
+              FROZEN
+            </div>
+            <span className="text-xs text-amber-600 font-medium">
+              Profile temporarily hidden
+            </span>
           </div>
         </NotificationCard>
       )}

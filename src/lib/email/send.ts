@@ -771,6 +771,109 @@ Explore Pro features: ${dashboardUrl}
 }
 
 /**
+ * Send an account banned notification email
+ */
+export async function sendAccountBannedEmail(
+  to: string,
+  doctorName: string,
+  reason: string
+): Promise<SendEmailResult> {
+  const subject = `Important: Your Verified.Doctor account has been suspended`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; margin: 0; padding: 0; background: #f8fafc; }
+    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
+    .card { background: white; border-radius: 12px; padding: 40px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .header { text-align: center; margin-bottom: 30px; }
+    .logo { width: 48px; height: 48px; margin-bottom: 16px; }
+    .alert-badge { display: inline-flex; align-items: center; gap: 6px; background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); color: white; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+    h1 { color: #0f172a; font-size: 22px; margin: 16px 0 8px 0; }
+    p { color: #475569; line-height: 1.6; margin: 0 0 16px 0; }
+    .reason-box { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); border: 1px solid #FECACA; border-left: 4px solid #EF4444; border-radius: 8px; padding: 20px; margin: 24px 0; }
+    .reason-box .label { font-weight: 600; color: #991B1B; margin-bottom: 8px; font-size: 14px; }
+    .reason-box p { margin: 0; color: #7F1D1D; line-height: 1.7; }
+    .info-box { background: #f8fafc; border-radius: 8px; padding: 20px; margin: 24px 0; }
+    .info-box p { margin: 0; color: #64748b; font-size: 14px; }
+    .footer { text-align: center; margin-top: 30px; color: #94a3b8; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <img src="https://verified.doctor/verified-doctor-logo.svg" alt="Verified.Doctor" class="logo" />
+        <div class="alert-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Account Suspended
+        </div>
+        <h1>Dear Dr. ${doctorName},</h1>
+        <p>We regret to inform you that your Verified.Doctor account has been suspended.</p>
+      </div>
+
+      <div class="reason-box">
+        <div class="label">Reason for suspension:</div>
+        <p>${reason}</p>
+      </div>
+
+      <p>As a result of this suspension:</p>
+      <ul style="color: #475569; line-height: 2;">
+        <li>Your public profile is no longer accessible to visitors</li>
+        <li>You cannot receive new messages or recommendations</li>
+        <li>Your connections and existing data remain preserved</li>
+      </ul>
+
+      <div class="info-box">
+        <p>If you believe this suspension was made in error, or if you would like to appeal this decision, please reply to this email with additional context or documentation.</p>
+      </div>
+
+      <p>We take the integrity of our platform seriously and appreciate your understanding.</p>
+    </div>
+
+    <div class="footer">
+      <p>Verified.Doctor - Your Digital Identity, Verified.</p>
+      <p style="font-size: 12px; margin-top: 8px;">
+        This is an official communication from the Verified.Doctor team.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+  `.trim();
+
+  const text = `
+Dear Dr. ${doctorName},
+
+We regret to inform you that your Verified.Doctor account has been suspended.
+
+REASON FOR SUSPENSION:
+${reason}
+
+As a result of this suspension:
+- Your public profile is no longer accessible to visitors
+- You cannot receive new messages or recommendations
+- Your connections and existing data remain preserved
+
+If you believe this suspension was made in error, or if you would like to appeal this decision, please reply to this email with additional context or documentation.
+
+We take the integrity of our platform seriously and appreciate your understanding.
+
+- The Verified.Doctor Team
+  `.trim();
+
+  return sendEmail({ to, subject, html, text, replyTo: "support@verified.doctor" });
+}
+
+/**
  * Send an admin message notification email
  */
 export async function sendAdminMessageEmail(

@@ -145,6 +145,12 @@ export default function AdminUsersPage() {
             >
               All Users
             </Link>
+            <Link
+              href="/admin/appeals"
+              className="px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent"
+            >
+              Appeals
+            </Link>
           </div>
         </div>
       </nav>

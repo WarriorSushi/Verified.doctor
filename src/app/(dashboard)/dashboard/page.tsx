@@ -49,7 +49,7 @@ export default async function DashboardPage() {
       .from("admin_actions")
       .select("action_type, details, created_at")
       .eq("target_profile_id", profile.id)
-      .in("action_type", ["grant_trial", "grant_pro", "verify"])
+      .in("action_type", ["grant_trial", "grant_pro", "verify", "freeze", "ban"])
       .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .order("created_at", { ascending: false })
       .limit(5),
@@ -115,6 +115,9 @@ export default async function DashboardPage() {
         trialExpiresAt={profile.trial_expires_at}
         subscriptionPlan={profile.subscription_plan}
         isPro={hasProAccess}
+        isBanned={profile.is_banned}
+        isFrozen={profile.is_frozen}
+        banReason={profile.ban_reason}
         recentAdminActions={recentAdminActions}
       />
 

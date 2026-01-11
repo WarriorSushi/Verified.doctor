@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import { sendAccountBannedEmail } from "@/lib/email";
 import { z } from "zod";
 import type { Json } from "@/types/database";
 
@@ -182,6 +183,27 @@ export async function POST(request: NextRequest) {
       target_profile_id: profileId,
       details: actionDetails as Json,
     });
+
+    // Send ban notification email
+    if (action === "ban" && profile.user_id && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const adminClient = createAdminClient();
+        const { data: { user } } = await adminClient.auth.admin.getUserById(profile.user_id);
+
+        if (user?.email) {
+          const banReason = reason || "Violation of platform guidelines";
+          sendAccountBannedEmail(
+            user.email,
+            profile.full_name,
+            banReason
+          ).catch((err) => {
+            console.error("[email] Failed to send ban notification email:", err);
+          });
+        }
+      } catch (emailErr) {
+        console.error("[email] Error fetching user email for ban notification:", emailErr);
+      }
+    }
 
     return NextResponse.json({
       success: true,
