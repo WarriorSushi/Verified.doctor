@@ -416,7 +416,7 @@ export default function UpgradePage() {
       <div className="mb-16">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-slate-900 mb-2">
-            Loved by Doctors Across India
+            Loved by Doctors Worldwide
           </h2>
           <p className="text-slate-600">
             See what our Pro members have to say
