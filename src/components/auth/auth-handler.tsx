@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { Loader2 } from "lucide-react";
 
 /**
  * Global auth handler component that:
@@ -86,6 +87,17 @@ export function AuthHandler() {
     handleAuthCallback();
   }, [searchParams, router, isProcessing, pathname]);
 
-  // Don't render anything - this is just a side-effect handler
+  // Show full-screen loading overlay during OAuth code exchange
+  if (isProcessing || searchParams.get("code")) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
+          <p className="text-sm text-slate-500 font-medium">Signing you in...</p>
+        </div>
+      </div>
+    );
+  }
+
   return null;
 }
