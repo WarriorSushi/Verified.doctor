@@ -77,8 +77,8 @@ const SAMPLE_DOCTORS = [
   },
   {
     id: "2",
-    handle: "arjun-patel",
-    full_name: "Dr. Arjun Patel",
+    handle: "stevens",
+    full_name: "Dr. Stevens",
     specialty: "Orthopedic Surgeon",
     qualifications: "MBBS, MS (Ortho), Fellowship",
     years_experience: 12,
@@ -121,8 +121,8 @@ const SAMPLE_DOCTORS = [
   },
   {
     id: "3",
-    handle: "fatima-khan",
-    full_name: "Dr. Fatima Khan",
+    handle: "david-g",
+    full_name: "Dr. David G",
     specialty: "Dermatologist",
     qualifications: "MBBS, MD (Dermatology)",
     years_experience: 8,
@@ -209,8 +209,8 @@ const SAMPLE_DOCTORS = [
   },
   {
     id: "5",
-    handle: "ananya-reddy",
-    full_name: "Dr. Ananya Reddy",
+    handle: "arun",
+    full_name: "Dr. Arun",
     specialty: "Pediatrician",
     qualifications: "MBBS, MD (Pediatrics), Fellowship",
     years_experience: 10,
