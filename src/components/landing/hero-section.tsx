@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ArrowRight, Loader2, ChevronDown } from "lucide-react";
+import { Check, ArrowRight, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ProfileCard, SAMPLE_DOCTORS } from "@/components/landing/profile-showcase";
 
 type AvailabilityStatus = "idle" | "checking" | "available" | "taken";
 
@@ -15,7 +16,7 @@ const DEMO_NAMES = [
   "Rohan", "Wei", "Anjali", "Vikram", "Sarah", "Meera", "Kwame"
 ];
 
-// Typewriter hook for the demo URL
+// Typewriter hook for placeholder text
 function useTypewriter(names: string[], isActive: boolean) {
   const [displayText, setDisplayText] = useState("");
   const [nameIndex, setNameIndex] = useState(0);
@@ -57,14 +58,12 @@ function useTypewriter(names: string[], isActive: boolean) {
   return displayText;
 }
 
-// Hook for animated doctor count with daily reset
-// Starts at 620-720, increments +1-3 every 2-6 seconds, caps at ~1450
+// Animated doctor count
 function useDoctorCount() {
-  const [count, setCount] = useState(687); // Default for SSR
+  const [count, setCount] = useState(687);
   const [displayCount, setDisplayCount] = useState(687);
 
   useEffect(() => {
-    // Check for daily reset
     const today = new Date().toDateString();
     const storedDate = localStorage.getItem("vd_count_date");
     const storedCount = localStorage.getItem("vd_count_today");
@@ -73,7 +72,6 @@ function useDoctorCount() {
     if (storedDate === today && storedCount) {
       initialCount = parseInt(storedCount, 10);
     } else {
-      // New day - reset to random value between 620-720
       initialCount = Math.floor(Math.random() * 100) + 620;
       localStorage.setItem("vd_count_date", today);
       localStorage.setItem("vd_count_today", String(initialCount));
@@ -82,17 +80,11 @@ function useDoctorCount() {
     setCount(initialCount);
     setDisplayCount(initialCount);
 
-    // Function to schedule next increment with random delay
     const scheduleIncrement = () => {
-      // Random delay between 2-6 seconds (2000-6000ms)
       const delay = 2000 + Math.random() * 4000;
-
       return setTimeout(() => {
         setCount((prev) => {
-          // Cap at 1450 to keep it realistic
           if (prev >= 1450) return prev;
-
-          // Random increment between 1-3
           const increment = Math.floor(Math.random() * 3) + 1;
           const newCount = Math.min(prev + increment, 1450);
           localStorage.setItem("vd_count_today", String(newCount));
@@ -101,10 +93,7 @@ function useDoctorCount() {
       }, delay);
     };
 
-    // Start the increment cycle
     let timeoutId = scheduleIncrement();
-
-    // Set up recurring increments
     const intervalId = setInterval(() => {
       clearTimeout(timeoutId);
       timeoutId = scheduleIncrement();
@@ -116,24 +105,19 @@ function useDoctorCount() {
     };
   }, []);
 
-  // Smooth animation for display count
   useEffect(() => {
     if (displayCount === count) return;
-
-    const diff = count - displayCount;
-    const step = diff > 0 ? 1 : -1;
-
+    const step = count - displayCount > 0 ? 1 : -1;
     const timer = setTimeout(() => {
       setDisplayCount(prev => prev + step);
-    }, 50); // Animate quickly
-
+    }, 50);
     return () => clearTimeout(timer);
   }, [count, displayCount]);
 
   return displayCount;
 }
 
-// Stock doctor photos - these will be in /public/doctors/
+// Stock doctor photos
 const DOCTOR_PHOTOS = [
   "/doctors/doctor-1.webp",
   "/doctors/doctor-2.webp",
@@ -146,26 +130,49 @@ export function HeroSection() {
   const [handle, setHandle] = useState("");
   const [status, setStatus] = useState<AvailabilityStatus>("idle");
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
 
   const doctorCount = useDoctorCount();
   const demoName = useTypewriter(DEMO_NAMES, !isInputFocused);
 
+  // Auto-rotate carousel
+  const startAutoPlay = useCallback(() => {
+    if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    autoPlayRef.current = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % SAMPLE_DOCTORS.length);
+    }, 5000);
+  }, []);
+
+  useEffect(() => {
+    startAutoPlay();
+    return () => {
+      if (autoPlayRef.current) clearInterval(autoPlayRef.current);
+    };
+  }, [startAutoPlay]);
+
+  const goToNext = () => {
+    setActiveIndex((prev) => (prev + 1) % SAMPLE_DOCTORS.length);
+    startAutoPlay();
+  };
+
+  const goToPrev = () => {
+    setActiveIndex((prev) => (prev - 1 + SAMPLE_DOCTORS.length) % SAMPLE_DOCTORS.length);
+    startAutoPlay();
+  };
+
   const checkAvailability = async () => {
     if (!handle.trim()) return;
-
     setStatus("checking");
-
     try {
       const response = await fetch("/api/check-handle", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ handle: handle.toLowerCase().trim() }),
       });
-
       const data = await response.json();
       setStatus(data.available ? "available" : "taken");
     } catch {
-      // Show error state instead of random result
       setStatus("idle");
     }
   };
@@ -185,8 +192,8 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background gradient - refined medical aesthetic */}
+    <section className="relative min-h-screen flex items-center overflow-hidden">
+      {/* Background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-sky-50/40" />
 
       {/* Subtle mesh gradient overlay */}
@@ -201,143 +208,154 @@ export function HeroSection() {
         }}
       />
 
-      {/* Floating orbs - more refined, less obvious */}
+      {/* Floating orbs */}
       <motion.div
-        animate={{
-          y: [0, -20, 0],
-          scale: [1, 1.05, 1]
-        }}
+        animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/3 -left-48 w-[500px] h-[500px] bg-gradient-to-br from-sky-200/30 to-cyan-100/20 rounded-full blur-3xl"
       />
       <motion.div
-        animate={{
-          y: [0, 15, 0],
-          scale: [1, 0.95, 1]
-        }}
+        animate={{ y: [0, 15, 0], scale: [1, 0.95, 1] }}
         transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className="absolute bottom-1/4 -right-48 w-[400px] h-[400px] bg-gradient-to-tl from-cyan-100/30 to-sky-50/20 rounded-full blur-3xl"
       />
 
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 pt-24 sm:pt-32 pb-16 sm:pb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-center"
-        >
-          {/* Trust badge - Updated copy */}
+      {/* Main Content - Split Layout */}
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 sm:pt-28 pb-12 sm:pb-16">
+        <div className="flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+
+          {/* LEFT SIDE - Text + Input */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-sky-100 shadow-sm mb-8 sm:mb-10"
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 w-full lg:max-w-xl text-center lg:text-left"
           >
-            <div className="relative w-5 h-5">
-              <Image
-                src="/verified-doctor-logo.svg"
-                alt="Verified"
-                fill
-                className="object-contain"
-              />
-            </div>
-            <span className="text-sm font-semibold text-slate-800">
-              The Blue Checkmark for Doctors
-            </span>
-          </motion.div>
-
-          {/* Main headline */}
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-slate-900 mb-4 sm:mb-5"
-          >
-            Your Digital Identity.
-            <br />
-            <span className="bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
-              Verified.
-            </span>
-          </motion.h1>
-
-          {/* Subheadline */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.6 }}
-            className="text-lg sm:text-xl text-slate-600 mb-10 sm:mb-14 max-w-2xl mx-auto leading-relaxed"
-          >
-            Claim your unique verified domain before another doctor does.
-            <span className="hidden sm:inline"> Stand out with a professional presence that patients can trust.</span>
-          </motion.p>
-
-          {/* Demo URL Preview - Clean text without box */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="mb-6 sm:mb-8"
-          >
-            <p className="text-sm sm:text-base text-slate-500 mb-3 font-medium">
-              Here&apos;s how your personal verified domain will appear
-            </p>
-            <div className="inline-flex items-center justify-center">
-              <span className="text-slate-400 text-xl sm:text-3xl font-mono tracking-tight">verified.doctor/</span>
-              <span className="text-sky-600 text-xl sm:text-3xl font-mono font-bold tracking-tight min-w-[100px] sm:min-w-[160px] text-left">
-                {demoName}
-                <motion.span
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                  className="inline-block w-[2px] h-6 sm:h-8 bg-sky-500 ml-0.5 align-middle rounded-full"
-                />
-              </span>
-            </div>
-          </motion.div>
-
-          {/* URL Input Component */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.6 }}
-            className="max-w-xl mx-auto"
-          >
-            {/* Input Row - URL prefix and input always on same line */}
-            <div
-              className={`
-                relative flex items-center rounded-2xl bg-white border-2 transition-all duration-300 shadow-xl shadow-slate-200/50
-                ${isInputFocused ? "border-sky-400 shadow-sky-100/50" : "border-slate-200/80"}
-                ${status === "available" ? "border-emerald-400 shadow-emerald-100/50" : ""}
-                ${status === "taken" ? "border-red-300 shadow-red-100/50" : ""}
-              `}
+            {/* Trust badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-sky-100 shadow-sm mb-5"
             >
-              {/* URL Prefix */}
-              <div className="flex-shrink-0 pl-3 sm:pl-6 pr-0 sm:pr-2 py-3 sm:py-4 flex items-center">
-                <span className="text-slate-500 font-medium text-sm sm:text-lg whitespace-nowrap">
-                  verified.doctor/
-                </span>
+              <div className="relative w-4 h-4">
+                <Image src="/verified-doctor-logo.svg" alt="Verified" fill sizes="16px" className="object-contain" />
+              </div>
+              <span className="text-xs font-semibold text-slate-800">
+                The Blue Checkmark for Doctors
+              </span>
+            </motion.div>
+
+            {/* Headline - concise */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 mb-3"
+            >
+              Claim Your{" "}
+              <span className="bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
+                Verified
+              </span>{" "}
+              Domain
+            </motion.h1>
+
+            {/* Subheadline */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.6 }}
+              className="text-sm sm:text-base text-slate-500 mb-6 max-w-md mx-auto lg:mx-0"
+            >
+              A premium digital identity for medical professionals.
+            </motion.p>
+
+            {/* URL Input */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.6 }}
+              className="max-w-lg mx-auto lg:mx-0"
+            >
+              {/* Demo URL */}
+              <div className="mb-2.5 flex items-center justify-center lg:justify-start">
+                <div className="inline-flex items-center">
+                  <span className="text-slate-400 text-sm sm:text-base font-mono tracking-tight">verified.doctor/</span>
+                  <span className="text-sky-600 text-sm sm:text-base font-mono font-bold tracking-tight min-w-[60px] sm:min-w-[90px] text-left">
+                    {demoName}
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                      className="inline-block w-[1.5px] h-4 bg-sky-500 ml-0.5 align-middle rounded-full"
+                    />
+                  </span>
+                </div>
               </div>
 
-              {/* Input Field */}
-              <Input
-                type="text"
-                value={handle}
-                onChange={(e) => {
-                  setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-                  setStatus("idle");
-                }}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setIsInputFocused(false)}
-                onKeyDown={handleKeyDown}
-                placeholder="type your name"
-                className="border-0 bg-transparent text-sm sm:text-lg font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-4 px-1 sm:px-2 min-w-0 flex-1"
-              />
+              {/* Input Row */}
+              <div
+                className={`
+                  relative flex items-center rounded-2xl bg-white border-2 transition-all duration-300 shadow-xl shadow-slate-200/50
+                  ${isInputFocused ? "border-sky-400 shadow-sky-100/50" : "border-slate-200/80"}
+                  ${status === "available" ? "border-emerald-400 shadow-emerald-100/50" : ""}
+                  ${status === "taken" ? "border-red-300 shadow-red-100/50" : ""}
+                `}
+              >
+                <div className="flex-shrink-0 pl-3 sm:pl-5 pr-0 sm:pr-1 py-3 sm:py-3.5 flex items-center">
+                  <span className="text-slate-500 font-medium text-sm sm:text-base whitespace-nowrap">
+                    verified.doctor/
+                  </span>
+                </div>
 
-              {/* Desktop Button - Inside input box */}
-              <div className="hidden sm:block flex-shrink-0 pr-3">
+                <Input
+                  type="text"
+                  value={handle}
+                  onChange={(e) => {
+                    setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                    setStatus("idle");
+                  }}
+                  onFocus={() => setIsInputFocused(true)}
+                  onBlur={() => setIsInputFocused(false)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="your-name"
+                  className="border-0 bg-transparent text-sm sm:text-base font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-3.5 px-1 sm:px-2 min-w-0 flex-1"
+                />
+
+                {/* Desktop Button */}
+                <div className="hidden sm:block flex-shrink-0 pr-2.5">
+                  {status === "available" ? (
+                    <Button
+                      onClick={handleClaim}
+                      className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-5 py-5 rounded-xl font-semibold transition-all duration-200 text-sm shadow-lg shadow-emerald-500/25"
+                    >
+                      <Check className="w-4 h-4 mr-1.5" />
+                      Claim Name
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={checkAvailability}
+                      disabled={!handle.trim() || status === "checking"}
+                      className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-5 py-5 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm shadow-lg shadow-sky-500/25"
+                    >
+                      {status === "checking" ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          Check
+                          <ArrowRight className="w-4 h-4 ml-1.5" />
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Mobile Button */}
+              <div className="sm:hidden mt-3">
                 {status === "available" ? (
                   <Button
                     onClick={handleClaim}
-                    className="bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-6 rounded-xl font-semibold transition-all duration-200 text-base shadow-lg shadow-emerald-500/25"
+                    className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 text-base shadow-lg shadow-emerald-500/25"
                   >
                     <Check className="w-5 h-5 mr-2" />
                     Claim This Name
@@ -346,7 +364,7 @@ export function HeroSection() {
                   <Button
                     onClick={checkAvailability}
                     disabled={!handle.trim() || status === "checking"}
-                    className="bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-6 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg shadow-sky-500/25"
+                    className="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg shadow-sky-500/25"
                   >
                     {status === "checking" ? (
                       <Loader2 className="w-5 h-5 animate-spin" />
@@ -359,150 +377,182 @@ export function HeroSection() {
                   </Button>
                 )}
               </div>
-            </div>
 
-            {/* Mobile Button - Below input box */}
-            <div className="sm:hidden mt-3">
-              {status === "available" ? (
-                <Button
-                  onClick={handleClaim}
-                  className="w-full bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 text-base shadow-lg shadow-emerald-500/25"
-                >
-                  <Check className="w-5 h-5 mr-2" />
-                  Claim This Name
-                </Button>
-              ) : (
-                <Button
-                  onClick={checkAvailability}
-                  disabled={!handle.trim() || status === "checking"}
-                  className="w-full bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white px-6 py-4 rounded-xl font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-base shadow-lg shadow-sky-500/25"
-                >
-                  {status === "checking" ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                  ) : (
-                    <>
-                      Check Availability
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </>
+              {/* Status Messages */}
+              <div className="h-6 mt-2">
+                <AnimatePresence mode="wait">
+                  {status === "available" && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="text-emerald-600 font-medium flex items-center justify-center lg:justify-start gap-2 text-sm"
+                    >
+                      <Check className="w-4 h-4" />
+                      This name is available!
+                    </motion.p>
                   )}
-                </Button>
-              )}
-            </div>
-
-            {/* Status Messages */}
-            <div className="h-8 mt-4">
-              <AnimatePresence mode="wait">
-                {status === "available" && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="text-emerald-600 font-medium flex items-center justify-center gap-2 text-sm"
-                  >
-                    <Check className="w-4 h-4" />
-                    Perfect! This name is available. Claim it now!
-                  </motion.p>
-                )}
-                {status === "taken" && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="text-red-500 font-medium text-sm"
-                  >
-                    This name is already taken. Try another one.
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </div>
-          </motion.div>
-
-          {/* Social Proof with Doctor Photos */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="mt-10 sm:mt-14 flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6"
-          >
-            {/* Doctor avatars */}
-            <div className="flex -space-x-3">
-              {DOCTOR_PHOTOS.map((photo, i) => (
-                <motion.div
-                  key={photo}
-                  initial={{ opacity: 0, scale: 0.5, x: -10 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  transition={{ delay: 0.9 + i * 0.1, duration: 0.4 }}
-                  className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full border-[3px] border-white shadow-md overflow-hidden bg-gradient-to-br from-sky-100 to-slate-100"
-                >
-                  <Image
-                    src={photo}
-                    alt={`Doctor ${i + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="48px"
-                    onError={(e) => {
-                      // Fallback to initials if image doesn't exist
-                      const target = e.currentTarget.parentElement;
-                      if (target) {
-                        target.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-400 to-sky-600 text-white font-bold text-sm">D${i + 1}</div>`;
-                      }
-                    }}
-                  />
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.5, duration: 0.4 }}
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-[3px] border-white shadow-md bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center"
-              >
-                <span className="text-white text-xs sm:text-sm font-bold">+99</span>
-              </motion.div>
-            </div>
-
-            {/* Counter text - Updated */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-              className="text-center sm:text-left"
-            >
-              <p className="text-slate-700 font-semibold text-base sm:text-lg">
-                <motion.span
-                  key={doctorCount}
-                  initial={{ opacity: 0.5, scale: 1.1 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="text-sky-600 tabular-nums"
-                >
-                  {doctorCount}
-                </motion.span>
-                {" "}doctors claimed their domain today
-              </p>
-              <p className="text-slate-500 text-sm mt-0.5">Join the verified medical professional network</p>
-            </motion.div>
-          </motion.div>
-
-          {/* Scroll Indicator */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 0.6 }}
-            className="mt-16 sm:mt-20 flex flex-col items-center gap-3"
-          >
-            <p className="text-slate-500 text-sm sm:text-base font-medium text-center px-4">
-              Scroll to see stunning profiles created by doctors
-            </p>
-            <motion.div
-              animate={{ y: [0, 8, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="flex flex-col items-center"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-sky-50 to-white border border-sky-100 shadow-lg shadow-sky-100/50 flex items-center justify-center">
-                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-sky-500" />
+                  {status === "taken" && (
+                    <motion.p
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 10 }}
+                      className="text-red-500 font-medium text-sm text-center lg:text-left"
+                    >
+                      This name is taken. Try another one.
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
+
+            {/* Social Proof - Compact */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7, duration: 0.6 }}
+              className="mt-6 mb-6 lg:mb-0 flex items-center justify-center lg:justify-start gap-3"
+            >
+              <div className="flex -space-x-2">
+                {DOCTOR_PHOTOS.slice(0, 4).map((photo, i) => (
+                  <motion.div
+                    key={photo}
+                    initial={{ opacity: 0, scale: 0.5, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    transition={{ delay: 0.8 + i * 0.08, duration: 0.4 }}
+                    className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm overflow-hidden bg-gradient-to-br from-sky-100 to-slate-100"
+                  >
+                    <Image
+                      src={photo}
+                      alt={`Doctor ${i + 1}`}
+                      fill
+                      className="object-cover"
+                      sizes="32px"
+                      onError={(e) => {
+                        const target = e.currentTarget.parentElement;
+                        if (target) {
+                          target.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-sky-400 to-sky-600 text-white font-bold text-[10px]">D${i + 1}</div>`;
+                        }
+                      }}
+                    />
+                  </motion.div>
+                ))}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 1.2, duration: 0.4 }}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 border-white shadow-sm bg-gradient-to-br from-sky-500 to-sky-600 flex items-center justify-center"
+                >
+                  <span className="text-white text-[9px] font-bold">+99</span>
+                </motion.div>
+              </div>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1, duration: 0.5 }}
+                className="text-slate-600 text-xs sm:text-sm"
+              >
+                <span className="text-sky-600 tabular-nums font-semibold">{doctorCount}</span>
+                {" "}joined today
+              </motion.p>
+            </motion.div>
           </motion.div>
-        </motion.div>
+
+          {/* RIGHT SIDE - Phone Mockup Carousel */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="flex-1 w-full lg:max-w-lg flex flex-col items-center"
+          >
+            {/* Carousel Container */}
+            <div className="relative flex items-center justify-center">
+              {/* Navigation arrows - desktop only */}
+              <button
+                onClick={goToPrev}
+                className="hidden lg:flex absolute -left-12 z-20 w-9 h-9 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm items-center justify-center hover:bg-white hover:shadow-md transition-all"
+              >
+                <ChevronLeft className="w-4 h-4 text-slate-600" />
+              </button>
+
+              {/* Phone Cards - current + previous only */}
+              <div className="flex items-center justify-center" style={{ minHeight: '580px' }}>
+                <AnimatePresence mode="popLayout">
+                  {SAMPLE_DOCTORS.map((doctor, index) => {
+                    // Calculate offset with wrapping
+                    let offset = index - activeIndex;
+                    if (offset > SAMPLE_DOCTORS.length / 2) offset -= SAMPLE_DOCTORS.length;
+                    if (offset < -SAMPLE_DOCTORS.length / 2) offset += SAMPLE_DOCTORS.length;
+
+                    // Show only previous (-1) and current (0) on desktop, only current on mobile
+                    if (offset < -1 || offset > 0) return null;
+
+                    return (
+                      <motion.div
+                        key={doctor.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{
+                          opacity: offset === 0 ? 1 : 0.35,
+                          scale: offset === 0 ? 1 : 0.82,
+                          x: offset * 60,
+                          zIndex: offset === 0 ? 10 : 0,
+                        }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        transition={{ duration: 0.4, ease: "easeOut" }}
+                        className={`${offset !== 0 ? 'hidden lg:block' : ''}`}
+                      >
+                        <ProfileCard doctor={doctor} isActive={offset === 0} />
+                      </motion.div>
+                    );
+                  })}
+                </AnimatePresence>
+              </div>
+
+              <button
+                onClick={goToNext}
+                className="hidden lg:flex absolute -right-12 z-20 w-9 h-9 rounded-full border border-slate-200 bg-white/80 backdrop-blur-sm shadow-sm items-center justify-center hover:bg-white hover:shadow-md transition-all"
+              >
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+              </button>
+            </div>
+
+            {/* Dot indicators */}
+            <div className="flex items-center justify-center gap-1.5 mt-4">
+              {SAMPLE_DOCTORS.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setActiveIndex(index);
+                    startAutoPlay();
+                  }}
+                  className={`transition-all duration-300 rounded-full ${
+                    index === activeIndex
+                      ? 'w-6 h-1.5 bg-sky-500'
+                      : 'w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Mobile navigation arrows */}
+            <div className="flex lg:hidden items-center gap-3 mt-3">
+              <button
+                onClick={goToPrev}
+                className="w-8 h-8 rounded-full border border-slate-200 bg-white shadow-sm flex items-center justify-center"
+              >
+                <ChevronLeft className="w-4 h-4 text-slate-600" />
+              </button>
+              <button
+                onClick={goToNext}
+                className="w-8 h-8 rounded-full border border-slate-200 bg-white shadow-sm flex items-center justify-center"
+              >
+                <ChevronRight className="w-4 h-4 text-slate-600" />
+              </button>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -46,6 +46,9 @@ export async function proxy(request: NextRequest) {
   const authRoutes = ["/sign-in", "/sign-up"];
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
+  // Landing page - redirect to dashboard if already logged in
+  const isLandingPage = pathname === "/";
+
   // Redirect unauthenticated users to sign-in
   if (isProtectedRoute && !user) {
     const redirectUrl = new URL("/sign-in", request.url);
@@ -53,8 +56,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
-  // Redirect authenticated users away from auth pages
-  if (isAuthRoute && user) {
+  // Redirect authenticated users away from auth pages and landing page
+  if ((isAuthRoute || isLandingPage) && user) {
     // Check if user has a profile, if not redirect to onboarding
     const { data: profile } = await supabase
       .from("profiles")

@@ -30,7 +30,7 @@ import { Button } from "@/components/ui/button";
 import { getTheme } from "@/lib/theme-config";
 
 // Extended sample doctor profiles data with all new fields
-const SAMPLE_DOCTORS = [
+export const SAMPLE_DOCTORS = [
   {
     id: "1",
     handle: "asra",
@@ -326,8 +326,8 @@ function AutoScrollContainer({
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-auto scrollbar-hide"
-      style={{ scrollBehavior: 'auto' }}
+      className="h-full overflow-y-hidden scrollbar-hide"
+      style={{ scrollBehavior: 'auto', touchAction: 'none' }}
     >
       {children}
     </div>
@@ -335,7 +335,7 @@ function AutoScrollContainer({
 }
 
 // Mini profile card that mimics actual profile page
-function ProfileCard({ doctor, isActive }: { doctor: Doctor; isActive: boolean }) {
+export function ProfileCard({ doctor, isActive }: { doctor: Doctor; isActive: boolean }) {
   const theme = getTheme(doctor.theme);
   const colors = theme.colors;
 
@@ -761,6 +761,7 @@ function MagazineLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: 
             src={doctor.profile_photo_url}
             alt={doctor.full_name}
             fill
+            sizes="320px"
             className="object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
