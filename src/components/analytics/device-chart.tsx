@@ -1,11 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
-  Legend,
   Tooltip
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,6 +24,12 @@ interface DeviceChartProps {
 const COLORS = ["#0099F7", "#8B5CF6", "#10B981"];
 
 export function DeviceChart({ deviceBreakdown }: DeviceChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const total = deviceBreakdown.mobile + deviceBreakdown.tablet + deviceBreakdown.desktop;
 
   const data = [
@@ -52,6 +58,9 @@ export function DeviceChart({ deviceBreakdown }: DeviceChartProps) {
         ) : (
           <div className="flex flex-col sm:flex-row items-center gap-4">
             <div className="h-[160px] w-[160px]">
+              {!mounted ? (
+                <div className="w-full h-full animate-pulse bg-slate-100 rounded-full" />
+              ) : (
               <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={100}>
                 <PieChart>
                   <Pie
@@ -78,6 +87,7 @@ export function DeviceChart({ deviceBreakdown }: DeviceChartProps) {
                   />
                 </PieChart>
               </ResponsiveContainer>
+              )}
             </div>
             <div className="flex-1 space-y-2">
               {data.map((item, index) => {

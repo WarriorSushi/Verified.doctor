@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   AreaChart,
   Area,
@@ -25,6 +26,12 @@ interface ViewsChartProps {
 }
 
 export function ViewsChart({ dailyStats }: ViewsChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Format date for display
   const formattedData = dailyStats.map(stat => ({
     ...stat,
@@ -43,6 +50,9 @@ export function ViewsChart({ dailyStats }: ViewsChartProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[250px] sm:h-[300px]">
+          {!mounted ? (
+            <div className="w-full h-full animate-pulse bg-slate-100 rounded" />
+          ) : (
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={200}>
             <AreaChart data={formattedData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>
@@ -114,6 +124,7 @@ export function ViewsChart({ dailyStats }: ViewsChartProps) {
               />
             </AreaChart>
           </ResponsiveContainer>
+          )}
         </div>
       </CardContent>
     </Card>

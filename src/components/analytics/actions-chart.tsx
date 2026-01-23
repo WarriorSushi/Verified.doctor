@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -26,6 +27,12 @@ interface ActionsChartProps {
 const COLORS = ["#0099F7", "#8B5CF6", "#10B981", "#F59E0B"];
 
 export function ActionsChart({ actionsBreakdown }: ActionsChartProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const data = [
     { name: "Save Contact", value: actionsBreakdown.saveContact },
     { name: "Book Appt", value: actionsBreakdown.bookAppointment },
@@ -42,6 +49,9 @@ export function ActionsChart({ actionsBreakdown }: ActionsChartProps) {
       </CardHeader>
       <CardContent>
         <div className="h-[200px] sm:h-[250px]">
+          {!mounted ? (
+            <div className="w-full h-full animate-pulse bg-slate-100 rounded" />
+          ) : (
           <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={150}>
             <BarChart data={data} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" horizontal={false} />
@@ -79,6 +89,7 @@ export function ActionsChart({ actionsBreakdown }: ActionsChartProps) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
+          )}
         </div>
       </CardContent>
     </Card>
