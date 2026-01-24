@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { NotificationCard } from "./notification-card";
 import { InviteDialog } from "./invite-dialog";
 import { Button } from "@/components/ui/button";
-import { Users, Crown, Sparkles, Gift, Shield, AlertTriangle, Ban, Send, Loader2 } from "lucide-react";
+import { Users, Crown, Gift, Shield, AlertTriangle, Ban, Send, Loader2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 interface AdminAction {
@@ -19,7 +18,6 @@ interface DashboardNotificationsProps {
   initialDismissed: string[];
   createdAt: string;
   viewCount: number;
-  boostApplied: boolean;
   trialStatus: string;
   trialInvitesCompleted: number;
   trialInvitesRequired: number;
@@ -37,7 +35,6 @@ export function DashboardNotifications({
   initialDismissed,
   createdAt,
   viewCount,
-  boostApplied: initialBoostApplied,
   trialStatus,
   trialInvitesCompleted,
   trialInvitesRequired,
@@ -49,54 +46,13 @@ export function DashboardNotifications({
   banReason,
   recentAdminActions = [],
 }: DashboardNotificationsProps) {
-  const router = useRouter();
   const [dismissed, setDismissed] = useState<string[]>(initialDismissed);
-  const [boostApplied, setBoostApplied] = useState(initialBoostApplied);
-  const [boostAmount, setBoostAmount] = useState(0);
-  const [showBoostSuccess, setShowBoostSuccess] = useState(false);
-  const [isApplyingBoost, setIsApplyingBoost] = useState(false);
 
   // Appeal state for banned users
   const [appealMessage, setAppealMessage] = useState("");
   const [isSubmittingAppeal, setIsSubmittingAppeal] = useState(false);
   const [appealSubmitted, setAppealSubmitted] = useState(false);
   const [appealError, setAppealError] = useState<string | null>(null);
-
-  // Check and apply boost on mount
-  const checkAndApplyBoost = useCallback(async () => {
-    if (boostApplied || isApplyingBoost) return;
-
-    // Check if account is 24+ hours old
-    const createdDate = new Date(createdAt);
-    const now = new Date();
-    const hoursSinceCreation = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60);
-
-    if (hoursSinceCreation < 24) return;
-
-    setIsApplyingBoost(true);
-    try {
-      const response = await fetch("/api/boost/apply", {
-        method: "POST",
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setBoostApplied(true);
-        setBoostAmount(data.boostAmount);
-        setShowBoostSuccess(true);
-        router.refresh();
-      }
-    } catch (error) {
-      console.error("Failed to apply boost:", error);
-    } finally {
-      setIsApplyingBoost(false);
-    }
-  }, [boostApplied, createdAt, isApplyingBoost, router]);
-
-  useEffect(() => {
-    checkAndApplyBoost();
-  }, [checkAndApplyBoost]);
 
   const handleDismiss = async (notificationId: string) => {
     setDismissed((prev) => [...prev, notificationId]);
@@ -200,26 +156,13 @@ export function DashboardNotifications({
   const showTrialOffer =
     trialStatus === "eligible" && !isPro && isNotDismissed("trial-offer");
 
-  // Show boost success notification
-  const showBoostNotification =
-    showBoostSuccess && boostAmount > 0 && isNotDismissed("view-boost-success");
-
-  // Show views milestone notification (after boost, if they have good view count)
-  const showViewsMilestone =
-    boostApplied &&
-    !showBoostSuccess &&
-    viewCount >= 10 &&
-    isNotDismissed("views-milestone");
-
   const hasAnyNotification =
     showAdminProNotification ||
     showAdminTrialNotification ||
     showAdminVerifyNotification ||
     showFreezeNotification ||
     showBanNotification ||
-    showTrialOffer ||
-    showBoostNotification ||
-    showViewsMilestone;
+    showTrialOffer;
 
   if (!hasAnyNotification) {
     return null;
@@ -373,32 +316,6 @@ export function DashboardNotifications({
             </span>
           </div>
         </NotificationCard>
-      )}
-
-      {/* Boost Success Notification */}
-      {showBoostNotification && (
-        <NotificationCard
-          id="view-boost-success"
-          type="success"
-          title={`${boostAmount} new profile views!`}
-          description="Your profile is getting noticed! Keep building your presence by adding more content and sharing your QR code."
-          ctaText="Enhance Your Profile"
-          ctaHref="/dashboard/profile-builder?tab=content"
-          onDismiss={handleDismiss}
-        />
-      )}
-
-      {/* Views Milestone Notification */}
-      {showViewsMilestone && (
-        <NotificationCard
-          id="views-milestone"
-          type="view_boost"
-          title="Your profile is getting noticed!"
-          description={`${viewCount} people have viewed your profile. Share your QR code to reach even more patients.`}
-          ctaText="Get Your QR Code"
-          ctaHref="/dashboard"
-          onDismiss={handleDismiss}
-        />
       )}
 
       {/* Trial Offer Notification */}

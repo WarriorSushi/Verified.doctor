@@ -108,7 +108,6 @@ export default async function DashboardPage() {
         initialDismissed={(profile.dismissed_notifications as string[]) || []}
         createdAt={profile.created_at || new Date().toISOString()}
         viewCount={profile.view_count || 0}
-        boostApplied={profile.initial_boost_applied || false}
         trialStatus={profile.trial_status || "none"}
         trialInvitesCompleted={profile.trial_invites_completed || 0}
         trialInvitesRequired={profile.trial_invites_required || 2}

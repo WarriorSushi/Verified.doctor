@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { X, Eye, Gift, Sparkles, TrendingUp, Users, AlertTriangle, AlertOctagon } from "lucide-react";
+import { X, Gift, Sparkles, TrendingUp, Users, AlertTriangle, AlertOctagon } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
-export type NotificationType = "view_boost" | "trial_offer" | "success" | "info" | "warning" | "error";
+export type NotificationType = "trial_offer" | "success" | "info" | "warning" | "error";
 
 interface NotificationCardProps {
   id: string;
@@ -28,13 +28,6 @@ const typeConfig: Record<NotificationType, {
   iconColor: string;
   borderColor: string;
 }> = {
-  view_boost: {
-    icon: Eye,
-    gradient: "from-emerald-50 via-green-50 to-teal-50",
-    iconBg: "bg-emerald-100",
-    iconColor: "text-emerald-600",
-    borderColor: "border-emerald-200/50",
-  },
   trial_offer: {
     icon: Gift,
     gradient: "from-amber-50 via-yellow-50 to-orange-50",
@@ -174,26 +167,6 @@ export function NotificationCard({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-// Specialized notification for view boost
-interface ViewBoostNotificationProps {
-  viewCount: number;
-  onDismiss: (id: string) => void;
-}
-
-export function ViewBoostNotification({ viewCount, onDismiss }: ViewBoostNotificationProps) {
-  return (
-    <NotificationCard
-      id="view-boost"
-      type="view_boost"
-      title="Your profile is getting noticed!"
-      description={`${viewCount} people viewed your profile. Keep building your presence by adding more content and sharing your QR code.`}
-      ctaText="Enhance Your Profile"
-      ctaHref="/dashboard/profile-builder?tab=content"
-      onDismiss={onDismiss}
-    />
   );
 }
 
