@@ -14,7 +14,7 @@ type AvailabilityStatus = "idle" | "checking" | "available" | "taken";
 // Names for typewriter - diverse, global
 const DEMO_NAMES = [
   "Asra", "Irfan", "Anna", "Arjun", "Priya", "Chong", "Fatima",
-  "Rohan", "Wei", "Anjali", "Vikram", "Sarah", "Meera", "Kwame"
+  "Rohan", "Wei", "Anjali", "Vikram", "Sarah", "Meera", "Richard"
 ];
 
 // Typewriter hook for placeholder text
@@ -193,18 +193,18 @@ export function HeroSection() {
               </span>
             </motion.div>
 
-            {/* Headline - concise */}
+            {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 mb-3"
             >
-              Claim Your{" "}
+              A{" "}
               <span className="bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
                 Verified
               </span>{" "}
-              Domain
+              Page for Every Doctor
             </motion.h1>
 
             {/* Subheadline */}
@@ -214,7 +214,7 @@ export function HeroSection() {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-sm sm:text-base text-slate-500 mb-6 max-w-md mx-auto lg:mx-0"
             >
-              A premium digital identity for medical professionals.
+              Credentials, recommendations, messaging — no website builder needed.
             </motion.p>
 
             {/* URL Input */}
@@ -226,14 +226,14 @@ export function HeroSection() {
             >
               {/* Demo URL */}
               <div className="mb-2.5 flex items-center justify-center lg:justify-start">
-                <div className="inline-flex items-center">
-                  <span className="text-slate-400 text-sm sm:text-base font-mono tracking-tight">verified.doctor/</span>
-                  <span className="text-sky-600 text-sm sm:text-base font-mono font-bold tracking-tight min-w-[60px] sm:min-w-[90px] text-left">
+                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60">
+                  <span className="text-slate-400 text-xs font-mono tracking-tight">verified.doctor/</span>
+                  <span className="text-sky-600 text-xs font-mono font-semibold tracking-tight">
                     {demoName}
                     <motion.span
                       animate={{ opacity: [1, 0] }}
                       transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                      className="inline-block w-[1.5px] h-4 bg-sky-500 ml-0.5 align-middle rounded-full"
+                      className="inline-block w-[1px] h-3 bg-sky-500 ml-0.5 align-middle rounded-full"
                     />
                   </span>
                 </div>
@@ -254,19 +254,29 @@ export function HeroSection() {
                   </span>
                 </div>
 
-                <Input
-                  type="text"
-                  value={handle}
-                  onChange={(e) => {
-                    setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-                    setStatus("idle");
-                  }}
-                  onFocus={() => setIsInputFocused(true)}
-                  onBlur={() => setIsInputFocused(false)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="your-name"
-                  className="border-0 bg-transparent text-sm sm:text-base font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-3.5 px-1 sm:px-2 min-w-0 flex-1"
-                />
+                <div className="relative flex-1 min-w-0">
+                  <Input
+                    type="text"
+                    value={handle}
+                    onChange={(e) => {
+                      setHandle(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                      setStatus("idle");
+                    }}
+                    onFocus={() => setIsInputFocused(true)}
+                    onBlur={() => setIsInputFocused(false)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="your-name"
+                    className="border-0 bg-transparent text-sm sm:text-base font-medium text-slate-900 placeholder:text-slate-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-auto py-3 sm:py-3.5 px-1 sm:px-2 w-full"
+                  />
+                  {/* Blinking caret when input is empty and not focused */}
+                  {!handle && !isInputFocused && (
+                    <motion.div
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse" }}
+                      className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 w-[2px] h-5 bg-sky-500 rounded-full pointer-events-none"
+                    />
+                  )}
+                </div>
 
                 {/* Desktop Button */}
                 <div className="hidden sm:block flex-shrink-0 pr-2.5">
