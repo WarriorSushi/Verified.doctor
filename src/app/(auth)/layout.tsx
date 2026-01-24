@@ -10,6 +10,11 @@ function AuthTabs() {
   const searchParams = useSearchParams();
   const isSignUp = pathname === "/sign-up";
 
+  // Hide tabs on password reset pages
+  if (pathname === "/forgot-password" || pathname === "/reset-password") {
+    return null;
+  }
+
   // Preserve query params (handle, invite, redirect)
   const queryString = searchParams.toString();
   const queryPart = queryString ? `?${queryString}` : "";

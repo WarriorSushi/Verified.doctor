@@ -12,12 +12,12 @@ import { createClient } from "@/lib/supabase/server";
 // POST - Process and send pending emails (called by cron/automation engine)
 export async function POST(request: Request) {
   try {
-    // Verify this is an authorized call (could use a secret key)
+    // Verify this is an authorized call using secret key
     const authHeader = request.headers.get("authorization");
     const expectedKey = process.env.AUTOMATION_SECRET_KEY;
 
-    // If secret key is configured, verify it
-    if (expectedKey && authHeader !== `Bearer ${expectedKey}`) {
+    // Secret key MUST be configured and match
+    if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -97,9 +97,17 @@ export async function POST(request: Request) {
   }
 }
 
-// GET - Check queue status (useful for monitoring)
-export async function GET() {
+// GET - Check queue status (requires authorization)
+export async function GET(request: Request) {
   try {
+    // Verify authorization
+    const authHeader = request.headers.get("authorization");
+    const expectedKey = process.env.AUTOMATION_SECRET_KEY;
+
+    if (!expectedKey || authHeader !== `Bearer ${expectedKey}`) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const supabase = await createClient();
 
     // Get queue statistics

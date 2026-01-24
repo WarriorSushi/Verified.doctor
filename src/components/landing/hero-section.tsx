@@ -7,6 +7,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProfileCard, SAMPLE_DOCTORS } from "@/components/landing/profile-showcase";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 type AvailabilityStatus = "idle" | "checking" | "available" | "taken";
 
@@ -17,7 +18,7 @@ const DEMO_NAMES = [
 ];
 
 // Typewriter hook for placeholder text
-function useTypewriter(names: string[], isActive: boolean) {
+function useTypewriter(names: string[], isActive: boolean, reduceMotion: boolean) {
   const [displayText, setDisplayText] = useState("");
   const [nameIndex, setNameIndex] = useState(0);
   const [isTyping, setIsTyping] = useState(true);
@@ -26,7 +27,7 @@ function useTypewriter(names: string[], isActive: boolean) {
   const currentName = names[nameIndex];
 
   const typeCharacter = useCallback(() => {
-    if (!isActive) return;
+    if (!isActive || reduceMotion) return;
 
     if (isTyping) {
       if (displayText.length < currentName.length) {
@@ -46,76 +47,22 @@ function useTypewriter(names: string[], isActive: boolean) {
         setIsTyping(true);
       }
     }
-  }, [displayText, currentName, isTyping, isActive, names.length]);
+  }, [displayText, currentName, isTyping, isActive, reduceMotion, names.length]);
 
   useEffect(() => {
-    if (!isActive || isPaused) return;
+    if (!isActive || isPaused || reduceMotion) return;
     const speed = isTyping ? 90 : 45;
     const timer = setTimeout(typeCharacter, speed);
     return () => clearTimeout(timer);
-  }, [typeCharacter, isTyping, isPaused, isActive]);
+  }, [typeCharacter, isTyping, isPaused, isActive, reduceMotion]);
+
+  // When reduced motion is preferred, show the full first name statically
+  if (reduceMotion) return names[0];
 
   return displayText;
 }
 
-// Animated doctor count
-function useDoctorCount() {
-  const [count, setCount] = useState(687);
-  const [displayCount, setDisplayCount] = useState(687);
-
-  useEffect(() => {
-    const today = new Date().toDateString();
-    const storedDate = localStorage.getItem("vd_count_date");
-    const storedCount = localStorage.getItem("vd_count_today");
-
-    let initialCount: number;
-    if (storedDate === today && storedCount) {
-      initialCount = parseInt(storedCount, 10);
-    } else {
-      initialCount = Math.floor(Math.random() * 100) + 620;
-      localStorage.setItem("vd_count_date", today);
-      localStorage.setItem("vd_count_today", String(initialCount));
-    }
-
-    setCount(initialCount);
-    setDisplayCount(initialCount);
-
-    const scheduleIncrement = () => {
-      const delay = 2000 + Math.random() * 4000;
-      return setTimeout(() => {
-        setCount((prev) => {
-          if (prev >= 1450) return prev;
-          const increment = Math.floor(Math.random() * 3) + 1;
-          const newCount = Math.min(prev + increment, 1450);
-          localStorage.setItem("vd_count_today", String(newCount));
-          return newCount;
-        });
-      }, delay);
-    };
-
-    let timeoutId = scheduleIncrement();
-    const intervalId = setInterval(() => {
-      clearTimeout(timeoutId);
-      timeoutId = scheduleIncrement();
-    }, 2000 + Math.random() * 4000);
-
-    return () => {
-      clearTimeout(timeoutId);
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (displayCount === count) return;
-    const step = count - displayCount > 0 ? 1 : -1;
-    const timer = setTimeout(() => {
-      setDisplayCount(prev => prev + step);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [count, displayCount]);
-
-  return displayCount;
-}
+// No fake counter - removed fabricated stats
 
 // Stock doctor photos
 const DOCTOR_PHOTOS = [
@@ -132,9 +79,9 @@ export function HeroSection() {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const autoPlayRef = useRef<NodeJS.Timeout | null>(null);
+  const prefersReducedMotion = useReducedMotion();
 
-  const doctorCount = useDoctorCount();
-  const demoName = useTypewriter(DEMO_NAMES, !isInputFocused);
+  const demoName = useTypewriter(DEMO_NAMES, !isInputFocused, prefersReducedMotion);
 
   // Auto-rotate carousel
   const startAutoPlay = useCallback(() => {
@@ -208,15 +155,15 @@ export function HeroSection() {
         }}
       />
 
-      {/* Floating orbs */}
+      {/* Floating orbs — static when reduced motion is preferred */}
       <motion.div
-        animate={{ y: [0, -20, 0], scale: [1, 1.05, 1] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        animate={prefersReducedMotion ? {} : { y: [0, -20, 0], scale: [1, 1.05, 1] }}
+        transition={prefersReducedMotion ? {} : { duration: 8, repeat: Infinity, ease: "easeInOut" }}
         className="absolute top-1/3 -left-48 w-[500px] h-[500px] bg-gradient-to-br from-sky-200/30 to-cyan-100/20 rounded-full blur-3xl"
       />
       <motion.div
-        animate={{ y: [0, 15, 0], scale: [1, 0.95, 1] }}
-        transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+        animate={prefersReducedMotion ? {} : { y: [0, 15, 0], scale: [1, 0.95, 1] }}
+        transition={prefersReducedMotion ? {} : { duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         className="absolute bottom-1/4 -right-48 w-[400px] h-[400px] bg-gradient-to-tl from-cyan-100/30 to-sky-50/20 rounded-full blur-3xl"
       />
 
@@ -453,8 +400,8 @@ export function HeroSection() {
                 transition={{ delay: 1, duration: 0.5 }}
                 className="text-slate-600 text-xs sm:text-sm"
               >
-                <span className="text-sky-600 tabular-nums font-semibold">{doctorCount}</span>
-                {" "}joined today
+                <span className="text-sky-600 font-semibold">Doctors</span>
+                {" "}are joining daily
               </motion.p>
             </motion.div>
           </motion.div>

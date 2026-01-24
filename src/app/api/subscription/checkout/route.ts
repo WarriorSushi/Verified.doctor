@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         plan: plan,
       },
-      return_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/dashboard?upgraded=true`,
+      return_url: `${process.env.NEXT_PUBLIC_APP_URL || "https://verified.doctor"}/dashboard?upgraded=true`,
     });
 
     return NextResponse.json({

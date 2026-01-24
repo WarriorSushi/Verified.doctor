@@ -31,9 +31,14 @@ export async function GET(request: Request) {
           return NextResponse.redirect(new URL(onboardingUrl, requestUrl.origin));
         }
 
-        // If custom redirect specified, use it
+        // If custom redirect specified, validate it's a safe relative path
         if (redirect) {
-          return NextResponse.redirect(new URL(redirect, requestUrl.origin));
+          // Only allow relative paths (starting with /) and no protocol schemes
+          const isRelative = redirect.startsWith("/") && !redirect.startsWith("//") && !redirect.includes(":");
+          if (isRelative) {
+            return NextResponse.redirect(new URL(redirect, requestUrl.origin));
+          }
+          // Ignore unsafe redirects, fall through to dashboard
         }
 
         // Default to dashboard

@@ -22,7 +22,7 @@ const createMessageSchema = z.object({
     .max(20, "Phone number too long")
     .regex(phoneRegex, "Invalid phone number format")
     .transform((val) => val.replace(/[^\d+]/g, "")), // Strip non-digits except +
-  senderEmail: z.string().email("Invalid email").max(255).optional(),
+  // senderEmail removed: column does not exist in DB schema
   messageContent: z.string().min(10, "Message too short").max(500, "Message too long"),
 });
 
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { profileId, senderName, senderPhone, senderEmail, messageContent } = result.data;
+    const { profileId, senderName, senderPhone, messageContent } = result.data;
 
     const supabase = await createClient();
 
@@ -80,14 +80,13 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create message
+    // Create message (sender_email column does not exist in DB schema, omit it)
     const { data: message, error: insertError } = await supabase
       .from("messages")
       .insert({
         profile_id: profileId,
         sender_name: senderName,
         sender_phone: senderPhone,
-        sender_email: senderEmail || null,
         message_content: messageContent,
         is_read: false,
       })

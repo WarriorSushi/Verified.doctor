@@ -327,6 +327,16 @@ function SignUpFormContent() {
         </Button>
       </form>
 
+      {/* Cross-navigation */}
+      <p className="mt-6 text-center text-sm text-slate-600">
+        Already have an account?{" "}
+        <a
+          href={claimedHandle ? `/sign-in?handle=${claimedHandle}` : "/sign-in"}
+          className="font-semibold text-[#0099F7] hover:text-[#0080CC]"
+        >
+          Sign in
+        </a>
+      </p>
     </motion.div>
   );
 }

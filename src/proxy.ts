@@ -37,12 +37,13 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protected routes - require authentication
-  const protectedRoutes = ["/dashboard", "/onboarding"];
+  const protectedRoutes = ["/dashboard", "/onboarding", "/admin"];
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
 
   // Auth routes - redirect to dashboard if already logged in
+  // Note: forgot-password and reset-password are excluded so logged-in users can still reset
   const authRoutes = ["/sign-in", "/sign-up"];
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 

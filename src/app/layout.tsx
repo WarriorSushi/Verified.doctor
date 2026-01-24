@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     template: "%s | Verified.Doctor",
   },
   description:
-    "Premium digital identity and reputation management for doctors. Claim your verified domain, showcase credentials, collect patient recommendations, and build your professional network. Join 600+ verified doctors today.",
+    "Premium digital identity and reputation management for doctors. Claim your verified domain, showcase credentials, collect patient recommendations, and build your professional network.",
   keywords: [
     "doctor verification",
     "medical professional verification",
@@ -169,11 +169,6 @@ const jsonLd = {
         "@type": "Offer",
         price: "0",
         priceCurrency: "USD",
-      },
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: "4.9",
-        ratingCount: "600",
       },
       description:
         "Digital identity platform for doctors to verify credentials and manage their professional reputation.",

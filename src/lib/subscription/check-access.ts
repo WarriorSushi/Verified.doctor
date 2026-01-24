@@ -181,78 +181,26 @@ export async function canUseFeature(
 }
 
 /**
- * Increment usage counter for a feature
+ * Increment usage counter for a feature (uses atomic database functions)
  */
 export async function incrementUsage(
   profileId: string,
   feature: "messages" | "ai_suggestions"
 ): Promise<void> {
   const supabase = await createClient();
-  const now = new Date();
 
   if (feature === "messages") {
-    // Get current state
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("messages_received_this_month, messages_reset_at")
-      .eq("id", profileId)
-      .single();
-
-    if (!profile) return;
-
-    const resetAt = new Date(profile.messages_reset_at || 0);
-    const needsReset =
-      resetAt.getMonth() !== now.getMonth() ||
-      resetAt.getFullYear() !== now.getFullYear();
-
-    if (needsReset) {
-      await supabase
-        .from("profiles")
-        .update({
-          messages_received_this_month: 1,
-          messages_reset_at: now.toISOString(),
-        })
-        .eq("id", profileId);
-    } else {
-      await supabase
-        .from("profiles")
-        .update({
-          messages_received_this_month: (profile.messages_received_this_month || 0) + 1,
-        })
-        .eq("id", profileId);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).rpc("increment_messages_received", {
+      p_profile_id: profileId,
+    });
   }
 
   if (feature === "ai_suggestions") {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("ai_suggestions_used_this_month, ai_suggestions_reset_at")
-      .eq("id", profileId)
-      .single();
-
-    if (!profile) return;
-
-    const resetAt = new Date(profile.ai_suggestions_reset_at || 0);
-    const needsReset =
-      resetAt.getMonth() !== now.getMonth() ||
-      resetAt.getFullYear() !== now.getFullYear();
-
-    if (needsReset) {
-      await supabase
-        .from("profiles")
-        .update({
-          ai_suggestions_used_this_month: 1,
-          ai_suggestions_reset_at: now.toISOString(),
-        })
-        .eq("id", profileId);
-    } else {
-      await supabase
-        .from("profiles")
-        .update({
-          ai_suggestions_used_this_month: (profile.ai_suggestions_used_this_month || 0) + 1,
-        })
-        .eq("id", profileId);
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabase as any).rpc("increment_ai_suggestions_used", {
+      p_profile_id: profileId,
+    });
   }
 }
 

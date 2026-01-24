@@ -3,40 +3,41 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { Shield, Users, ThumbsUp, MessageSquare } from "lucide-react";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 
 const stats = [
   {
-    icon: Users,
-    value: 22650,
-    suffix: "+",
-    label: "Verified Doctors",
-    description: "and growing daily",
+    icon: Shield,
+    value: 100,
+    suffix: "%",
+    label: "Verified Credentials",
+    description: "manual review process",
   },
   {
     icon: ThumbsUp,
-    value: 458000,
-    suffix: "+",
-    label: "Patient Recommendations",
-    description: "positive feedback",
+    value: 0,
+    suffix: "",
+    label: "Negative Reviews",
+    description: "recommendations only",
   },
   {
     icon: MessageSquare,
-    value: 312000,
-    suffix: "+",
-    label: "Messages Sent",
-    description: "secure communication",
+    value: 100,
+    suffix: "%",
+    label: "Private Messaging",
+    description: "your number stays hidden",
   },
   {
-    icon: Shield,
-    value: 99.9,
-    suffix: "%",
-    label: "Uptime",
-    description: "always available",
+    icon: Users,
+    value: 2,
+    suffix: " min",
+    label: "Profile Setup",
+    description: "go live instantly",
   },
 ];
 
-function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
-  const [count, setCount] = useState(0);
+function AnimatedCounter({ value, suffix, reduceMotion = false }: { value: number; suffix: string; reduceMotion?: boolean }) {
+  const [count, setCount] = useState(reduceMotion ? value : 0);
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
@@ -58,9 +59,9 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
     return () => observer.disconnect();
   }, [isVisible]);
 
-  // Animate count when visible
+  // Animate count when visible (skip animation for reduced motion)
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || reduceMotion) return;
 
     const duration = 2000;
     const steps = 60;
@@ -93,6 +94,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export function TrustSignalsSection() {
+  const prefersReducedMotion = useReducedMotion();
   return (
     <section className="py-20 sm:py-24 bg-gradient-to-b from-white to-slate-50 overflow-hidden">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
@@ -137,7 +139,7 @@ export function TrustSignalsSection() {
 
                 {/* Value */}
                 <div className="text-3xl sm:text-4xl font-bold text-slate-900 mb-1">
-                  <AnimatedCounter value={stat.value} suffix={stat.suffix} />
+                  <AnimatedCounter value={stat.value} suffix={stat.suffix} reduceMotion={prefersReducedMotion} />
                 </div>
 
                 {/* Label */}

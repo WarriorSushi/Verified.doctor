@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import {
   MapPin,
   Clock,
@@ -80,12 +81,12 @@ export const SAMPLE_DOCTORS = [
     handle: "stevens",
     full_name: "Dr. Stevens",
     specialty: "Orthopedic Surgeon",
-    qualifications: "MBBS, MS (Ortho), Fellowship",
+    qualifications: "MD, Board Certified Orthopedic Surgery, Sports Medicine Fellowship",
     years_experience: 12,
-    clinic_name: "BoneHealth Hospital",
-    clinic_location: "Koramangala, Bangalore",
+    clinic_name: "Summit Orthopedics & Sports Medicine",
+    clinic_location: "Austin, Texas",
     profile_photo_url: "/doctors/doctor-2.webp",
-    bio: "Specialized in joint replacement surgery and sports medicine. Committed to getting you back to your active lifestyle.",
+    bio: "Board-certified orthopedic surgeon specializing in joint replacement and sports medicine. Fellowship-trained at the Hospital for Special Surgery. Committed to getting you back to your active lifestyle.",
     recommendation_count: 89,
     connection_count: 28,
     is_verified: true,
@@ -93,30 +94,30 @@ export const SAMPLE_DOCTORS = [
     theme: "ocean",
     services: ["Joint Replacement", "Arthroscopy", "Sports Medicine", "Trauma Care"],
     education_timeline: [
-      { institution: "KMC Manipal", degree: "MBBS", year: "2008" },
-      { institution: "NIMHANS", degree: "MS (Orthopedics)", year: "2013" },
-      { institution: "Germany", degree: "Fellowship - Arthroplasty", year: "2015" },
+      { institution: "UT Southwestern Medical School", degree: "MD", year: "2008" },
+      { institution: "Mayo Clinic", degree: "Residency - Orthopedic Surgery", year: "2013" },
+      { institution: "Hospital for Special Surgery, NYC", degree: "Fellowship - Sports Medicine", year: "2015" },
     ],
     hospital_affiliations: [
-      { name: "Manipal Hospital", role: "Senior Consultant", department: "Orthopedics" },
-      { name: "Fortis Hospital", role: "Visiting", department: "Joint Replacement" },
+      { name: "St. David's Medical Center", role: "Attending Surgeon", department: "Orthopedics" },
+      { name: "Dell Seton Medical Center", role: "Consulting", department: "Joint Replacement" },
     ],
     conditions_treated: "Osteoarthritis, ACL Injuries, Fractures, Back Pain, Sports Injuries, Rheumatoid Arthritis",
     procedures_performed: "Total Knee Replacement, Hip Replacement, ACL Reconstruction, Arthroscopic Surgery",
     approach_to_care: "My philosophy is to exhaust all conservative treatments before recommending surgery. When surgery is needed, I use minimally invasive techniques for faster recovery.",
     case_studies: [
-      { title: "Bilateral Knee Replacement", description: "Young patient (52) with severe osteoarthritis in both knees", outcome: "Walking independently within 3 weeks" },
+      { title: "Bilateral Knee Replacement", description: "Active patient (52) with severe osteoarthritis in both knees", outcome: "Walking independently within 3 weeks" },
     ],
     first_visit_guide: "Bring X-rays and MRI scans if available. Wear comfortable clothing that allows examination of the affected joint.",
     is_available: true,
     availability_note: "Limited slots available",
     offers_telemedicine: true,
     professional_memberships: [
-      { organization: "Indian Orthopaedic Association", year: "2013" },
-      { organization: "SICOT", year: "2016" },
+      { organization: "American Academy of Orthopaedic Surgeons (AAOS)", year: "2013" },
+      { organization: "American Orthopaedic Society for Sports Medicine", year: "2016" },
     ],
     media_publications: [
-      { title: "Advances in Robotic Knee Surgery", publication: "Indian Express", link: "#", year: "2024" },
+      { title: "Advances in Robotic-Assisted Knee Surgery", publication: "Texas Medicine", link: "#", year: "2024" },
     ],
   },
   {
@@ -124,12 +125,12 @@ export const SAMPLE_DOCTORS = [
     handle: "david-g",
     full_name: "Dr. David G",
     specialty: "Dermatologist",
-    qualifications: "MBBS, MD (Dermatology)",
+    qualifications: "MD, Board Certified Dermatology, Mohs Surgery Fellowship",
     years_experience: 8,
-    clinic_name: "SkinGlow Clinic",
-    clinic_location: "Jubilee Hills, Hyderabad",
+    clinic_name: "Westside Dermatology & Aesthetics",
+    clinic_location: "Los Angeles, California",
     profile_photo_url: "/doctors/doctor-3.webp",
-    bio: "Expert in medical and cosmetic dermatology. Helping patients achieve healthy, beautiful skin through personalized treatments.",
+    bio: "Board-certified dermatologist and Mohs surgeon. Dual expertise in medical and cosmetic dermatology, helping patients achieve healthy, beautiful skin through evidence-based treatments.",
     recommendation_count: 156,
     connection_count: 42,
     is_verified: true,
@@ -137,15 +138,16 @@ export const SAMPLE_DOCTORS = [
     theme: "warm",
     services: ["Acne Treatment", "Laser Therapy", "Hair Loss", "Skin Cancer Screening"],
     education_timeline: [
-      { institution: "Osmania Medical College", degree: "MBBS", year: "2012" },
-      { institution: "JIPMER", degree: "MD (Dermatology)", year: "2016" },
+      { institution: "UCLA David Geffen School of Medicine", degree: "MD", year: "2014" },
+      { institution: "Stanford Health Care", degree: "Residency - Dermatology", year: "2018" },
+      { institution: "UCSF Medical Center", degree: "Fellowship - Mohs Surgery", year: "2019" },
     ],
     hospital_affiliations: [
-      { name: "Apollo Hospital", role: "Consultant", department: "Dermatology" },
-      { name: "KIMS Hospital", role: "Visiting", department: "Cosmetic Dermatology" },
+      { name: "Cedars-Sinai Medical Center", role: "Attending Physician", department: "Dermatology" },
+      { name: "UCLA Health", role: "Clinical Instructor", department: "Cosmetic Dermatology" },
     ],
-    conditions_treated: "Acne, Eczema, Psoriasis, Pigmentation, Hair Loss, Skin Allergies, Vitiligo",
-    procedures_performed: "Laser Treatment, Chemical Peels, Botox, Dermal Fillers, PRP Therapy, Microneedling",
+    conditions_treated: "Acne, Eczema, Psoriasis, Pigmentation, Hair Loss, Skin Allergies, Skin Cancer",
+    procedures_performed: "Mohs Surgery, Laser Treatment, Chemical Peels, Botox, Dermal Fillers, PRP Therapy, Microneedling",
     approach_to_care: "Skin health is a journey, not a destination. I combine advanced treatments with personalized skincare routines for lasting results.",
     case_studies: [
       { title: "Severe Cystic Acne", description: "Teenage patient with treatment-resistant acne affecting self-esteem", outcome: "Clear skin achieved in 6 months with isotretinoin therapy" },
@@ -155,11 +157,11 @@ export const SAMPLE_DOCTORS = [
     availability_note: "Evening slots available",
     offers_telemedicine: true,
     professional_memberships: [
-      { organization: "Indian Association of Dermatologists", year: "2016" },
-      { organization: "American Academy of Dermatology", year: "2019" },
+      { organization: "American Academy of Dermatology (AAD)", year: "2018" },
+      { organization: "American College of Mohs Surgery", year: "2019" },
     ],
     media_publications: [
-      { title: "Monsoon Skincare Tips", publication: "Femina", link: "#", year: "2024" },
+      { title: "Sun Protection Myths Debunked", publication: "LA Times Health", link: "#", year: "2024" },
     ],
   },
   {
@@ -259,17 +261,19 @@ type ThemeColors = ReturnType<typeof getTheme>['colors'];
 // Auto-scrolling wrapper component for profile content
 function AutoScrollContainer({
   children,
-  isActive
+  isActive,
+  reduceMotion = false,
 }: {
   children: React.ReactNode;
   isActive: boolean;
+  reduceMotion?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const animationRef = useRef<number | undefined>(undefined);
   const [scrollDirection, setScrollDirection] = useState<'down' | 'up'>('down');
 
   useEffect(() => {
-    if (!isActive || !containerRef.current) return;
+    if (!isActive || !containerRef.current || reduceMotion) return;
 
     const container = containerRef.current;
     const maxScroll = container.scrollHeight - container.clientHeight;
@@ -321,13 +325,13 @@ function AutoScrollContainer({
         cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [isActive]);
+  }, [isActive, reduceMotion]);
 
   return (
     <div
       ref={containerRef}
-      className="h-full overflow-y-hidden scrollbar-hide"
-      style={{ scrollBehavior: 'auto', touchAction: 'none' }}
+      className={`h-full scrollbar-hide ${reduceMotion ? "overflow-y-auto" : "overflow-y-hidden"}`}
+      style={{ scrollBehavior: 'auto', touchAction: reduceMotion ? 'auto' : 'none' }}
     >
       {children}
     </div>
@@ -338,6 +342,7 @@ function AutoScrollContainer({
 export function ProfileCard({ doctor, isActive }: { doctor: Doctor; isActive: boolean }) {
   const theme = getTheme(doctor.theme);
   const colors = theme.colors;
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <motion.div
@@ -375,19 +380,19 @@ export function ProfileCard({ doctor, isActive }: { doctor: Doctor; isActive: bo
           {/* Content based on layout */}
           <div className="absolute inset-0 pt-8 overflow-hidden">
             {doctor.layout === "classic" && (
-              <ClassicLayout doctor={doctor} colors={colors} isActive={isActive} />
+              <ClassicLayout doctor={doctor} colors={colors} isActive={isActive} prefersReducedMotion={prefersReducedMotion} />
             )}
             {doctor.layout === "hero" && (
-              <HeroLayout doctor={doctor} colors={colors} isActive={isActive} />
+              <HeroLayout doctor={doctor} colors={colors} isActive={isActive} prefersReducedMotion={prefersReducedMotion} />
             )}
             {doctor.layout === "magazine" && (
-              <MagazineLayout doctor={doctor} colors={colors} isActive={isActive} />
+              <MagazineLayout doctor={doctor} colors={colors} isActive={isActive} prefersReducedMotion={prefersReducedMotion} />
             )}
             {doctor.layout === "grid" && (
-              <GridLayout doctor={doctor} colors={colors} isActive={isActive} />
+              <GridLayout doctor={doctor} colors={colors} isActive={isActive} prefersReducedMotion={prefersReducedMotion} />
             )}
             {doctor.layout === "minimal" && (
-              <MinimalLayout doctor={doctor} colors={colors} isActive={isActive} />
+              <MinimalLayout doctor={doctor} colors={colors} isActive={isActive} prefersReducedMotion={prefersReducedMotion} />
             )}
           </div>
         </div>
@@ -552,9 +557,9 @@ function FirstVisitSection({ guide, colors }: { guide: string; colors: ThemeColo
 }
 
 // Classic Layout with all sections
-function ClassicLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: ThemeColors; isActive: boolean }) {
+function ClassicLayout({ doctor, colors, isActive, prefersReducedMotion }: { doctor: Doctor; colors: ThemeColors; isActive: boolean; prefersReducedMotion: boolean }) {
   return (
-    <AutoScrollContainer isActive={isActive}>
+    <AutoScrollContainer isActive={isActive} reduceMotion={prefersReducedMotion}>
       <div className="flex flex-col p-5 pb-8" style={{ backgroundColor: colors.background }}>
         {/* Nav */}
         <div className="flex items-center justify-between mb-6">
@@ -569,7 +574,7 @@ function ClassicLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: T
         {/* Profile */}
         <div className="flex flex-col items-center text-center mb-5">
           <div className="w-20 h-20 rounded-full overflow-hidden mb-3 shadow-lg" style={{ boxShadow: `0 4px 20px ${colors.primary}20` }}>
-            <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={80} height={80} className="object-cover w-full h-full" />
+            <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={80} height={80} className="object-cover w-full h-full" priority={isActive} />
           </div>
           <div className="flex items-center gap-1.5 mb-1">
             <h2 className="text-lg font-semibold" style={{ color: colors.text }}>{doctor.full_name}</h2>
@@ -657,9 +662,9 @@ function ClassicLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: T
 }
 
 // Hero Layout with all sections
-function HeroLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: ThemeColors; isActive: boolean }) {
+function HeroLayout({ doctor, colors, isActive, prefersReducedMotion }: { doctor: Doctor; colors: ThemeColors; isActive: boolean; prefersReducedMotion: boolean }) {
   return (
-    <AutoScrollContainer isActive={isActive}>
+    <AutoScrollContainer isActive={isActive} reduceMotion={prefersReducedMotion}>
       <div className="flex flex-col pb-8" style={{ backgroundColor: colors.background }}>
         {/* Hero Banner */}
         <div
@@ -672,7 +677,7 @@ function HeroLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: Them
           </div>
           <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
             <div className="w-24 h-24 rounded-full border-4 overflow-hidden shadow-xl" style={{ borderColor: colors.background }}>
-              <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={96} height={96} className="object-cover w-full h-full" />
+              <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={96} height={96} className="object-cover w-full h-full" priority={isActive} />
             </div>
           </div>
         </div>
@@ -751,9 +756,9 @@ function HeroLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: Them
 }
 
 // Magazine Layout with all sections
-function MagazineLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: ThemeColors; isActive: boolean }) {
+function MagazineLayout({ doctor, colors, isActive, prefersReducedMotion }: { doctor: Doctor; colors: ThemeColors; isActive: boolean; prefersReducedMotion: boolean }) {
   return (
-    <AutoScrollContainer isActive={isActive}>
+    <AutoScrollContainer isActive={isActive} reduceMotion={prefersReducedMotion}>
       <div className="flex flex-col pb-8" style={{ backgroundColor: colors.background }}>
         {/* Top Section - Photo */}
         <div className="relative h-44 overflow-hidden flex-shrink-0">
@@ -763,6 +768,7 @@ function MagazineLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: 
             fill
             sizes="320px"
             className="object-cover"
+            priority={isActive}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4">
@@ -854,15 +860,15 @@ function MagazineLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: 
 }
 
 // Grid Layout with all sections
-function GridLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: ThemeColors; isActive: boolean }) {
+function GridLayout({ doctor, colors, isActive, prefersReducedMotion }: { doctor: Doctor; colors: ThemeColors; isActive: boolean; prefersReducedMotion: boolean }) {
   return (
-    <AutoScrollContainer isActive={isActive}>
+    <AutoScrollContainer isActive={isActive} reduceMotion={prefersReducedMotion}>
       <div className="p-3 pb-8" style={{ backgroundColor: colors.backgroundAlt }}>
         <div className="grid grid-cols-3 gap-2">
           {/* Main Card */}
           <div className="col-span-2 row-span-2 rounded-2xl p-4 flex flex-col items-center justify-center" style={{ backgroundColor: colors.card }}>
             <div className="w-16 h-16 rounded-full overflow-hidden mb-2 shadow-md">
-              <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={64} height={64} className="object-cover w-full h-full" />
+              <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={64} height={64} className="object-cover w-full h-full" priority={isActive} />
             </div>
             <div className="flex items-center gap-1 mb-1">
               <h2 className="text-sm font-bold text-center" style={{ color: colors.text }}>{doctor.full_name}</h2>
@@ -978,9 +984,9 @@ function GridLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: Them
 }
 
 // Minimal Layout with all sections
-function MinimalLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: ThemeColors; isActive: boolean }) {
+function MinimalLayout({ doctor, colors, isActive, prefersReducedMotion }: { doctor: Doctor; colors: ThemeColors; isActive: boolean; prefersReducedMotion: boolean }) {
   return (
-    <AutoScrollContainer isActive={isActive}>
+    <AutoScrollContainer isActive={isActive} reduceMotion={prefersReducedMotion}>
       <div className="p-6 pb-8 flex flex-col" style={{ backgroundColor: colors.background }}>
         <p className="text-[10px] uppercase tracking-[0.25em] mb-6" style={{ color: colors.textMuted }}>Verified Doctor</p>
 
@@ -1003,7 +1009,7 @@ function MinimalLayout({ doctor, colors, isActive }: { doctor: Doctor; colors: T
         </div>
 
         <div className="w-20 h-20 rounded-full overflow-hidden mb-6">
-          <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={80} height={80} className="object-cover w-full h-full" />
+          <Image src={doctor.profile_photo_url} alt={doctor.full_name} width={80} height={80} className="object-cover w-full h-full" priority={isActive} />
         </div>
 
         <div className="flex gap-8 mb-6">

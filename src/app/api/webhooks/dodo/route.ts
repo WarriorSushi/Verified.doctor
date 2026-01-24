@@ -45,6 +45,41 @@ export async function POST(request: NextRequest) {
   console.log("Dodo webhook received:", event.type, event.data?.subscription_id);
 
   try {
+    // Idempotency check: skip if we've already processed this event
+    if (event.id) {
+      const { data: existingEvent } = await supabase
+        .from("subscription_events")
+        .select("id")
+        .eq("dodo_event_id", event.id)
+        .single();
+
+      if (existingEvent) {
+        console.log(`Skipping duplicate webhook event: ${event.id}`);
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+    }
+
+    // Log event first (unique constraint prevents duplicates if race condition occurs)
+    const profileId = event.data?.metadata?.profile_id;
+    if (profileId && event.id) {
+      const { error: insertError } = await supabase.from("subscription_events").insert({
+        profile_id: profileId,
+        event_type: event.type,
+        dodo_subscription_id: event.data?.subscription_id,
+        dodo_event_id: event.id,
+        amount: event.data?.amount,
+        currency: event.data?.currency,
+        metadata: event.data,
+      });
+
+      // If insert fails due to duplicate, skip processing
+      if (insertError?.code === "23505") {
+        console.log(`Duplicate webhook event caught by constraint: ${event.id}`);
+        return NextResponse.json({ received: true, duplicate: true });
+      }
+    }
+
+    // Process the event
     switch (event.type) {
       case "subscription.created":
       case "subscription.active":
@@ -70,20 +105,6 @@ export async function POST(request: NextRequest) {
 
       default:
         console.log("Unhandled webhook event:", event.type);
-    }
-
-    // Log all events
-    const profileId = event.data?.metadata?.profile_id;
-    if (profileId) {
-      await supabase.from("subscription_events").insert({
-        profile_id: profileId,
-        event_type: event.type,
-        dodo_subscription_id: event.data?.subscription_id,
-        dodo_event_id: event.id,
-        amount: event.data?.amount,
-        currency: event.data?.currency,
-        metadata: event.data,
-      });
     }
 
     return NextResponse.json({ received: true });

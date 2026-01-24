@@ -123,8 +123,8 @@ function SuccessContent() {
         body: JSON.stringify({}),
       });
       const data = await response.json();
-      if (data.inviteCode) {
-        const link = `https://verified.doctor/sign-up?invite=${data.inviteCode}`;
+      if (data.invite?.invite_code) {
+        const link = `https://verified.doctor/sign-up?invite=${data.invite.invite_code}`;
         setInviteLink(link);
         return link;
       }

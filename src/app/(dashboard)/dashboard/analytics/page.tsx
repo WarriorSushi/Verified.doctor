@@ -11,13 +11,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  AnalyticsOverview,
-  ViewsChart,
-  ActionsChart,
-  DeviceChart,
-  ReferrersTable,
-} from "@/components/analytics";
+import dynamic from "next/dynamic";
+import { AnalyticsOverview } from "@/components/analytics";
+import { Skeleton } from "@/components/ui/skeleton";
+
+const ViewsChart = dynamic(
+  () => import("@/components/analytics/views-chart").then((m) => m.ViewsChart),
+  { loading: () => <Skeleton className="h-64 rounded-xl" />, ssr: false }
+);
+const ActionsChart = dynamic(
+  () => import("@/components/analytics/actions-chart").then((m) => m.ActionsChart),
+  { loading: () => <Skeleton className="h-64 rounded-xl" />, ssr: false }
+);
+const DeviceChart = dynamic(
+  () => import("@/components/analytics/device-chart").then((m) => m.DeviceChart),
+  { loading: () => <Skeleton className="h-64 rounded-xl" />, ssr: false }
+);
+const ReferrersTable = dynamic(
+  () => import("@/components/analytics/referrers-table").then((m) => m.ReferrersTable),
+  { loading: () => <Skeleton className="h-48 rounded-xl" /> }
+);
 import { useSubscription } from "@/components/subscription/use-subscription";
 import { toast } from "sonner";
 
