@@ -146,3 +146,35 @@
     background-position: -200% 0;
   }
 }
+
+/* Profile showcase scroll animation */
+.profile-phone-screen {
+  --container-h: 500px;
+}
+@media (min-width: 640px) {
+  .profile-phone-screen {
+    --container-h: 560px;
+  }
+}
+
+@keyframes profile-scroll {
+  0%, 12% {
+    transform: translateY(0);
+  }
+  38%, 62% {
+    transform: translateY(calc(var(--container-h) - 100%));
+  }
+  88%, 100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-profile-scroll {
+  animation: profile-scroll 7s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-profile-scroll {
+    animation: none;
+  }
+}
