@@ -183,7 +183,7 @@ export function HeroSection() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-sky-100 shadow-sm mb-5"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-sm border border-sky-100 shadow-sm mb-6"
             >
               <div className="relative w-4 h-4">
                 <Image src="/verified-doctor-logo.svg" alt="Verified" fill sizes="16px" className="object-contain" />
@@ -198,7 +198,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.6 }}
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 mb-3"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 mb-4"
             >
               A{" "}
               <span className="bg-gradient-to-r from-sky-600 via-sky-500 to-cyan-500 bg-clip-text text-transparent">
@@ -212,38 +212,39 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-sm sm:text-base text-slate-500 mb-6 max-w-md mx-auto lg:mx-0"
+              className="text-base sm:text-lg text-slate-600 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed"
             >
               Credentials, recommendations, messaging. No website builder needed.
             </motion.p>
 
-            {/* URL Input */}
+            {/* Claim Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
               className="max-w-lg mx-auto lg:mx-0"
             >
-              {/* Claim prompt */}
-              <p className="text-sm font-medium text-slate-700 mb-1 text-center lg:text-left">
-                Get your personal high-status web address
-              </p>
-              <p className="text-xs text-slate-400 mb-3 text-center lg:text-left">
-                Claim your name before someone else does.
-              </p>
-
-              {/* Demo URL */}
-              <div className="mb-2.5 flex items-center justify-center lg:justify-start">
-                <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60">
-                  <span className="text-slate-400 text-xs font-mono tracking-tight">verified.doctor/</span>
-                  <span className="text-sky-600 text-xs font-mono font-semibold tracking-tight">
-                    {demoName}
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
-                      className="inline-block w-[1px] h-3 bg-sky-500 ml-0.5 align-middle rounded-full"
-                    />
-                  </span>
+              {/* Claim label with animated demo */}
+              <div className="mb-4">
+                <p className="text-sm font-semibold text-slate-800 mb-0.5 text-center lg:text-left">
+                  Get your personal high-status web address
+                </p>
+                <div className="flex items-center gap-2 justify-center lg:justify-start">
+                  <p className="text-xs text-slate-400">
+                    Claim your name before someone else does
+                  </p>
+                  <span className="text-slate-200">|</span>
+                  <div className="inline-flex items-center">
+                    <span className="text-slate-400 text-xs font-mono">verified.doctor/</span>
+                    <span className="text-sky-600 text-xs font-mono font-semibold">
+                      {demoName}
+                      <motion.span
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+                        className="inline-block w-[1px] h-3 bg-sky-500 ml-0.5 align-middle rounded-full"
+                      />
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -431,6 +432,11 @@ export function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="flex-1 w-full lg:max-w-lg flex flex-col items-center"
           >
+            {/* AI text - mobile only (above carousel) */}
+            <p className="lg:hidden text-sm text-slate-500 text-center max-w-[280px] mb-4">
+              Just fill in details and our AI will create beautiful flowing public profile pages for you.
+            </p>
+
             {/* Carousel Container */}
             <div className="relative flex items-center justify-center">
               {/* Navigation arrows - desktop only */}
@@ -509,6 +515,11 @@ export function HeroSection() {
                 <ChevronRight className="w-4 h-4 text-slate-600" />
               </button>
             </div>
+
+            {/* AI text - desktop only (below carousel) */}
+            <p className="hidden lg:block text-sm text-slate-500 text-center max-w-xs mt-4">
+              Just fill in details and our AI will create beautiful flowing public profile pages for you.
+            </p>
           </motion.div>
         </div>
       </div>
