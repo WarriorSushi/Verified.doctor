@@ -214,7 +214,7 @@ export function HeroSection() {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-sm sm:text-base text-slate-500 mb-6 max-w-md mx-auto lg:mx-0"
             >
-              Credentials, recommendations, messaging — no website builder needed.
+              Credentials, recommendations, messaging. No website builder needed.
             </motion.p>
 
             {/* URL Input */}

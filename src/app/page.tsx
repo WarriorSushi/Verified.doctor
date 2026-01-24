@@ -34,7 +34,7 @@ export default function Home() {
             </span>
           </p>
           <p className="mt-4 text-sm sm:text-base text-slate-500 max-w-xl mx-auto">
-            A verified profile page that ranks, builds trust, and collects recommendations — automatically.
+            A verified profile page that ranks, builds trust, and collects recommendations automatically.
           </p>
         </div>
       </section>
