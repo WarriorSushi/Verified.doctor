@@ -14,7 +14,7 @@ type AvailabilityStatus = "idle" | "checking" | "available" | "taken";
 // Names for typewriter - diverse, global
 const DEMO_NAMES = [
   "Asra", "Irfan", "Anna", "Arjun", "Priya", "Chong", "Fatima",
-  "Rohan", "Wei", "Anjali", "Vikram", "Sarah", "Meera", "Richard"
+  "Rohan", "Hannah", "Anjali", "Vikram", "Sarah", "Meera", "Richard"
 ];
 
 // Typewriter hook for placeholder text
@@ -224,6 +224,14 @@ export function HeroSection() {
               transition={{ delay: 0.5, duration: 0.6 }}
               className="max-w-lg mx-auto lg:mx-0"
             >
+              {/* Claim prompt */}
+              <p className="text-sm font-medium text-slate-700 mb-1 text-center lg:text-left">
+                Get your personal high-status web address
+              </p>
+              <p className="text-xs text-slate-400 mb-3 text-center lg:text-left">
+                Claim your name before someone else does.
+              </p>
+
               {/* Demo URL */}
               <div className="mb-2.5 flex items-center justify-center lg:justify-start">
                 <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-slate-100/80 border border-slate-200/60">
