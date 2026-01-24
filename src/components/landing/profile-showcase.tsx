@@ -55,7 +55,7 @@ export function ProfileCard({ doctor, isActive }: { doctor: Profile; isActive: b
             height={2272}
             className={`w-full h-auto ${shouldAnimate ? "animate-profile-scroll" : ""}`}
             style={shouldAnimate ? undefined : { transform: "translateY(0)" }}
-            priority={isActive}
+            priority
             sizes="320px"
           />
         </div>

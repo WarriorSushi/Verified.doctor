@@ -423,38 +423,31 @@ export function HeroSection() {
                 <ChevronLeft className="w-4 h-4 text-slate-600" />
               </button>
 
-              {/* Phone Cards - current + previous only */}
-              <div className="flex items-center justify-center" style={{ minHeight: '580px' }}>
-                <AnimatePresence mode="popLayout">
-                  {SAMPLE_DOCTORS.map((doctor, index) => {
-                    // Calculate offset with wrapping
-                    let offset = index - activeIndex;
-                    if (offset > SAMPLE_DOCTORS.length / 2) offset -= SAMPLE_DOCTORS.length;
-                    if (offset < -SAMPLE_DOCTORS.length / 2) offset += SAMPLE_DOCTORS.length;
+              {/* Phone Cards - all mounted for instant image display */}
+              <div className="relative flex items-center justify-center" style={{ minHeight: '580px' }}>
+                {SAMPLE_DOCTORS.map((doctor, index) => {
+                  let offset = index - activeIndex;
+                  if (offset > SAMPLE_DOCTORS.length / 2) offset -= SAMPLE_DOCTORS.length;
+                  if (offset < -SAMPLE_DOCTORS.length / 2) offset += SAMPLE_DOCTORS.length;
 
-                    // Show only previous (-1) and current (0) on desktop, only current on mobile
-                    if (offset < -1 || offset > 0) return null;
+                  const isVisible = offset >= -1 && offset <= 0;
 
-                    return (
-                      <motion.div
-                        key={doctor.id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{
-                          opacity: offset === 0 ? 1 : 0.35,
-                          scale: offset === 0 ? 1 : 0.82,
-                          x: offset * 60,
-                          zIndex: offset === 0 ? 10 : 0,
-                        }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        transition={{ duration: 0.4, ease: "easeOut" }}
-                        className={`${offset !== 0 ? 'hidden lg:block' : ''}`}
-                      >
-                        <ProfileCard doctor={doctor} isActive={offset === 0} />
-                      </motion.div>
-                    );
-                  })}
-                </AnimatePresence>
+                  return (
+                    <motion.div
+                      key={doctor.id}
+                      animate={{
+                        opacity: offset === 0 ? 1 : isVisible ? 0.35 : 0,
+                        scale: offset === 0 ? 1 : isVisible ? 0.82 : 0.8,
+                        x: isVisible ? offset * 60 : 0,
+                        zIndex: offset === 0 ? 10 : 0,
+                      }}
+                      transition={{ duration: 0.4, ease: "easeOut" }}
+                      className={`${offset === 0 ? '' : isVisible ? 'hidden lg:block' : 'absolute pointer-events-none'}`}
+                    >
+                      <ProfileCard doctor={doctor} isActive={offset === 0} />
+                    </motion.div>
+                  );
+                })}
               </div>
 
               <button
