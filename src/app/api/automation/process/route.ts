@@ -55,8 +55,8 @@ export async function POST(request: Request) {
 
     // Get user emails for the profiles
     const userIds = pendingEmails
-      .map((e: { profile?: { user_id?: string } }) => e.profile?.user_id)
-      .filter(Boolean);
+      .map((email) => email.profile?.user_id)
+      .filter((userId): userId is string => Boolean(userId));
 
     // In a real implementation, you would:
     // 1. Fetch user emails from your auth system (Clerk/Supabase Auth)
@@ -66,19 +66,21 @@ export async function POST(request: Request) {
     // 5. Log to automation_email_log
 
     // For now, return what would be processed
-    const emailsToSend = pendingEmails.map((email: {
-      id: string;
-      profile?: { full_name?: string; handle?: string };
-      template?: { slug?: string; subject?: string };
-      scheduled_for: string;
-    }) => ({
-      id: email.id,
-      recipientName: email.profile?.full_name,
-      recipientHandle: email.profile?.handle,
-      templateSlug: email.template?.slug,
-      subject: email.template?.subject,
-      scheduledFor: email.scheduled_for,
-    }));
+    const emailsToSend = pendingEmails.map((email) => {
+      const template = email.template as unknown as {
+        slug?: string;
+        subject?: string;
+      } | null;
+
+      return {
+        id: email.id,
+        recipientName: email.profile?.full_name,
+        recipientHandle: email.profile?.handle,
+        templateSlug: template?.slug,
+        subject: template?.subject,
+        scheduledFor: email.scheduled_for,
+      };
+    });
 
     return NextResponse.json({
       success: true,
@@ -122,12 +124,13 @@ export async function GET(request: Request) {
       );
     }
 
-    const statusCounts = (stats || []).reduce(
-      (acc: Record<string, number>, item: { status: string }) => {
-        acc[item.status] = (acc[item.status] || 0) + 1;
+    const statusCounts = (stats || []).reduce<Record<string, number>>(
+      (acc, item) => {
+        const status = item.status || "unknown";
+        acc[status] = (acc[status] || 0) + 1;
         return acc;
       },
-      {} as Record<string, number>
+      {}
     );
 
     // Get count of emails due now

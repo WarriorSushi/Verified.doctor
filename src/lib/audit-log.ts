@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { Json } from "@/types/database";
 
 export type AuditAction =
   | "verification_approved"
@@ -33,7 +34,7 @@ export async function logAdminAction(entry: AuditLogEntry): Promise<void> {
         action: entry.action,
         target_id: entry.targetId || null,
         target_type: entry.targetType || null,
-        details: entry.details || {},
+        details: (entry.details || {}) as Json,
         admin_ip: entry.adminIp || null,
         created_at: new Date().toISOString(),
       });

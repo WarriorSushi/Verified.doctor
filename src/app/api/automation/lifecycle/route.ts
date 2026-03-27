@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import type { Json } from "@/types/database";
 import { z } from "zod";
 
 const lifecycleEventSchema = z.object({
@@ -129,7 +130,7 @@ export async function POST(request: Request) {
       .insert({
         profile_id: profileId,
         event_type: eventType,
-        metadata,
+        metadata: metadata as Json,
       })
       .select()
       .single();

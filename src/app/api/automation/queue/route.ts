@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { verifyAdminSession } from "@/lib/admin-auth";
+import type { Json } from "@/types/database";
 import { z } from "zod";
 
 const queueEmailSchema = z.object({
@@ -161,7 +162,7 @@ export async function POST(request: Request) {
         template_slug: templateSlug,
         scheduled_for: scheduledFor || new Date().toISOString(),
         status: "pending",
-        metadata,
+        metadata: metadata as Json,
       })
       .select()
       .single();
