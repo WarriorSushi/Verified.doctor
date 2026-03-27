@@ -144,25 +144,14 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
             background: `linear-gradient(135deg, ${colors.primary} 0%, ${colors.primaryHover} 50%, ${colors.accent}40 100%)`
           }}
         >
-          {/* Animated Gradient Orbs */}
-          <motion.div
+          {/* Subtle Gradient Orbs */}
+          <div
             className="absolute top-10 right-10 w-64 h-64 rounded-full blur-3xl opacity-30"
             style={{ backgroundColor: colors.accent }}
-            animate={{
-              scale: [1, 1.2, 1],
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           />
-          <motion.div
+          <div
             className="absolute bottom-20 left-10 w-48 h-48 rounded-full blur-3xl opacity-20"
             style={{ backgroundColor: colors.textOnPrimary }}
-            animate={{
-              scale: [1, 0.8, 1],
-              x: [0, -20, 0],
-            }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
           />
 
           {/* Subtle Grid Pattern */}
@@ -661,7 +650,7 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
         )}
       </main>
 
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={themeColors} />
     </div>
   );
 }
