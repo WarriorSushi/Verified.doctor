@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Download, MessageSquare, Share2, Check } from "lucide-react";
+import { Download, MessageSquare, Check } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { SendInquiryDialog } from "./send-inquiry-dialog";
+import { ShareCard } from "./share-card";
 import { trackEvent } from "@/lib/analytics";
 
 interface Profile {
@@ -15,6 +16,8 @@ interface Profile {
   clinic_location: string | null;
   external_booking_url: string | null;
   handle: string;
+  profile_photo_url?: string | null;
+  is_verified?: boolean;
 }
 
 interface ThemeColors {
@@ -71,35 +74,6 @@ export function ProfileActions({ profile, themeColors }: ProfileActionsProps) {
     toast.success("Contact saved to your device!");
   };
 
-  const handleShare = async () => {
-    // Track analytics event
-    trackEvent({ profileId: profile.id, eventType: "click_share" });
-
-    const shareData = {
-      title: `${profile.full_name} | Verified.Doctor`,
-      text: profile.specialty
-        ? `Check out ${profile.full_name}, ${profile.specialty} on Verified.Doctor`
-        : `Check out ${profile.full_name} on Verified.Doctor`,
-      url: profileUrl,
-    };
-
-    // Check if Web Share API is available (mainly mobile)
-    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
-      try {
-        await navigator.share(shareData);
-        toast.success("Shared successfully!");
-      } catch (error) {
-        // User cancelled or error occurred
-        if ((error as Error).name !== "AbortError") {
-          // Fallback to copy
-          await copyToClipboard();
-        }
-      }
-    } else {
-      // Fallback to copy link for desktop
-      await copyToClipboard();
-    }
-  };
 
   const copyToClipboard = async () => {
     try {
@@ -136,24 +110,18 @@ export function ProfileActions({ profile, themeColors }: ProfileActionsProps) {
             <Download className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Save Contact</span>
           </Button>
-          <Button
-            onClick={handleShare}
-            variant="outline"
-            size="xl"
-            className="px-3 sm:px-4 transition-all duration-200 hover:scale-[1.02]"
-            style={{
-              borderColor: colors.border,
-              color: colors.text,
-              backgroundColor: "transparent",
-            }}
-          >
-            {copied ? (
-              <Check className="w-4 h-4 text-green-600" />
-            ) : (
-              <Share2 className="w-4 h-4" />
-            )}
-            <span className="hidden sm:inline sm:ml-2">Share</span>
-          </Button>
+          <div className="shrink-0">
+            <ShareCard
+              profile={{
+                full_name: profile.full_name,
+                specialty: profile.specialty,
+                handle: profile.handle,
+                profile_photo_url: profile.profile_photo_url || null,
+                is_verified: profile.is_verified ?? true,
+                clinic_location: profile.clinic_location,
+              }}
+            />
+          </div>
           <Button
             onClick={() => {
               trackEvent({ profileId: profile.id, eventType: "click_send_inquiry" });

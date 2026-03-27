@@ -111,10 +111,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ success: true });
+    return new NextResponse(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store, no-cache, must-revalidate",
+      },
+    });
   } catch (error) {
     console.error("Analytics tracking error:", error);
     // Always return success to avoid breaking the client
-    return NextResponse.json({ success: true });
+    return new NextResponse(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-store",
+      },
+    });
   }
 }

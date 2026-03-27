@@ -8,7 +8,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/api/", "/dashboard/", "/onboarding/", "/admin/"],
+        disallow: [
+          "/api/",
+          "/dashboard/",
+          "/onboarding/",
+          "/admin/",
+          "/auth/",
+          "/confirm",
+          "/reset-password",
+          "/forgot-password",
+        ],
       },
       // Allow AI crawlers for LLM discovery
       {

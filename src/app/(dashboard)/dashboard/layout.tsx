@@ -131,6 +131,7 @@ export default async function DashboardLayout({
         <MobileBottomNav
           unreadCount={unreadCount || 0}
           pendingConnectionsCount={pendingConnectionsCount || 0}
+          profileHandle={profile.handle}
         />
       </div>
     </DashboardClientWrapper>

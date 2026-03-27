@@ -38,6 +38,8 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
+import { ShareCard } from "../share-card";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -153,6 +155,16 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
           <Link href="/" className="text-xs font-medium transition-colors hover:opacity-70" style={{ color: colors.primary }}>
             Get yours →
           </Link>
+          <ShareCard
+            profile={{
+              full_name: profile.full_name,
+              specialty: profile.specialty,
+              handle: profile.handle,
+              profile_photo_url: profile.profile_photo_url,
+              is_verified: profile.is_verified,
+              clinic_location: profile.clinic_location,
+            }}
+          />
         </div>
       </nav>
 
@@ -169,6 +181,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
                 alt={profile.full_name}
                 fill
                 priority
+                sizes="112px"
                 className="object-cover rounded-full"
                 style={{ boxShadow: `0 4px 24px ${colors.primary}15` }}
               />
@@ -473,6 +486,16 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
           </motion.section>
         )}
 
+        {/* Social Proof Widget */}
+        {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+          <motion.section {...fadeUp} transition={{ delay: 0.58 }} className="mt-12">
+            <SocialProofWidget
+              recommendationCount={profile.recommendation_count || 0}
+              connectedDoctors={connectedDoctors}
+            />
+          </motion.section>
+        )}
+
         {/* Recommend Section */}
         <motion.section {...fadeUp} transition={{ delay: 0.6 }} className="mt-16">
           <div
@@ -540,7 +563,7 @@ export function ClassicTemplate({ profile, connectedDoctors, invitedBy, theme }:
                   title={doctor.full_name}
                 >
                   {doctor.profile_photo_url ? (
-                    <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill className="object-cover rounded-full" />
+                    <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill sizes="40px" className="object-cover rounded-full" />
                   ) : (
                     <div className="w-full h-full rounded-full flex items-center justify-center text-xs font-semibold"
                       style={{ backgroundColor: colors.backgroundAlt, color: colors.primary }}>

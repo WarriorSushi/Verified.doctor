@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { getUploadLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { requireCsrf } from "@/lib/csrf";
 
 // Magic bytes for file type validation
 const MAGIC_BYTES: Record<string, number[][]> = {
@@ -28,6 +30,18 @@ export async function POST(request: Request) {
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const limiter = getUploadLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Too many verification uploads. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
     }
 
     const supabase = await createClient();

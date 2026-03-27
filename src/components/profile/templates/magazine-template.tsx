@@ -38,6 +38,7 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -166,6 +167,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
                   alt={profile.full_name}
                   fill
                   priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="object-cover"
                 />
               ) : (
@@ -524,6 +526,15 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
           </div>
         </motion.section>
 
+        {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+          <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-12">
+            <SocialProofWidget
+              recommendationCount={profile.recommendation_count || 0}
+              connectedDoctors={connectedDoctors}
+            />
+          </motion.section>
+        )}
+
         {/* Connected Doctors - Grid */}
         {connectedDoctors.length > 0 && (
           <motion.section
@@ -547,6 +558,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
                         src={doctor.profile_photo_url}
                         alt={doctor.full_name}
                         fill
+                        sizes="48px"
                         className="object-cover transition-transform group-hover:scale-110"
                       />
                     ) : (

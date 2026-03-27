@@ -3,6 +3,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { sanitizeName, sanitizeBio, sanitizeText, sanitizeUrl, stripHtml } from "@/lib/sanitize";
+import { getProfileUpdateLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { createLogger } from "@/lib/logger";
+import { requireCsrf } from "@/lib/csrf";
+
+const log = createLogger("api:profiles:id");
 
 // Schema for education timeline items
 const educationItemSchema = z.object({
@@ -102,6 +108,21 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const csrfError = await requireCsrf(request);
+    if (csrfError) {
+      return csrfError as NextResponse;
+    }
+
+    // Rate limit profile updates
+    const limiter = getProfileUpdateLimiter();
+    const rateLimitResult = await checkRateLimit(limiter, userId);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: `Too many updates. Please try again in ${formatRetryAfter(rateLimitResult.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
     const result = updateProfileSchema.safeParse(body);
@@ -169,10 +190,59 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       updated_at: new Date().toISOString(),
     };
 
-    // Map all provided fields to database columns
+    const textSanitizers: Partial<Record<keyof typeof result.data, (value: string) => string>> = {
+      fullName: sanitizeName,
+      specialty: sanitizeText,
+      clinicName: sanitizeText,
+      clinicLocation: sanitizeText,
+      bio: sanitizeBio,
+      qualifications: sanitizeText,
+      languages: sanitizeText,
+      consultationFee: sanitizeText,
+      services: sanitizeBio,
+      registrationNumber: sanitizeText,
+      videoIntroductionUrl: sanitizeUrl,
+      approachToCare: sanitizeBio,
+      firstVisitGuide: sanitizeBio,
+      availabilityNote: sanitizeText,
+      conditionsTreated: sanitizeBio,
+      proceduresPerformed: sanitizeBio,
+    };
+
+    // Map all provided fields to database columns with sanitization
     for (const [key, dbColumn] of Object.entries(fieldMapping)) {
-      if (result.data[key as keyof typeof result.data] !== undefined) {
-        updates[dbColumn] = result.data[key as keyof typeof result.data];
+      const typedKey = key as keyof typeof result.data;
+      const value = result.data[typedKey];
+      if (value !== undefined) {
+        if (typeof value === "string") {
+          const sanitizer = textSanitizers[typedKey];
+          updates[dbColumn] = sanitizer ? sanitizer(value) : stripHtml(value);
+        } else if (value === null) {
+          updates[dbColumn] = null;
+        } else if (Array.isArray(value)) {
+          updates[dbColumn] = value.map((item) => {
+            if (typeof item !== "object" || !item) return item;
+            return Object.fromEntries(
+              Object.entries(item).map(([itemKey, itemValue]) => [
+                itemKey,
+                typeof itemValue === "string"
+                  ? (itemKey === "url" || itemKey === "link"
+                      ? sanitizeUrl(itemValue)
+                      : sanitizeText(itemValue, true))
+                  : itemValue,
+              ])
+            );
+          });
+        } else if (typeof value === "object" && value !== null) {
+          updates[dbColumn] = Object.fromEntries(
+            Object.entries(value).map(([objKey, objValue]) => [
+              objKey,
+              typeof objValue === "string" ? sanitizeText(objValue) : objValue,
+            ])
+          );
+        } else {
+          updates[dbColumn] = value;
+        }
       }
     }
 
@@ -182,7 +252,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       .eq("id", id);
 
     if (updateError) {
-      console.error("Update error:", updateError);
+      log.error("Failed to update profile", updateError, { profileId: id, userId });
       return NextResponse.json(
         { error: "Failed to update profile" },
         { status: 500 }
@@ -194,7 +264,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Profile update error:", error);
+    log.error("Profile update error", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -219,7 +289,8 @@ export async function GET(request: Request, { params }: RouteParams) {
       availability_note, conditions_treated, procedures_performed,
       is_available, offers_telemedicine, education_timeline,
       hospital_affiliations, case_studies, clinic_gallery,
-      professional_memberships, media_publications, section_visibility
+      professional_memberships, media_publications, section_visibility,
+      achievement_badges
     `;
 
     const { data: profile, error } = await supabase

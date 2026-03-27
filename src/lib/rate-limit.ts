@@ -1,6 +1,7 @@
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
 import { headers } from "next/headers";
+import { env } from "@/lib/env";
 
 // Create Redis client - will be null if env vars not configured
 let redis: Redis | null = null;
@@ -12,8 +13,8 @@ const STRICT_MODE = process.env.RATE_LIMIT_STRICT_MODE !== "false" && process.en
 function getRedis(): Redis | null {
   if (redis) return redis;
 
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = env.UPSTASH_REDIS_REST_URL;
+  const token = env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) {
     if (!redisWarningShown) {
@@ -138,6 +139,97 @@ export function getHandleCheckLimiter(): Ratelimit | null {
     redis: redisClient,
     limiter: Ratelimit.slidingWindow(30, "1m"),
     prefix: "ratelimit:handle-check",
+    analytics: true,
+  });
+}
+
+// Profile updates: 20 per user per hour
+export function getProfileUpdateLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(20, "1h"),
+    prefix: "ratelimit:profile-update",
+    analytics: true,
+  });
+}
+
+// Connection requests: 30 per user per hour
+export function getConnectionLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(30, "1h"),
+    prefix: "ratelimit:connection",
+    analytics: true,
+  });
+}
+
+// Support/Appeal submissions: 3 per user per hour
+export function getSupportLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(3, "1h"),
+    prefix: "ratelimit:support",
+    analytics: true,
+  });
+}
+
+// Upload: 10 per user per hour
+export function getUploadLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(10, "1h"),
+    prefix: "ratelimit:upload",
+    analytics: true,
+  });
+}
+
+// AI features (enhance/suggest): 20 per user per hour
+export function getAiLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(20, "1h"),
+    prefix: "ratelimit:ai",
+    analytics: true,
+  });
+}
+
+// Notification actions: 50 per user per hour
+export function getNotificationLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(50, "1h"),
+    prefix: "ratelimit:notification",
+    analytics: true,
+  });
+}
+
+// Auth logout: 10 per user per hour (prevent abuse)
+export function getLogoutLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(10, "1h"),
+    prefix: "ratelimit:logout",
     analytics: true,
   });
 }

@@ -14,10 +14,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
+      url: `${baseUrl}/directory`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/help`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/contact`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/sign-in`,
@@ -36,7 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic doctor profile pages
   const { data: profiles } = await supabase
     .from("profiles")
-    .select("handle, updated_at, is_verified")
+    .select("handle, updated_at, is_verified, specialty")
     .eq("is_frozen", false)
     .order("updated_at", { ascending: false });
 
@@ -48,5 +72,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: profile.is_verified ? 0.9 : 0.8,
   }));
 
-  return [...staticPages, ...profilePages];
+  // Directory specialty pages
+  const specialtySet = new Set<string>();
+  for (const profile of profiles || []) {
+    if (profile.specialty) {
+      specialtySet.add(profile.specialty.trim());
+    }
+  }
+
+  const directoryPages: MetadataRoute.Sitemap = Array.from(specialtySet).map(
+    (specialty) => ({
+      url: `${baseUrl}/directory?specialty=${encodeURIComponent(specialty)}`,
+      lastModified: new Date(),
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })
+  );
+
+  return [...staticPages, ...directoryPages, ...profilePages];
 }

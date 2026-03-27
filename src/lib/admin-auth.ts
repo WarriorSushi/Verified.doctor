@@ -1,11 +1,12 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 import bcrypt from "bcryptjs";
+import { env } from "@/lib/env";
 
 // Production security: These MUST be set in environment variables
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET;
+const ADMIN_EMAIL = env.ADMIN_EMAIL;
+const ADMIN_PASSWORD = env.ADMIN_PASSWORD;
+const ADMIN_JWT_SECRET = env.ADMIN_JWT_SECRET;
 
 // Validate required environment variables (called lazily, not at module load)
 function validateEnvVars() {

@@ -40,6 +40,7 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -226,6 +227,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
                   alt={profile.full_name}
                   fill
                   priority
+                  sizes="96px"
                   className="object-cover rounded-2xl"
                 />
               ) : (
@@ -622,6 +624,15 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
           )}
         </div>
 
+        {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+          <div className="mt-4">
+            <SocialProofWidget
+              recommendationCount={profile.recommendation_count || 0}
+              connectedDoctors={connectedDoctors}
+            />
+          </div>
+        )}
+
         {/* Recommend & Network Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4">
           {/* Recommend Card */}
@@ -669,7 +680,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
                   >
                     <div className="relative w-10 h-10 flex-shrink-0">
                       {doctor.profile_photo_url ? (
-                        <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill className="object-cover rounded-xl" />
+                        <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill sizes="40px" className="object-cover rounded-xl" />
                       ) : (
                         <div className="w-full h-full rounded-xl flex items-center justify-center text-xs font-bold"
                           style={{ backgroundColor: colors.backgroundAlt, color: colors.primary }}>

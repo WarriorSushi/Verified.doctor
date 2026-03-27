@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { requireCsrf } from "@/lib/csrf";
+import { rateLimit } from "@/lib/rate-limit";
 
 const updateConnectionSchema = z.object({
   action: z.enum(["accept", "reject"]),
@@ -124,6 +126,16 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     const { userId } = await getAuth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) {
+      return csrfError as NextResponse;
+    }
+
+    const rl = await rateLimit(`connection-delete:${userId}`, 30, 60 * 60);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const { id } = await params;

@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { requireCsrf } from "@/lib/csrf";
+import { getSupportLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { sanitizeMessage } from "@/lib/sanitize";
 
 const appealSchema = z.object({
   message: z.string().min(10, "Message must be at least 10 characters").max(1000),
@@ -8,6 +11,9 @@ const appealSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
     const supabase = await createClient();
 
     // Get current user
@@ -68,7 +74,16 @@ export async function POST(request: Request) {
       );
     }
 
-    const { message } = result.data;
+    const message = sanitizeMessage(result.data.message);
+
+    const limiter = getSupportLimiter();
+    const rl = await checkRateLimit(limiter, user.id);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Too many appeals. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
 
     // Create the appeal
     const { error: insertError } = await supabase

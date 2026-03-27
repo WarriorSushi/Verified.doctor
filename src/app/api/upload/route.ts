@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { getUploadLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
 
 // SECURITY: Validate magic bytes to ensure file content matches declared MIME type
 function validateImageMagicBytes(bytes: Uint8Array, mimeType: string): boolean {
@@ -44,6 +45,15 @@ export async function POST(request: NextRequest) {
     const { userId } = await getAuth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const limiter = getUploadLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Too many uploads. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
     }
 
     const formData = await request.formData();

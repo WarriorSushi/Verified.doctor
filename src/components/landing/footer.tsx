@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import Image from "next/image";
 
@@ -32,6 +30,12 @@ export function Footer() {
 
           {/* Links */}
           <div className="flex flex-wrap items-center justify-center gap-6 mb-8 text-sm">
+            <Link
+              href="/directory"
+              className="text-slate-400 hover:text-white transition-colors duration-200"
+            >
+              Find a Doctor
+            </Link>
             <Link
               href="/privacy"
               className="text-slate-400 hover:text-white transition-colors duration-200"

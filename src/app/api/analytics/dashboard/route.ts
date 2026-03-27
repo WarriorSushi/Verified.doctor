@@ -163,7 +163,7 @@ export async function GET(request: NextRequest) {
       .slice(0, 10)
       .map(([referrer, count]) => ({ referrer, count }));
 
-    return NextResponse.json({
+    return new NextResponse(JSON.stringify({
       profileId: profile.id,
       dateRange: {
         start: startDate.toISOString().split("T")[0],
@@ -191,6 +191,13 @@ export async function GET(request: NextRequest) {
         recommend: totals.clickRecommend,
       },
       topReferrers,
+    }), {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        // Cache for 60s on client, allow stale for 5 min while revalidating
+        "Cache-Control": "private, max-age=60, stale-while-revalidate=300",
+      },
     });
   } catch (error) {
     console.error("Analytics dashboard error:", error);

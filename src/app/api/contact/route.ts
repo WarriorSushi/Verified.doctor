@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit";
 import { headers } from "next/headers";
 import { escapeHtml } from "@/lib/utils/html-escape";
+import { requireCsrf } from "@/lib/csrf";
+import { sanitizeName, sanitizeText, sanitizeMessage } from "@/lib/sanitize";
 
 // Admin email from environment variable
 const ADMIN_EMAIL = process.env.ADMIN_CONTACT_EMAIL || process.env.ADMIN_EMAIL;
@@ -23,6 +25,9 @@ const contactSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
     // Get IP for rate limiting
     const headersList = await headers();
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] ||
@@ -48,7 +53,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, subject, message, type } = result.data;
+    const name = sanitizeName(result.data.name);
+    const email = result.data.email.trim().toLowerCase();
+    const subject = result.data.subject ? sanitizeText(result.data.subject) : undefined;
+    const message = sanitizeMessage(result.data.message);
+    const { type } = result.data;
     const supabase = await createClient();
 
     // Store in database (contact_messages table)

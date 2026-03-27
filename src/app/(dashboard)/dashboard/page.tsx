@@ -13,6 +13,17 @@ import {
   MapPin,
   Clock,
   Layers,
+  Pencil,
+  ExternalLink,
+  Share2,
+  QrCode,
+  Smartphone,
+  Monitor,
+  Globe,
+  TrendingUp,
+  Inbox,
+  UserCheck,
+  Activity,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getProfile } from "@/lib/profile-cache";
@@ -23,6 +34,9 @@ import { InviteDialog } from "@/components/dashboard/invite-dialog";
 import { QRCodeDesigner } from "@/components/dashboard/qr-code-designer";
 import { VerifiedBadge } from "@/components/profile/verified-badge";
 import { DashboardNotifications } from "@/components/dashboard/dashboard-notifications";
+import { ProfileScoreCard } from "@/components/dashboard/profile-score-card";
+import { QuickActions } from "@/components/dashboard/quick-actions";
+import { RecentActivity } from "@/components/dashboard/recent-activity";
 
 export default async function DashboardPage() {
   const { profile, userId } = await getProfile();
@@ -38,7 +52,7 @@ export default async function DashboardPage() {
   const supabase = await createClient();
 
   // Run queries in parallel
-  const [messagesResult, adminActionsResult] = await Promise.all([
+  const [messagesResult, adminActionsResult, recentViewsResult, recentMessagesResult, recentConnectionsResult, recentRecommendationsResult] = await Promise.all([
     supabase
       .from("messages")
       .select("*", { count: "exact", head: true })
@@ -53,10 +67,112 @@ export default async function DashboardPage() {
       .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
       .order("created_at", { ascending: false })
       .limit(5),
+    // Recent profile views for activity feed
+    supabase
+      .from("analytics_events")
+      .select("created_at, device_type, referrer")
+      .eq("profile_id", profile.id)
+      .eq("event_type", "profile_view")
+      .order("created_at", { ascending: false })
+      .limit(5),
+    // Recent messages
+    supabase
+      .from("messages")
+      .select("id, sender_name, created_at, is_read")
+      .eq("profile_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(3),
+    // Recent connection requests
+    supabase
+      .from("connections")
+      .select(`
+        id, status, created_at,
+        requester:profiles!connections_requester_id_fkey(full_name, specialty)
+      `)
+      .eq("receiver_id", profile.id)
+      .order("created_at", { ascending: false })
+      .limit(3),
+    // Today's stats for recommendations
+    supabase
+      .from("analytics_daily_stats")
+      .select("recommendations_received, date")
+      .eq("profile_id", profile.id)
+      .gte("date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0])
+      .order("date", { ascending: false })
+      .limit(7),
   ]);
 
   const unreadCount = messagesResult.count;
   const recentAdminActions = adminActionsResult.data || [];
+  const recentViews = recentViewsResult.data || [];
+  const recentMessages = recentMessagesResult.data || [];
+  const recentConnections = recentConnectionsResult.data || [];
+  const weeklyRecommendations = (recentRecommendationsResult.data || []).reduce(
+    (sum: number, d: { recommendations_received: number | null }) => sum + (d.recommendations_received || 0), 0
+  );
+
+  // Build activity feed
+  type ActivityItem = {
+    id: string;
+    type: "view" | "message" | "connection" | "recommendation";
+    title: string;
+    description: string;
+    time: string;
+    icon: string;
+  };
+
+  const activityFeed: ActivityItem[] = [];
+
+  // Add views
+  recentViews.forEach((view: { created_at: string | null; device_type: string | null; referrer: string | null }, i: number) => {
+    const device = view.device_type || "unknown";
+    let source = "Direct visit";
+    if (view.referrer) {
+      try {
+        source = new URL(view.referrer).hostname;
+      } catch {
+        source = view.referrer;
+      }
+    }
+    activityFeed.push({
+      id: `view-${i}`,
+      type: "view",
+      title: "Profile viewed",
+      description: `${device === "mobile" ? "📱 Mobile" : device === "tablet" ? "📱 Tablet" : "🖥️ Desktop"} · ${source}`,
+      time: view.created_at || new Date().toISOString(),
+      icon: "eye",
+    });
+  });
+
+  // Add messages
+  recentMessages.forEach((msg: { id: string; sender_name: string; created_at: string | null; is_read: boolean | null }) => {
+    activityFeed.push({
+      id: `msg-${msg.id}`,
+      type: "message",
+      title: `New inquiry from ${msg.sender_name}`,
+      description: msg.is_read ? "Read" : "Unread",
+      time: msg.created_at || new Date().toISOString(),
+      icon: "message",
+    });
+  });
+
+  // Add connections
+  recentConnections.forEach((conn: { id: string; status: string | null; created_at: string | null; requester?: { full_name?: string; specialty?: string | null } }) => {
+    const requester = conn.requester as { full_name?: string; specialty?: string | null } | undefined;
+    activityFeed.push({
+      id: `conn-${conn.id}`,
+      type: "connection",
+      title: conn.status === "accepted"
+        ? `Connected with ${requester?.full_name || "a doctor"}`
+        : `Connection request from ${requester?.full_name || "a doctor"}`,
+      description: requester?.specialty || "Medical Professional",
+      time: conn.created_at || new Date().toISOString(),
+      icon: "connection",
+    });
+  });
+
+  // Sort by time
+  activityFeed.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
 
   // Calculate if user has Pro access (includes trial)
   const isTrialActive: boolean =
@@ -131,6 +247,7 @@ export default async function DashboardPage() {
                   src={profile.profile_photo_url}
                   alt={profile.full_name}
                   fill
+                  sizes="(max-width: 640px) 64px, 80px"
                   className="object-cover rounded-xl"
                 />
               ) : (
@@ -184,26 +301,8 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Enrich Your Profile Card - Right after user info */}
-      <Link
-        href="/dashboard/profile-builder?tab=content"
-        className="block bg-gradient-to-br from-teal-50 to-sky-50 rounded-xl border border-teal-200/50 p-4 sm:p-5 hover:border-teal-300 transition-colors group"
-      >
-        <div className="flex items-start gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
-            <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Enrich Your Profile</h3>
-              <ChevronRight className="w-4 h-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
-            </div>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              Add education, procedures, case studies & more to stand out. Pre-made templates available!
-            </p>
-          </div>
-        </div>
-      </Link>
+      {/* Quick Actions */}
+      <QuickActions handle={profile.handle} profileName={profile.full_name} specialty={profile.specialty} />
 
       {/* Metrics Row - Compact */}
       <div data-tour="metrics-row" className="grid grid-cols-4 gap-2 sm:gap-3">
@@ -232,6 +331,39 @@ export default async function DashboardPage() {
           return <div key={metric.label}>{content}</div>;
         })}
       </div>
+
+      {/* Recent Activity & Enrich Profile */}
+      <div className="grid sm:grid-cols-2 gap-4">
+        {/* Recent Activity Feed */}
+        <RecentActivity
+          activities={activityFeed}
+          weeklyRecommendations={weeklyRecommendations}
+        />
+
+        {/* Enrich Your Profile Card */}
+        <Link
+          href="/dashboard/profile-builder?tab=content"
+          className="block bg-gradient-to-br from-teal-50 to-sky-50 rounded-xl border border-teal-200/50 p-4 sm:p-5 hover:border-teal-300 transition-colors group self-start"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+              <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Enrich Your Profile</h3>
+                <ChevronRight className="w-4 h-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                Add education, procedures, case studies & more to stand out. Pre-made templates available!
+              </p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
+      {/* Profile Score & Badges */}
+      <ProfileScoreCard profile={profile} />
 
       {/* QR Code & Invite - Side by Side */}
       <div className="grid sm:grid-cols-2 gap-4">

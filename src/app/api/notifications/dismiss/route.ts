@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { z } from "zod";
+import { requireCsrf } from "@/lib/csrf";
+import { getNotificationLimiter, checkRateLimit } from "@/lib/rate-limit";
 
 const dismissSchema = z.object({
   notificationId: z.string().min(1),
@@ -13,6 +15,15 @@ export async function POST(request: NextRequest) {
 
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const limiter = getNotificationLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const body = await request.json();

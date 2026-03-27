@@ -4,6 +4,11 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { isBannedHandle } from "@/lib/banned-handles";
 import { sendWelcomeEmail, sendTrialOfferEmail } from "@/lib/email";
+import { sanitizeName, sanitizeBio, sanitizeText } from "@/lib/sanitize";
+import { getProfileUpdateLimiter, getClientIp, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { createLogger } from "@/lib/logger";
+
+
 
 const createProfileSchema = z.object({
   handle: z
@@ -47,6 +52,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Rate limit profile creation
+    const ip = await getClientIp();
+    const limiter = getProfileUpdateLimiter();
+    const rateLimitResult = await checkRateLimit(limiter, `${userId}:${ip}`);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: `Too many requests. Please try again in ${formatRetryAfter(rateLimitResult.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const result = createProfileSchema.safeParse(body);
 
@@ -62,23 +78,43 @@ export async function POST(request: Request) {
 
     const {
       handle,
-      fullName,
-      specialty,
-      clinicName,
-      clinicLocation,
+      fullName: rawFullName,
+      specialty: rawSpecialty,
+      clinicName: rawClinicName,
+      clinicLocation: rawClinicLocation,
       yearsExperience,
       profilePhotoUrl,
       externalBookingUrl,
       inviteCode,
-      bio,
-      qualifications,
-      languages,
-      registrationNumber,
-      consultationFee,
-      services,
+      bio: rawBio,
+      qualifications: rawQualifications,
+      languages: rawLanguages,
+      registrationNumber: rawRegistrationNumber,
+      consultationFee: rawConsultationFee,
+      services: rawServices,
       profileLayout,
       profileTheme,
     } = result.data;
+
+    // Sanitize all user-submitted text fields
+    const fullName = sanitizeName(rawFullName);
+    const specialty = sanitizeText(rawSpecialty || "");
+    const clinicName = rawClinicName ? sanitizeText(rawClinicName) : undefined;
+    const clinicLocation = rawClinicLocation ? sanitizeText(rawClinicLocation) : undefined;
+    const bio = rawBio ? sanitizeBio(rawBio) : undefined;
+    const qualifications = rawQualifications ? sanitizeText(rawQualifications) : undefined;
+    const languages = rawLanguages ? sanitizeText(rawLanguages) : undefined;
+    const registrationNumber = rawRegistrationNumber ? sanitizeText(rawRegistrationNumber) : undefined;
+    const consultationFee = rawConsultationFee ? sanitizeText(rawConsultationFee) : undefined;
+    const services = rawServices ? sanitizeText(rawServices) : undefined;
+
+    // Re-validate sanitized name has content
+    if (fullName.length < 2) {
+      return NextResponse.json(
+        { error: "Full name is required (at least 2 characters)" },
+        { status: 400 }
+      );
+    }
 
     // Check if handle is banned
     if (isBannedHandle(handle)) {

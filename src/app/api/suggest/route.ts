@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth";
 import { z } from "zod";
+import { getAiLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { sanitizeText } from "@/lib/sanitize";
 
 const suggestSchema = z.object({
   specialty: z.string().min(1).max(200),
@@ -41,6 +43,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const limiter = getAiLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `AI suggestion rate limit reached. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const result = suggestSchema.safeParse(body);
 
@@ -51,7 +62,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { specialty, existingTags, type } = result.data;
+    const specialty = sanitizeText(result.data.specialty);
+    const existingTags = result.data.existingTags.map((tag) => sanitizeText(tag)).filter(Boolean);
+    const { type } = result.data;
 
     // Check for OpenRouter API key
     const apiKey = process.env.OPENROUTER_API_KEY;

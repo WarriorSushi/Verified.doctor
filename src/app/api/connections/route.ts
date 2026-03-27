@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { requireCsrf } from "@/lib/csrf";
+import { getConnectionLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { createLogger } from "@/lib/logger";
+
+
 
 const createConnectionSchema = z.object({
   receiverId: z.string().uuid(),
@@ -118,6 +123,20 @@ export async function POST(request: Request) {
     const { userId } = await getAuth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) {
+      return csrfError as NextResponse;
+    }
+
+    const limiter = getConnectionLimiter();
+    const rateLimitResult = await checkRateLimit(limiter, userId);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: `Too many connection requests. Try again in ${formatRetryAfter(rateLimitResult.retryAfter || 60)}.` },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();

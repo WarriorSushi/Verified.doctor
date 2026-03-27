@@ -41,6 +41,7 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
 
 interface Profile {
   id: string;
@@ -736,6 +737,20 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
           </motion.div>
         )}
 
+        {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+          <motion.section
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.62 }}
+            className="mt-12 ml-8 sm:ml-10 lg:ml-12 max-w-4xl"
+          >
+            <SocialProofWidget
+              recommendationCount={profile.recommendation_count || 0}
+              connectedDoctors={connectedDoctors}
+            />
+          </motion.section>
+        )}
+
         {/* Connected Doctors */}
         {connectedDoctors.length > 0 && (
           <motion.div
@@ -768,6 +783,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
                         src={doctor.profile_photo_url}
                         alt={doctor.full_name}
                         fill
+                        sizes="40px"
                         className="object-cover rounded-full"
                       />
                     ) : (

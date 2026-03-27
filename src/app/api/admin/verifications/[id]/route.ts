@@ -4,6 +4,8 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { sendVerificationApprovedEmail } from "@/lib/email";
 import { logAdminAction, getRequestIp } from "@/lib/audit-log";
+import { requireCsrf } from "@/lib/csrf";
+import { rateLimit } from "@/lib/rate-limit";
 
 const actionSchema = z.object({
   action: z.enum(["approve", "reject"]),
@@ -18,6 +20,14 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const isAdmin = await verifyAdminSession();
     if (!isAdmin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const rl = await rateLimit("admin-verifications", 200, 60 * 60);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
     const { id } = await params;

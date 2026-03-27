@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   HelpCircle,
@@ -23,12 +23,62 @@ import {
   Mail,
   Clock,
   ArrowRight,
+  Play,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useTour } from "@/components/tour";
+import { cn } from "@/lib/utils";
+
+// Getting Started Checklist
+const checklistItems = [
+  {
+    key: "profile_photo",
+    label: "Upload a profile photo",
+    description: "A professional photo builds trust with patients",
+    href: "/dashboard/profile-builder?tab=basics",
+    icon: "📸",
+  },
+  {
+    key: "complete_bio",
+    label: "Write your bio",
+    description: "Tell patients about yourself and your practice",
+    href: "/dashboard/profile-builder?tab=basics",
+    icon: "✍️",
+  },
+  {
+    key: "add_specialty",
+    label: "Set your specialty",
+    description: "Helps patients find you for their specific needs",
+    href: "/dashboard/profile-builder?tab=basics",
+    icon: "🩺",
+  },
+  {
+    key: "get_verified",
+    label: "Get verified",
+    description: "Upload your medical registration for the verified badge",
+    href: "/dashboard/profile-builder?tab=settings",
+    icon: "✅",
+  },
+  {
+    key: "share_profile",
+    label: "Share your profile",
+    description: "Share your verified.doctor link with patients",
+    href: "/dashboard",
+    icon: "🔗",
+  },
+  {
+    key: "invite_colleague",
+    label: "Invite a colleague",
+    description: "Grow your network by inviting fellow doctors",
+    href: "/dashboard/connections",
+    icon: "👥",
+  },
+];
 
 // Getting Started Steps
 const gettingStartedSteps = [
@@ -186,7 +236,7 @@ const faqs = [
   },
   {
     question: "Can I customize my profile appearance?",
-    answer: "Yes! Choose from four profile themes: Classic (blue), Ocean (soft blue), Sage (green), or Warm (cream). Go to Dashboard > Profile Builder > Settings to change your theme.",
+    answer: "Yes! Choose from multiple profile layouts and color themes. Go to Dashboard > Profile Builder > Look to change your layout and theme.",
   },
   {
     question: "What's included in the free plan?",
@@ -198,6 +248,37 @@ export default function HelpPage() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [expandedGuide, setExpandedGuide] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<"guides" | "support">("guides");
+  const [completedChecklist, setCompletedChecklist] = useState<Set<string>>(new Set());
+  const { startTour } = useTour();
+
+  // Load completed items from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("vd_help_checklist");
+      if (saved) {
+        setCompletedChecklist(new Set(JSON.parse(saved)));
+      }
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  const toggleChecklistItem = (key: string) => {
+    setCompletedChecklist(prev => {
+      const next = new Set(prev);
+      if (next.has(key)) {
+        next.delete(key);
+      } else {
+        next.add(key);
+      }
+      try {
+        localStorage.setItem("vd_help_checklist", JSON.stringify([...next]));
+      } catch {
+        // Ignore
+      }
+      return next;
+    });
+  };
 
   // Support form state
   const [supportForm, setSupportForm] = useState({
@@ -237,17 +318,103 @@ export default function HelpPage() {
     }
   };
 
+  const checklistProgress = (completedChecklist.size / checklistItems.length) * 100;
+
   return (
-    <div className="space-y-6 sm:space-y-8 pb-20">
+    <div className="space-y-5 sm:space-y-8 pb-20">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 flex items-center gap-3">
-          <HelpCircle className="w-7 h-7 sm:w-8 sm:h-8 text-[#0099F7]" />
-          Help & Support
-        </h1>
-        <p className="text-slate-600">
-          Everything you need to get the most out of Verified.Doctor
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div className="space-y-1">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+            <HelpCircle className="w-6 h-6 text-[#0099F7]" />
+            Help & Support
+          </h1>
+          <p className="text-sm text-slate-600">
+            Everything you need to get the most out of Verified.Doctor
+          </p>
+        </div>
+        <Button
+          onClick={startTour}
+          variant="outline"
+          size="sm"
+          className="w-fit text-[#0099F7] border-[#0099F7]/30 hover:bg-sky-50"
+        >
+          <Play className="w-3.5 h-3.5 mr-1.5 fill-[#0099F7]" />
+          Replay Feature Tour
+        </Button>
+      </div>
+
+      {/* Getting Started Checklist */}
+      <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="w-4 h-4 text-amber-500" />
+            <h2 className="font-semibold text-slate-900 text-sm sm:text-base">Getting Started</h2>
+          </div>
+          <span className="text-xs font-medium text-slate-500">
+            {completedChecklist.size}/{checklistItems.length} done
+          </span>
+        </div>
+
+        {/* Progress bar */}
+        <div className="h-1.5 bg-slate-100 rounded-full mb-4 overflow-hidden">
+          <motion.div
+            className="h-full bg-gradient-to-r from-[#0099F7] to-[#0080CC] rounded-full"
+            initial={{ width: 0 }}
+            animate={{ width: `${checklistProgress}%` }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+          />
+        </div>
+
+        <div className="space-y-1">
+          {checklistItems.map((item) => {
+            const isCompleted = completedChecklist.has(item.key);
+            return (
+              <div
+                key={item.key}
+                className={cn(
+                  "flex items-center gap-3 p-2.5 rounded-lg transition-all",
+                  isCompleted ? "bg-emerald-50/50" : "hover:bg-slate-50"
+                )}
+              >
+                <button
+                  onClick={() => toggleChecklistItem(item.key)}
+                  className="flex-shrink-0"
+                >
+                  {isCompleted ? (
+                    <motion.div
+                      initial={{ scale: 0.5 }}
+                      animate={{ scale: 1 }}
+                      className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center"
+                    >
+                      <Check className="w-3.5 h-3.5 text-white" />
+                    </motion.div>
+                  ) : (
+                    <div className="w-6 h-6 rounded-full border-2 border-slate-300 hover:border-[#0099F7] transition-colors" />
+                  )}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <p className={cn(
+                    "text-sm font-medium",
+                    isCompleted ? "text-slate-400 line-through" : "text-slate-900"
+                  )}>
+                    {item.icon} {item.label}
+                  </p>
+                  <p className="text-xs text-slate-500 hidden sm:block">{item.description}</p>
+                </div>
+                {!isCompleted && (
+                  <a
+                    href={item.href}
+                    className="text-xs text-[#0099F7] hover:underline flex-shrink-0 flex items-center gap-1"
+                  >
+                    <span className="hidden sm:inline">Go</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* Tab Navigation */}
@@ -283,31 +450,31 @@ export default function HelpPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-8"
+            className="space-y-6 sm:space-y-8"
           >
-            {/* Getting Started */}
+            {/* How It Works */}
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <Lightbulb className="w-5 h-5 text-amber-500" />
-                <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
-                  Getting Started
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">
+                  How It Works
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {gettingStartedSteps.map((item) => (
                   <div
                     key={item.step}
-                    className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 hover:shadow-md transition-shadow"
+                    className="bg-white rounded-xl border border-slate-200 p-4 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center text-white font-bold flex-shrink-0">
+                    <div className="flex items-start gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {item.step}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900 mb-1">
+                        <h3 className="font-semibold text-slate-900 text-sm mb-1">
                           {item.title}
                         </h3>
-                        <p className="text-sm text-slate-600 leading-relaxed">
+                        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                           {item.description}
                         </p>
                       </div>
@@ -321,11 +488,11 @@ export default function HelpPage() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <BookOpen className="w-5 h-5 text-emerald-500" />
-                <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">
                   Feature Guides
                 </h2>
               </div>
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {featureGuides.map((guide, index) => (
                   <div
                     key={guide.title}
@@ -335,21 +502,21 @@ export default function HelpPage() {
                       onClick={() =>
                         setExpandedGuide(expandedGuide === index ? null : index)
                       }
-                      className="w-full px-4 sm:px-5 py-4 flex items-center gap-3 hover:bg-slate-50 transition-colors text-left"
+                      className="w-full px-4 py-3 sm:py-4 flex items-center gap-3 hover:bg-slate-50 transition-colors text-left"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
-                        <guide.icon className="w-5 h-5 text-slate-600" />
+                      <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center flex-shrink-0">
+                        <guide.icon className="w-4 h-4 text-slate-600" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-slate-900">
+                        <h3 className="font-semibold text-slate-900 text-sm">
                           {guide.title}
                         </h3>
-                        <p className="text-sm text-slate-500 line-clamp-1">
+                        <p className="text-xs text-slate-500 line-clamp-1">
                           {guide.description}
                         </p>
                       </div>
                       <ChevronDown
-                        className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${
+                        className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${
                           expandedGuide === index ? "rotate-180" : ""
                         }`}
                       />
@@ -363,14 +530,14 @@ export default function HelpPage() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-4 sm:px-5 pb-4 pt-0">
-                            <ul className="space-y-2 ml-[52px]">
+                          <div className="px-4 pb-4 pt-0">
+                            <ul className="space-y-2 ml-12">
                               {guide.details.map((detail, i) => (
                                 <li
                                   key={i}
-                                  className="flex items-start gap-2 text-sm text-slate-600"
+                                  className="flex items-start gap-2 text-xs sm:text-sm text-slate-600"
                                 >
-                                  <ChevronRight className="w-4 h-4 text-[#0099F7] flex-shrink-0 mt-0.5" />
+                                  <ChevronRight className="w-3.5 h-3.5 text-[#0099F7] flex-shrink-0 mt-0.5" />
                                   {detail}
                                 </li>
                               ))}
@@ -388,23 +555,23 @@ export default function HelpPage() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <Globe className="w-5 h-5 text-teal-500" />
-                <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">
                   Use Cases
                 </h2>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {useCases.map((useCase) => (
                   <div
                     key={useCase.title}
-                    className="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-4 sm:p-5"
+                    className="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-4"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-100 to-sky-100 flex items-center justify-center mb-3">
-                      <useCase.icon className="w-5 h-5 text-teal-600" />
+                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-100 to-sky-100 flex items-center justify-center mb-3">
+                      <useCase.icon className="w-4 h-4 text-teal-600" />
                     </div>
-                    <h3 className="font-semibold text-slate-900 mb-2">
+                    <h3 className="font-semibold text-slate-900 text-sm mb-1.5">
                       {useCase.title}
                     </h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">
+                    <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                       {useCase.description}
                     </p>
                   </div>
@@ -416,7 +583,7 @@ export default function HelpPage() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <HelpCircle className="w-5 h-5 text-sky-500" />
-                <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
+                <h2 className="text-base sm:text-lg font-semibold text-slate-900">
                   Frequently Asked Questions
                 </h2>
               </div>
@@ -430,15 +597,15 @@ export default function HelpPage() {
                       onClick={() =>
                         setExpandedFaq(expandedFaq === index ? null : index)
                       }
-                      className="w-full px-4 sm:px-5 py-4 flex items-center gap-3 hover:bg-slate-50 transition-colors text-left"
+                      className="w-full px-4 py-3 sm:py-4 flex items-center gap-3 hover:bg-slate-50 transition-colors text-left"
                     >
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-slate-900 text-sm sm:text-base">
+                        <h3 className="font-medium text-slate-900 text-sm">
                           {faq.question}
                         </h3>
                       </div>
                       <ChevronDown
-                        className={`w-5 h-5 text-slate-400 transition-transform flex-shrink-0 ${
+                        className={`w-4 h-4 text-slate-400 transition-transform flex-shrink-0 ${
                           expandedFaq === index ? "rotate-180" : ""
                         }`}
                       />
@@ -452,8 +619,8 @@ export default function HelpPage() {
                           transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-4 sm:px-5 pb-4 pt-0">
-                            <p className="text-sm text-slate-600 leading-relaxed">
+                          <div className="px-4 pb-4 pt-0">
+                            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                               {faq.answer}
                             </p>
                           </div>
@@ -466,16 +633,17 @@ export default function HelpPage() {
             </section>
 
             {/* Still Need Help CTA */}
-            <div className="bg-gradient-to-br from-[#0099F7]/10 to-[#A4FDFF]/10 rounded-2xl border border-[#0099F7]/20 p-6 text-center">
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">
+            <div className="bg-gradient-to-br from-[#0099F7]/10 to-[#A4FDFF]/10 rounded-xl border border-[#0099F7]/20 p-5 text-center">
+              <h3 className="text-base font-semibold text-slate-900 mb-2">
                 Still have questions?
               </h3>
-              <p className="text-slate-600 mb-4">
+              <p className="text-sm text-slate-600 mb-4">
                 Our support team is here to help you succeed.
               </p>
               <Button
                 onClick={() => setActiveTab("support")}
-                className="bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white"
+                className="bg-[#0099F7] hover:bg-[#0080CC] text-white"
+                size="sm"
               >
                 <Mail className="w-4 h-4 mr-2" />
                 Contact Support
@@ -488,53 +656,54 @@ export default function HelpPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="space-y-6"
+            className="space-y-4 sm:space-y-6"
           >
             {/* Support Info */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center mb-3">
-                  <Clock className="w-5 h-5 text-emerald-600" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+                <div className="w-9 h-9 rounded-lg bg-emerald-100 flex items-center justify-center mb-3">
+                  <Clock className="w-4 h-4 text-emerald-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-1">
+                <h3 className="font-semibold text-slate-900 text-sm mb-1">
                   Response Time
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   We typically respond within 24-48 hours on business days.
                 </p>
               </div>
-              <div className="bg-white rounded-xl border border-slate-200 p-5">
-                <div className="w-10 h-10 rounded-lg bg-sky-100 flex items-center justify-center mb-3">
-                  <Mail className="w-5 h-5 text-sky-600" />
+              <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5">
+                <div className="w-9 h-9 rounded-lg bg-sky-100 flex items-center justify-center mb-3">
+                  <Mail className="w-4 h-4 text-sky-600" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-1">
+                <h3 className="font-semibold text-slate-900 text-sm mb-1">
                   Email Support
                 </h3>
-                <p className="text-sm text-slate-600">
+                <p className="text-xs sm:text-sm text-slate-600">
                   You can also email us directly at support@verified.doctor
                 </p>
               </div>
             </div>
 
             {/* Contact Form */}
-            <div className="bg-white rounded-xl border border-slate-200 p-5 sm:p-6">
-              <h2 className="text-lg font-semibold text-slate-900 mb-4">
+            <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-6">
+              <h2 className="text-base font-semibold text-slate-900 mb-4">
                 Send us a message
               </h2>
 
               {submitted ? (
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-emerald-600" />
+                  <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle2 className="w-7 h-7 text-emerald-600" />
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                  <h3 className="text-base font-semibold text-slate-900 mb-2">
                     Message Sent!
                   </h3>
-                  <p className="text-slate-600 mb-4">
+                  <p className="text-sm text-slate-600 mb-4">
                     Thank you for reaching out. We&apos;ll get back to you soon.
                   </p>
                   <Button
                     variant="outline"
+                    size="sm"
                     onClick={() => setSubmitted(false)}
                   >
                     Send Another Message
@@ -543,7 +712,7 @@ export default function HelpPage() {
               ) : (
                 <form onSubmit={handleSupportSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
+                    <Label htmlFor="subject" className="text-sm">Subject</Label>
                     <Input
                       id="subject"
                       type="text"
@@ -552,12 +721,12 @@ export default function HelpPage() {
                         setSupportForm({ ...supportForm, subject: e.target.value })
                       }
                       placeholder="What can we help you with?"
-                      className="h-11"
+                      className="h-10"
                       maxLength={200}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
+                    <Label htmlFor="message" className="text-sm">Message</Label>
                     <Textarea
                       id="message"
                       value={supportForm.message}
@@ -565,7 +734,7 @@ export default function HelpPage() {
                         setSupportForm({ ...supportForm, message: e.target.value })
                       }
                       placeholder="Describe your issue or question in detail..."
-                      className="min-h-[150px] resize-none"
+                      className="min-h-[120px] resize-none"
                       maxLength={2000}
                     />
                     <p className="text-xs text-slate-400 text-right">
@@ -575,7 +744,8 @@ export default function HelpPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full sm:w-auto bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white"
+                    className="w-full sm:w-auto bg-[#0099F7] hover:bg-[#0080CC] text-white"
+                    size="sm"
                   >
                     {isSubmitting ? (
                       <>

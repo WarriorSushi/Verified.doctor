@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -56,22 +56,39 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
   const [messageNotifications, setMessageNotifications] = useState(true);
   const [connectionNotifications, setConnectionNotifications] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
+  const [weeklyDigest, setWeeklyDigest] = useState(true);
+  const [isTogglingDigest, setIsTogglingDigest] = useState(false);
 
-  // Fetch freeze status on mount
+  const fetchWeeklyDigestPreference = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/profiles/${profile.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        const badges = data.profile?.achievement_badges as Record<string, unknown> | undefined;
+        setWeeklyDigest(!(badges?.weekly_digest_opt_out === true));
+      }
+    } catch {
+      // Ignore errors and keep default true
+    }
+  }, [profile.id]);
+
+  // Fetch persisted settings on mount
   useEffect(() => {
-    const fetchFreezeStatus = async () => {
+    const fetchSettings = async () => {
       try {
-        const response = await fetch("/api/profile/freeze");
-        if (response.ok) {
-          const data = await response.json();
+        const freezeResponse = await fetch("/api/profile/freeze");
+        if (freezeResponse.ok) {
+          const data = await freezeResponse.json();
           setIsFrozen(data.isFrozen);
         }
       } catch {
         // Ignore errors, default to false
       }
+
+      fetchWeeklyDigestPreference();
     };
-    fetchFreezeStatus();
-  }, []);
+    fetchSettings();
+  }, [fetchWeeklyDigestPreference]);
 
   const handleFreezeToggle = async (checked: boolean) => {
     setIsTogglingFreeze(true);
@@ -191,6 +208,51 @@ export function ProfileSettings({ profile }: ProfileSettingsProps) {
         </div>
 
         <div className="space-y-4">
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <Label className="font-medium">Weekly Digest</Label>
+              <p className="text-sm text-slate-500">Receive a weekly summary of profile views, messages, and tips</p>
+            </div>
+            <Switch
+              checked={weeklyDigest}
+              onCheckedChange={async (checked) => {
+                setIsTogglingDigest(true);
+                try {
+                  const csrfRes = await fetch("/api/csrf");
+                  const csrfData = await csrfRes.json();
+                  const currentRes = await fetch(`/api/profiles/${profile.id}`);
+                  const currentData = await currentRes.json();
+                  const currentBadges = (currentData.profile?.achievement_badges || {}) as Record<string, unknown>;
+
+                  const response = await fetch(`/api/profiles/${profile.id}`, {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "x-csrf-token": csrfData.token,
+                    },
+                    body: JSON.stringify({
+                      achievementBadges: {
+                        ...currentBadges,
+                        weekly_digest_opt_out: !checked,
+                      },
+                    }),
+                  });
+                  if (response.ok) {
+                    setWeeklyDigest(checked);
+                    toast.success(checked ? "Weekly digest enabled" : "Weekly digest disabled");
+                  } else {
+                    toast.error("Failed to update preference");
+                  }
+                } catch {
+                  toast.error("Failed to update preference");
+                } finally {
+                  setIsTogglingDigest(false);
+                }
+              }}
+              disabled={isTogglingDigest}
+            />
+          </div>
+
           <div className="flex items-center justify-between py-2">
             <div>
               <Label className="font-medium">Product Updates</Label>

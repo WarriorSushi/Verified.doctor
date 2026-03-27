@@ -4,6 +4,9 @@ import { verifyAdminSession } from "@/lib/admin-auth";
 import { sendAccountBannedEmail } from "@/lib/email";
 import { z } from "zod";
 import type { Json } from "@/types/database";
+import { requireCsrf } from "@/lib/csrf";
+import { sanitizeText } from "@/lib/sanitize";
+import { rateLimit } from "@/lib/rate-limit";
 
 const adminActionSchema = z.object({
   profileId: z.string().uuid(),
@@ -31,8 +34,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const rl = await rateLimit("admin-actions", 200, 60 * 60);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
-    const { profileId, action, reason, trialDays } = adminActionSchema.parse(body);
+    const parsed = adminActionSchema.parse(body);
+    const profileId = parsed.profileId;
+    const action = parsed.action;
+    const reason = parsed.reason ? sanitizeText(parsed.reason) : undefined;
+    const trialDays = parsed.trialDays;
 
     const supabase = await createClient();
 

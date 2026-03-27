@@ -61,14 +61,22 @@ export function Navbar() {
           </span>
         </Link>
 
-        {/* Get Started Button */}
-        <Button
-          size="sm"
-          className="bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white font-medium shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 transition-all duration-200 text-sm sm:text-base px-4 sm:px-5"
-          asChild
-        >
-          <Link href="/sign-up">Get Started</Link>
-        </Button>
+        {/* Nav Links + CTA */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          <Link
+            href="/directory"
+            className="text-sm font-medium text-slate-600 hover:text-sky-600 transition-colors duration-200"
+          >
+            Find a Doctor
+          </Link>
+          <Button
+            size="sm"
+            className="bg-gradient-to-r from-[#0099F7] to-[#0080CC] hover:from-[#0088E0] hover:to-[#0070B8] text-white font-medium shadow-lg shadow-sky-500/20 hover:shadow-sky-500/30 transition-all duration-200 text-sm sm:text-base px-4 sm:px-5"
+            asChild
+          >
+            <Link href="/sign-up">Get Started</Link>
+          </Button>
+        </div>
       </div>
     </motion.nav>
   );

@@ -34,6 +34,7 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -222,6 +223,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
                     alt={profile.full_name}
                     fill
                     priority
+                    sizes="(max-width: 1024px) 128px, 192px"
                     className="object-cover"
                     style={{ borderRadius: '2px' }}
                   />
@@ -489,6 +491,15 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
             style={{ backgroundColor: colors.cardBorder }}
           />
 
+          {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+            <div className="mb-16">
+              <SocialProofWidget
+                recommendationCount={profile.recommendation_count || 0}
+                connectedDoctors={connectedDoctors}
+              />
+            </div>
+          )}
+
           {/* Recommend Section - Minimal */}
           <motion.section {...slideUp} transition={{ delay: 0.86 }} className="mb-24 lg:mb-32">
             <p className="text-lg lg:text-xl font-light mb-6" style={{ color: colors.text }}>
@@ -519,6 +530,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
                           src={doctor.profile_photo_url}
                           alt={doctor.full_name}
                           fill
+                          sizes="40px"
                           className="object-cover"
                           style={{ borderRadius: '2px' }}
                         />

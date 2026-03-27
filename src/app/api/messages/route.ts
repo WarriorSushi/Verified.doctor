@@ -9,6 +9,11 @@ import {
   formatRetryAfter,
 } from "@/lib/rate-limit";
 import { sendNewMessageEmail } from "@/lib/email";
+import { sanitizeName, sanitizeMessage } from "@/lib/sanitize";
+import { requireCsrf } from "@/lib/csrf";
+import { createLogger } from "@/lib/logger";
+
+const log = createLogger("api:messages");
 
 // Phone validation regex - supports international formats
 const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
@@ -28,6 +33,11 @@ const createMessageSchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    const csrfError = await requireCsrf(request);
+    if (csrfError) {
+      return csrfError as NextResponse;
+    }
+
     // Rate limiting: 5 messages per IP per hour
     const ip = await getClientIp();
     const limiter = getMessageLimiter();
@@ -62,7 +72,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const { profileId, senderName, senderPhone, messageContent } = result.data;
+    const { profileId, senderPhone } = result.data;
+    const senderName = sanitizeName(result.data.senderName);
+    const messageContent = sanitizeMessage(result.data.messageContent);
 
     const supabase = await createClient();
 
@@ -94,7 +106,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
-      console.error("Insert error:", insertError);
+      log.error("Failed to insert message", insertError, { profileId, ip });
       return NextResponse.json(
         { error: "Failed to send message" },
         { status: 500 }

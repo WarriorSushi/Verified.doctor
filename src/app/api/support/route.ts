@@ -4,6 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { sendEmail } from "@/lib/email/send";
 import { escapeHtml } from "@/lib/utils/html-escape";
+import { requireCsrf } from "@/lib/csrf";
+import { getSupportLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { sanitizeText, sanitizeMessage } from "@/lib/sanitize";
 
 // Admin email from environment variable
 const ADMIN_EMAIL = process.env.ADMIN_SUPPORT_EMAIL || process.env.ADMIN_EMAIL;
@@ -24,6 +27,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const limiter = getSupportLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Too many support requests. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const result = supportSchema.safeParse(body);
 
@@ -34,7 +49,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const { subject, message } = result.data;
+    const subject = sanitizeText(result.data.subject);
+    const message = sanitizeMessage(result.data.message);
     const supabase = await createClient();
 
     // Get the user's profile

@@ -40,6 +40,7 @@ import {
   ClinicGallery,
 } from "../sections";
 import { VerifiedBadge } from "../verified-badge";
+import { SocialProofWidget } from "../social-proof-widget";
 import type { ThemeConfig } from "@/lib/theme-config";
 
 interface Profile {
@@ -280,6 +281,7 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
                 alt={profile.full_name}
                 fill
                 priority
+                sizes="(max-width: 640px) 100vw, 672px"
                 className="object-cover"
               />
             ) : (
@@ -577,6 +579,15 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
           </motion.div>
         )}
 
+        {(profile.recommendation_count > 0 || connectedDoctors.length > 0) && (
+          <motion.section initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }} className="mb-8">
+            <SocialProofWidget
+              recommendationCount={profile.recommendation_count || 0}
+              connectedDoctors={connectedDoctors}
+            />
+          </motion.section>
+        )}
+
         {/* Recommend Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -621,7 +632,7 @@ export function HeroTemplate({ profile, connectedDoctors, invitedBy, theme }: He
                   title={doctor.full_name}
                 >
                   {doctor.profile_photo_url ? (
-                    <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill className="object-cover rounded-full" />
+                    <Image src={doctor.profile_photo_url} alt={doctor.full_name} fill sizes="56px" className="object-cover rounded-full" />
                   ) : (
                     <div
                       className="w-full h-full rounded-full flex items-center justify-center text-xs font-bold"

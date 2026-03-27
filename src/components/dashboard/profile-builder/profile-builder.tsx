@@ -243,6 +243,20 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
     formData, visibility, profile
   ]);
 
+  // Unsaved changes warning on navigation
+  useEffect(() => {
+    if (!hasChanges) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+      return e.returnValue;
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasChanges]);
+
   // Photo upload handlers
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -666,7 +680,12 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
                   className="min-h-[100px]"
                   maxLength={2000}
                 />
-                <p className="text-xs text-slate-400 text-right">{bio.length}/2000</p>
+                <div className="flex items-center justify-between">
+                  {!bio && (
+                    <AIEnhanceButton text="" type="bio" onEnhance={(text) => setBio(text)} />
+                  )}
+                  <p className={`text-xs text-right ml-auto ${bio.length > 1800 ? "text-amber-500" : "text-slate-400"}`}>{bio.length}/2000</p>
+                </div>
               </div>
 
               <div className="grid sm:grid-cols-2 gap-4">

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuth } from "@/lib/auth";
 import { z } from "zod";
+import { getAiLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
+import { sanitizeBio } from "@/lib/sanitize";
 
 const enhanceSchema = z.object({
   text: z.string().min(1).max(2000),
@@ -71,6 +73,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const limiter = getAiLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `AI enhancement rate limit reached. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const result = enhanceSchema.safeParse(body);
 
@@ -81,7 +92,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { text, type, length } = result.data;
+    const text = sanitizeBio(result.data.text);
+    const { type, length } = result.data;
 
     // Check for OpenRouter API key
     const apiKey = process.env.OPENROUTER_API_KEY;

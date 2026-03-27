@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
+import { requireCsrf } from "@/lib/csrf";
+import { getConnectionLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
 
 const acceptInviteSchema = z.object({
   inviteCode: z.string().min(1),
@@ -13,6 +15,18 @@ export async function POST(request: Request) {
     const { userId } = await getAuth();
     if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const limiter = getConnectionLimiter();
+    const rl = await checkRateLimit(limiter, userId);
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: `Too many invite accepts. Try again in ${formatRetryAfter(rl.retryAfter || 60)}.` },
+        { status: 429 }
+      );
     }
 
     const body = await request.json();
@@ -67,12 +81,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if they're already connected
-    const { data: existingConnection } = await supabase
+    // Check if they're already connected (query both directions separately to avoid string interpolation)
+    const { data: existingAsRequester } = await supabase
       .from("connections")
       .select("id")
-      .or(`and(requester_id.eq.${invite.inviter_profile_id},receiver_id.eq.${profile.id}),and(requester_id.eq.${profile.id},receiver_id.eq.${invite.inviter_profile_id})`)
-      .single();
+      .eq("requester_id", invite.inviter_profile_id)
+      .eq("receiver_id", profile.id)
+      .maybeSingle();
+
+    const { data: existingAsReceiver } = await supabase
+      .from("connections")
+      .select("id")
+      .eq("requester_id", profile.id)
+      .eq("receiver_id", invite.inviter_profile_id)
+      .maybeSingle();
+
+    const existingConnection = existingAsRequester || existingAsReceiver;
 
     if (existingConnection) {
       return NextResponse.json(

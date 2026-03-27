@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { verifyAdminSession } from "@/lib/admin-auth";
 import { sendAdminMessageEmail } from "@/lib/email";
 import { z } from "zod";
+import { requireCsrf } from "@/lib/csrf";
+import { sanitizeMessage } from "@/lib/sanitize";
+import { rateLimit } from "@/lib/rate-limit";
 
 const adminMessageSchema = z.object({
   profileId: z.string().uuid(),
@@ -17,8 +20,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const csrfError = await requireCsrf(request);
+    if (csrfError) return csrfError as NextResponse;
+
+    const rl = await rateLimit("admin-messages", 100, 60 * 60);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const body = await request.json();
-    const { profileId, message } = adminMessageSchema.parse(body);
+    const parsed = adminMessageSchema.parse(body);
+    const profileId = parsed.profileId;
+    const message = sanitizeMessage(parsed.message);
 
     const supabase = await createClient();
 
