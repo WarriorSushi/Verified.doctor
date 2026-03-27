@@ -135,12 +135,16 @@ function TimelineMilestone({
   year,
   title,
   subtitle,
-  index
+  index,
+  primaryColor,
+  bgColor,
 }: {
   year: string;
   title: string;
   subtitle?: string;
   index: number;
+  primaryColor: string;
+  bgColor: string;
 }) {
   return (
     <motion.div
@@ -150,25 +154,18 @@ function TimelineMilestone({
       className="relative pl-8 pb-8 last:pb-0"
     >
       {/* Vertical line */}
-      <div className="absolute left-[11px] top-3 bottom-0 w-px bg-gradient-to-b from-[#c2410c] to-[#c2410c]/20" />
+      <div className="absolute left-[11px] top-3 bottom-0 w-px" style={{ background: `linear-gradient(to bottom, ${primaryColor}, ${primaryColor}33)` }} />
 
-      {/* Dot with pulse */}
+      {/* Dot */}
       <div className="absolute left-0 top-1">
-        <div className="relative">
-          <motion.div
-            className="absolute inset-0 w-6 h-6 bg-[#c2410c]/20 rounded-full"
-            animate={{ scale: [1, 1.5, 1], opacity: [0.5, 0, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, delay: index * 0.3 }}
-          />
-          <div className="relative w-6 h-6 bg-[#faf7f2] border-2 border-[#c2410c] rounded-full flex items-center justify-center">
-            <div className="w-2 h-2 bg-[#c2410c] rounded-full" />
-          </div>
+        <div className="relative w-6 h-6 border-2 rounded-full flex items-center justify-center" style={{ backgroundColor: bgColor, borderColor: primaryColor }}>
+          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: primaryColor }} />
         </div>
       </div>
 
       {/* Content */}
       <div className="bg-white border border-stone-200 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
-        <span className="inline-block px-2 py-0.5 bg-[#c2410c]/10 text-[#c2410c] text-xs font-semibold rounded mb-2 font-mono">
+        <span className="inline-block px-2 py-0.5 text-xs font-semibold rounded mb-2 font-mono" style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}>
           {year}
         </span>
         <h4 className="text-stone-800 font-semibold" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
@@ -204,7 +201,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
     : [];
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#faf7f2" }}>
+    <div className="min-h-screen" style={{ backgroundColor: colors.background }}>
       {/* Analytics */}
       <ProfileViewTracker profileId={profile.id} />
 
@@ -217,27 +214,28 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
       />
 
       {/* Decorative top border */}
-      <div className="h-1 bg-gradient-to-r from-[#c2410c] via-[#fbbf24] to-[#c2410c]" />
+      <div className="h-1" style={{ background: `linear-gradient(to right, ${colors.primary}, ${colors.accent}, ${colors.primary})` }} />
 
       {/* Navbar - Editorial style */}
-      <nav className="relative z-20 px-4 sm:px-6 py-4 border-b border-stone-200/60 bg-[#faf7f2]/90 backdrop-blur-sm">
+      <nav className="relative z-20 px-4 sm:px-6 py-4 border-b backdrop-blur-sm" style={{ borderColor: `${colors.cardBorder}99`, backgroundColor: `${colors.background}E6` }}>
         <div className="max-w-3xl mx-auto flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="transition-transform group-hover:scale-105">
               <VerifiedBadge isVerified={true} isPro={isPro} size="md" showTooltip={false} />
             </div>
             <span
-              className="text-sm sm:text-base font-semibold text-stone-700"
-              style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}
+              className="text-sm sm:text-base font-semibold"
+              style={{ fontFamily: "'Libre Baskerville', Georgia, serif", color: colors.text }}
             >
-              verified<span className="text-[#c2410c]">.doctor</span>
+              verified<span style={{ color: colors.primary }}>.doctor</span>
             </span>
           </Link>
 
           {!isPro && (
             <Link
               href="/"
-              className="text-xs sm:text-sm font-medium text-[#c2410c] hover:text-[#9a3412] transition-colors"
+              className="text-xs sm:text-sm font-medium transition-colors hover:opacity-70"
+              style={{ color: colors.primary }}
             >
               Claim yours →
             </Link>
@@ -261,7 +259,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             transition={{ delay: 0.2 }}
             className="mb-4"
           >
-            <span className="inline-block px-3 py-1 bg-[#c2410c]/10 border border-[#c2410c]/30 rounded-full text-xs font-semibold tracking-widest uppercase text-[#c2410c]">
+            <span className="inline-block px-3 py-1 border rounded-full text-xs font-semibold tracking-widest uppercase" style={{ backgroundColor: `${colors.primary}15`, borderColor: `${colors.primary}40`, color: colors.primary }}>
               {profile.specialty || "Medical Professional"}
             </span>
           </motion.div>
@@ -274,7 +272,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             transition={{ delay: 0.3, type: "spring" }}
           >
             {/* Decorative ring */}
-            <div className="absolute inset-0 rounded-full border-2 border-dashed border-[#c2410c]/40 animate-[spin_30s_linear_infinite]" />
+            <div className="absolute inset-0 rounded-full border-2 border-dashed animate-[spin_30s_linear_infinite]" style={{ borderColor: `${colors.primary}66` }} />
             <div className="absolute inset-2 rounded-full border border-stone-300" />
 
             {profile.profile_photo_url ? (
@@ -287,7 +285,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
                 className="object-cover rounded-full p-2"
               />
             ) : (
-              <div className="absolute inset-2 rounded-full bg-gradient-to-br from-[#c2410c] to-[#ea580c] flex items-center justify-center text-[#faf7f2] text-3xl sm:text-4xl font-bold" style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}>
+              <div className="absolute inset-2 rounded-full flex items-center justify-center text-3xl sm:text-4xl font-bold" style={{ background: `linear-gradient(135deg, ${colors.primary}, ${colors.primaryHover})`, color: colors.textOnPrimary, fontFamily: "'Libre Baskerville', Georgia, serif" }}>
                 {profile.full_name
                   .split(" ")
                   .map((n) => n[0])
@@ -299,7 +297,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
 
             {/* Verified badge */}
             {profile.is_verified && (
-              <div className="absolute -bottom-1 -right-1 bg-[#faf7f2] rounded-full p-1 shadow-lg">
+              <div className="absolute -bottom-1 -right-1 rounded-full p-1 shadow-lg" style={{ backgroundColor: colors.background }}>
                 <VerifiedBadge isVerified={profile.is_verified} isPro={isPro} size="md" />
               </div>
             )}
@@ -338,9 +336,9 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             transition={{ delay: 0.6, duration: 0.5 }}
             className="flex items-center justify-center gap-3 mb-4"
           >
-            <div className="w-16 h-px bg-gradient-to-r from-transparent to-[#c2410c]/40" />
-            <Award className="w-4 h-4 text-[#c2410c]" />
-            <div className="w-16 h-px bg-gradient-to-l from-transparent to-[#c2410c]/40" />
+            <div className="w-16 h-px" style={{ background: `linear-gradient(to right, transparent, ${colors.primary}66)` }} />
+            <Award className="w-4 h-4" style={{ color: colors.primary }} />
+            <div className="w-16 h-px" style={{ background: `linear-gradient(to left, transparent, ${colors.primary}66)` }} />
           </motion.div>
 
           {/* Qualifications */}
@@ -364,19 +362,19 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
           >
             {profile.clinic_location && (
               <span className="inline-flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-[#c2410c]" />
+                <MapPin className="w-4 h-4" style={{ color: colors.primary }} />
                 {profile.clinic_location}
               </span>
             )}
             {profile.years_experience && (
               <span className="inline-flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#c2410c]" />
+                <Clock className="w-4 h-4" style={{ color: colors.primary }} />
                 {profile.years_experience}+ years
               </span>
             )}
             {profile.languages && (
               <span className="inline-flex items-center gap-1.5">
-                <Globe className="w-4 h-4 text-[#c2410c]" />
+                <Globe className="w-4 h-4" style={{ color: colors.primary }} />
                 {profile.languages}
               </span>
             )}
@@ -391,8 +389,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
               className="flex justify-center gap-4 mt-5"
             >
               {recommendationText && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-white border border-stone-200 rounded-lg shadow-sm">
-                  <ThumbsUp className="w-4 h-4 text-[#c2410c]" />
+                <div className="flex items-center gap-2 px-4 py-2 bg-white border rounded-lg shadow-sm" style={{ borderColor: colors.cardBorder }}>
+                  <ThumbsUp className="w-4 h-4" style={{ color: colors.primary }} />
                   <span className="text-sm font-semibold text-stone-700">
                     {profile.recommendation_count} {profile.recommendation_count === 1 ? "recommendation" : "recommendations"}
                   </span>
@@ -420,9 +418,10 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
           >
             <Link
               href={`/${invitedBy.handle}`}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-stone-200 rounded-lg text-sm text-stone-600 hover:border-[#c2410c]/50 hover:shadow-sm transition-all"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-white border rounded-lg text-sm transition-all hover:shadow-sm"
+              style={{ borderColor: colors.cardBorder, color: colors.text }}
             >
-              <Handshake className="w-4 h-4 text-[#c2410c]" />
+              <Handshake className="w-4 h-4" style={{ color: colors.primary }} />
               <span>
                 Invited by <span className="font-medium text-stone-800">{invitedBy.full_name}</span>
               </span>
@@ -436,9 +435,10 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mb-10 px-6 py-5 border-l-4 border-[#c2410c] bg-white rounded-r-lg shadow-sm"
+            className="mb-10 px-6 py-5 border-l-4 bg-white rounded-r-lg shadow-sm"
+            style={{ borderLeftColor: colors.primary }}
           >
-            <BookOpen className="w-5 h-5 text-[#c2410c] mb-3" />
+            <BookOpen className="w-5 h-5 mb-3" style={{ color: colors.primary }} />
             <p
               className="text-stone-600 text-base sm:text-lg leading-relaxed italic"
               style={{ fontFamily: "'Libre Baskerville', Georgia, serif" }}
@@ -448,7 +448,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             {showBioToggle && (
               <button
                 onClick={() => setShowFullBio(!showFullBio)}
-                className="mt-3 text-[#c2410c] text-sm font-medium inline-flex items-center gap-1 hover:text-[#9a3412]"
+                className="mt-3 text-sm font-medium inline-flex items-center gap-1 hover:opacity-70"
+                style={{ color: colors.primary }}
               >
                 {showFullBio ? (
                   <>Show less <ChevronUp className="w-4 h-4" /></>
@@ -469,7 +470,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             className="mb-10"
           >
             <Button
-              className="w-full bg-[#c2410c] hover:bg-[#9a3412] text-white h-12 rounded-lg font-semibold shadow-lg shadow-[#c2410c]/20 border-2 border-[#c2410c]"
+              className="w-full text-white h-12 rounded-lg font-semibold shadow-lg border-2"
+              style={{ backgroundColor: colors.primary, borderColor: colors.primary, boxShadow: `0 10px 25px ${colors.primary}30` }}
               asChild
             >
               <a
@@ -512,6 +514,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
                   title={item.degree}
                   subtitle={item.institution}
                   index={index}
+                  primaryColor={colors.primary}
+                  bgColor={colors.background}
                 />
               ))}
             </div>
@@ -681,16 +685,17 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
           className="bg-white border border-stone-200 rounded-xl p-6 sm:p-8 text-center mb-8 relative overflow-hidden shadow-sm"
         >
           {/* Decorative corner elements */}
-          <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-[#c2410c]/30 rounded-tl-xl" />
-          <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-[#c2410c]/30 rounded-br-xl" />
+          <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 rounded-tl-xl" style={{ borderColor: `${colors.primary}50` }} />
+          <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 rounded-br-xl" style={{ borderColor: `${colors.primary}50` }} />
 
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.7, type: "spring" }}
-            className="w-12 h-12 mx-auto mb-4 bg-[#c2410c]/10 rounded-full flex items-center justify-center"
+            className="w-12 h-12 mx-auto mb-4 rounded-full flex items-center justify-center"
+            style={{ backgroundColor: `${colors.primary}15` }}
           >
-            <ThumbsUp className="w-6 h-6 text-[#c2410c]" />
+            <ThumbsUp className="w-6 h-6" style={{ color: colors.primary }} />
           </motion.div>
 
           <p
@@ -722,7 +727,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
               {services.map((service, i) => (
                 <span
                   key={i}
-                  className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-sm text-stone-600 font-medium shadow-sm hover:border-[#c2410c]/30 transition-colors"
+                  className="px-3 py-1.5 bg-white border rounded-full text-sm font-medium shadow-sm transition-colors"
+                  style={{ borderColor: colors.cardBorder, color: colors.text }}
                 >
                   {service}
                 </span>
@@ -754,7 +760,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
                 >
                   <Link
                     href={`/${doctor.handle}`}
-                    className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full border-3 border-[#faf7f2] shadow-md hover:z-10 hover:scale-110 transition-transform block"
+                    className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full shadow-md hover:z-10 hover:scale-110 transition-transform block"
+                    style={{ border: `3px solid ${colors.background}` }}
                     title={doctor.full_name}
                   >
                     {doctor.profile_photo_url ? (
@@ -773,7 +780,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
                 </motion.div>
               ))}
               {connectedDoctors.length > 7 && (
-                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white border-3 border-[#faf7f2] shadow-md flex items-center justify-center text-sm font-semibold text-[#c2410c]">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-md flex items-center justify-center text-sm font-semibold" style={{ border: `3px solid ${colors.background}`, color: colors.primary }}>
                   +{connectedDoctors.length - 7}
                 </div>
               )}
@@ -792,8 +799,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {profile.clinic_name && (
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#c2410c]/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-[#c2410c]" />
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${colors.primary}15` }}>
+                    <MapPin className="w-4 h-4" style={{ color: colors.primary }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Practice</p>
@@ -804,8 +811,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
 
               {profile.consultation_fee && (
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#c2410c]/10 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-[#c2410c]" />
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${colors.primary}15` }}>
+                    <Sparkles className="w-4 h-4" style={{ color: colors.primary }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Consultation</p>
@@ -816,8 +823,8 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
 
               {profile.registration_number && (
                 <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-[#c2410c]/10 flex items-center justify-center flex-shrink-0">
-                    <GraduationCap className="w-4 h-4 text-[#c2410c]" />
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: `${colors.primary}15` }}>
+                    <GraduationCap className="w-4 h-4" style={{ color: colors.primary }} />
                   </div>
                   <div className="min-w-0">
                     <p className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">Registration</p>
@@ -831,7 +838,7 @@ export function TimelineTemplate({ profile, connectedDoctors, invitedBy, theme }
       </main>
 
       {/* Sticky Action Buttons */}
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={{ background: colors.background, cardBorder: colors.cardBorder, primary: colors.primary, text: colors.text }} />
     </div>
   );
 }
