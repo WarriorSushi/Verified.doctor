@@ -87,7 +87,7 @@ export function PatientJourney() {
               initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.3 }}
               animate={shouldAnimate ? { opacity: 1, scale: 1 } : prefersReducedMotion ? {} : undefined}
               transition={{ delay: 0.6, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-10 flex flex-col items-center justify-center w-[72px] h-[72px] rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 shadow-md shadow-sky-500/20"
+              className="relative z-10 flex flex-col items-center justify-center w-[72px] h-[72px] rounded-full bg-sky-600 shadow-md shadow-sky-600/20"
             >
               <span className="text-white text-[9px] font-bold tracking-wider uppercase leading-none">Your</span>
               <span className="text-white text-[9px] font-bold tracking-wider uppercase leading-none mt-0.5">Page</span>
@@ -124,7 +124,7 @@ export function PatientJourney() {
             whileInView={prefersReducedMotion ? {} : { opacity: 1, scale: 1 }}
             viewport={{ once: true, margin: "-30px" }}
             transition={{ delay: 0.2, duration: 0.4 }}
-            className="relative z-10 flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-sky-500 to-cyan-500 shadow-md shadow-sky-500/20 mb-4"
+            className="relative z-10 flex items-center justify-center w-14 h-14 rounded-full bg-sky-600 shadow-md shadow-sky-600/20 mb-4"
           >
             <span className="text-white text-[8px] font-bold tracking-wider uppercase">Your Page</span>
           </motion.div>

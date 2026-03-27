@@ -72,7 +72,7 @@ export function ProfileCard({ doctor, isActive }: { doctor: Profile; isActive: b
           {doctor.full_name}
         </p>
         <p className="text-xs text-slate-400">
-          {doctor.specialty} &bull; {doctor.layout} Layout
+          {doctor.specialty} · verified.doctor/{doctor.handle}
         </p>
       </motion.div>
     </motion.div>
