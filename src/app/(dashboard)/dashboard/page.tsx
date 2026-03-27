@@ -66,10 +66,10 @@ export default async function DashboardPage() {
   const hasProAccess: boolean = profile.subscription_status === "pro" || isTrialActive;
 
   const metrics = [
-    { label: "Views", value: profile.view_count || 0, icon: Eye, format: formatViewCount },
-    { label: "Recommends", value: profile.recommendation_count || 0, icon: ThumbsUp },
-    { label: "Connections", value: profile.connection_count || 0, icon: Users },
-    { label: "Messages", value: unreadCount || 0, icon: MessageSquare, href: "/dashboard/messages" },
+    { label: "Views", value: profile.view_count || 0, icon: Eye, format: formatViewCount, accent: "text-sky-500", bg: "bg-sky-50" },
+    { label: "Recommends", value: profile.recommendation_count || 0, icon: ThumbsUp, accent: "text-emerald-500", bg: "bg-emerald-50" },
+    { label: "Connections", value: profile.connection_count || 0, icon: Users, accent: "text-teal-500", bg: "bg-teal-50" },
+    { label: "Messages", value: unreadCount || 0, icon: MessageSquare, href: "/dashboard/messages", accent: "text-amber-500", bg: "bg-amber-50" },
   ];
 
   return (
@@ -211,7 +211,9 @@ export default async function DashboardPage() {
           const Icon = metric.icon;
           const content = (
             <div className="bg-white rounded-xl border border-slate-200 p-3 sm:p-4 text-center hover:border-slate-300 transition-colors">
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5 mx-auto text-slate-400 mb-1" />
+              <div className={`w-8 h-8 sm:w-9 sm:h-9 rounded-lg ${metric.bg} flex items-center justify-center mx-auto mb-1.5`}>
+                <Icon className={`w-4 h-4 sm:w-[18px] sm:h-[18px] ${metric.accent}`} />
+              </div>
               <p className="text-lg sm:text-2xl font-bold text-slate-900">
                 {metric.format ? metric.format(metric.value) : metric.value.toLocaleString()}
               </p>
