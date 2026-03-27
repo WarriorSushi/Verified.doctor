@@ -173,15 +173,15 @@ export function HeroSection() {
               </span>
             </motion.div>
 
-            {/* Headline — big, confident, no gradient text */}
+            {/* Headline — big, confident, action-oriented */}
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
               className="text-4xl sm:text-5xl lg:text-[3.5rem] font-bold tracking-tight text-slate-900 leading-[1.1] mb-5"
             >
-              Your Verified Page.{" "}
-              <span className="text-sky-600">Your Name.</span>
+              The verified page{" "}
+              <span className="text-sky-600">every doctor needs</span>
             </motion.h1>
 
             {/* Subheadline — clear value prop */}
@@ -191,7 +191,7 @@ export function HeroSection() {
               transition={{ delay: 0.3, duration: 0.6 }}
               className="text-lg text-slate-500 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed"
             >
-              Credentials, recommendations, and patient messaging — in one verified page that ranks on Google.
+              Your credentials, recommendations, and contact — in one trusted page that ranks when patients search your name.
             </motion.p>
 
             {/* Claim CTA */}
