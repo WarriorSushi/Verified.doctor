@@ -7,7 +7,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const ADMIN_JWT_SECRET = process.env.ADMIN_JWT_SECRET;
 
-// Validate required environment variables at startup
+// Validate required environment variables (called lazily, not at module load)
 function validateEnvVars() {
   const missing: string[] = [];
   if (!ADMIN_EMAIL) missing.push("ADMIN_EMAIL");
@@ -22,12 +22,11 @@ function validateEnvVars() {
   }
 }
 
-// Call validation when module loads (will throw if vars missing)
-if (typeof window === "undefined") {
+// Lazily encode JWT secret — validated when actually used, not at build time
+function getJwtSecret() {
   validateEnvVars();
+  return new TextEncoder().encode(ADMIN_JWT_SECRET);
 }
-
-const JWT_SECRET = new TextEncoder().encode(ADMIN_JWT_SECRET);
 
 export async function validateAdminCredentials(
   email: string,
@@ -64,7 +63,7 @@ export async function createAdminSession(): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("24h")
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 
   return token;
 }
@@ -78,7 +77,7 @@ export async function verifyAdminSession(): Promise<boolean> {
       return false;
     }
 
-    await jwtVerify(token, JWT_SECRET);
+    await jwtVerify(token, getJwtSecret());
     return true;
   } catch {
     return false;

@@ -1,7 +1,13 @@
 import { Resend } from "resend";
 
-// Initialize Resend client
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazily initialize Resend client (avoids build-time errors when env vars aren't set)
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 // For development, use Resend's test domain
 // For production, verify your domain at resend.com and use noreply@verified.doctor
@@ -44,7 +50,7 @@ export async function sendEmail({
   console.log(`[email] Environment: ${process.env.NODE_ENV || "development"}`);
 
   try {
-    const { data, error } = await resend.emails.send({
+    const { data, error } = await getResend().emails.send({
       from: FROM_EMAIL,
       to,
       subject,

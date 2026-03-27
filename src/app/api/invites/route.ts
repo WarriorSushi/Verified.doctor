@@ -80,20 +80,21 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Profile not found" }, { status: 404 });
     }
 
-    // Check if email is already registered (if provided)
-    // Note: We don't reveal if the email is registered to prevent user enumeration
-    // Instead, we silently skip sending the email and return success
+    // Check if email already has a pending invite (if provided)
+    // Note: We don't check auth.users to avoid revealing registration status
+    // (email is not stored in profiles table). Instead, we check for existing
+    // unused invites to this email to prevent duplicate invite emails.
     let emailAlreadyRegistered = false;
     if (result.data.email) {
-      const { data: existingProfile } = await supabase
-        .from("profiles")
+      const { data: existingInvite } = await supabase
+        .from("invites")
         .select("id")
-        .eq("email", result.data.email.toLowerCase())
-        .single();
+        .eq("invitee_email", result.data.email.toLowerCase())
+        .eq("used", false)
+        .maybeSingle();
 
-      if (existingProfile) {
-        // Don't reveal that the email is registered - silently continue
-        // The invite will be created but the email won't be useful
+      if (existingInvite) {
+        // An unused invite already exists for this email — skip sending
         emailAlreadyRegistered = true;
       }
     }

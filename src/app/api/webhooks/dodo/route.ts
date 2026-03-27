@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
-// Use service role client for webhooks (bypasses RLS)
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Lazily initialize service role client for webhooks (bypasses RLS)
+// Avoids build-time errors when env vars aren't set
+let _supabase: SupabaseClient | null = null;
+function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    _supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+  }
+  return _supabase;
+}
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
@@ -47,7 +54,7 @@ export async function POST(request: NextRequest) {
   try {
     // Idempotency check: skip if we've already processed this event
     if (event.id) {
-      const { data: existingEvent } = await supabase
+      const { data: existingEvent } = await getSupabase()
         .from("subscription_events")
         .select("id")
         .eq("dodo_event_id", event.id)
@@ -62,7 +69,7 @@ export async function POST(request: NextRequest) {
     // Log event first (unique constraint prevents duplicates if race condition occurs)
     const profileId = event.data?.metadata?.profile_id;
     if (profileId && event.id) {
-      const { error: insertError } = await supabase.from("subscription_events").insert({
+      const { error: insertError } = await getSupabase().from("subscription_events").insert({
         profile_id: profileId,
         event_type: event.type,
         dodo_subscription_id: event.data?.subscription_id,
@@ -127,7 +134,7 @@ async function handleSubscriptionActive(event: any) {
   const plan = event.data?.metadata?.plan ||
     (event.data?.product_id?.includes("yearly") ? "yearly" : "monthly");
 
-  await supabase
+  await getSupabase()
     .from("profiles")
     .update({
       subscription_status: "pro",
@@ -146,7 +153,7 @@ async function handleSubscriptionCancelled(event: any) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 
-  await supabase
+  await getSupabase()
     .from("profiles")
     .update({
       subscription_status: "cancelled",
@@ -162,7 +169,7 @@ async function handleSubscriptionExpired(event: any) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 
-  await supabase
+  await getSupabase()
     .from("profiles")
     .update({
       subscription_status: "free",
@@ -192,7 +199,7 @@ async function handlePlanChanged(event: any) {
 
   const plan = event.data?.product_id?.includes("yearly") ? "yearly" : "monthly";
 
-  await supabase
+  await getSupabase()
     .from("profiles")
     .update({
       subscription_plan: plan,
