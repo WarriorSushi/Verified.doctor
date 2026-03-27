@@ -29,8 +29,7 @@ export async function GET(
 
     const { id } = await params;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = await createClient() as any;
+    const supabase = await createClient();
 
     // Get the user's profile
     const { data: profile, error: profileError } = await supabase

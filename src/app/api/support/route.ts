@@ -67,8 +67,7 @@ export async function POST(request: Request) {
     // Save the support message to database (optional - table may not exist yet)
     let supportMessageId: string | undefined;
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data: supportMessage, error: insertError } = await (supabase as any)
+      const { data: supportMessage, error: insertError } = await supabase
         .from("support_messages")
         .insert({
           profile_id: profile.id,
@@ -215,8 +214,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const status = url.searchParams.get("status") || "all";
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from("support_messages")
       .select(`
         *,

@@ -190,15 +190,13 @@ export async function incrementUsage(
   const supabase = await createClient();
 
   if (feature === "messages") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).rpc("increment_messages_received", {
+    await supabase.rpc("increment_messages_received", {
       p_profile_id: profileId,
     });
   }
 
   if (feature === "ai_suggestions") {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).rpc("increment_ai_suggestions_used", {
+    await supabase.rpc("increment_ai_suggestions_used", {
       p_profile_id: profileId,
     });
   }

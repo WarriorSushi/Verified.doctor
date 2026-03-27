@@ -27,8 +27,7 @@ export async function logAdminAction(entry: AuditLogEntry): Promise<void> {
 
     // Try to insert into audit_logs table
     // If table doesn't exist, fall back to console logging
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error } = await (supabase as any)
+    const { error } = await supabase
       .from("admin_audit_logs")
       .insert({
         action: entry.action,
