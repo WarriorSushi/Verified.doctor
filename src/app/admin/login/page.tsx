@@ -81,7 +81,7 @@ export default function AdminLoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@example.com"
-                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+                className="h-12 bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-[#0099F7]"
                 required
               />
             </div>
@@ -96,7 +96,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="bg-slate-700 border-slate-600 text-white placeholder:text-slate-500"
+                className="h-12 bg-slate-700 border-slate-600 text-white placeholder:text-slate-500 focus-visible:ring-[#0099F7]"
                 required
               />
             </div>
@@ -110,12 +110,18 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#0099F7] hover:bg-[#0088E0] text-white"
+              className="w-full h-12 bg-[#0099F7] hover:bg-[#0088E0] text-white font-semibold"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Signing in...
+                </>
               ) : (
-                "Sign In"
+                <>
+                  <Shield className="w-5 h-5 mr-2" />
+                  Sign In to Admin
+                </>
               )}
             </Button>
           </form>

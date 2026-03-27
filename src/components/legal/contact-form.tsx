@@ -54,7 +54,7 @@ export function ContactFormContent() {
 
   if (submitted) {
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20 text-center">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
         <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-emerald-100 flex items-center justify-center">
           <Send className="w-10 h-10 text-emerald-600" />
         </div>
@@ -67,15 +67,15 @@ export function ContactFormContent() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="text-center mb-10">
-        <h1 className="text-3xl font-bold text-slate-900 mb-3">Contact Us</h1>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="text-center mb-8 sm:mb-10">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-3">Contact Us</h1>
         <p className="text-slate-600 max-w-xl mx-auto">
           Have a question, feedback, or need assistance? We&apos;re here to help. Fill out the form below and our team will get back to you.
         </p>
       </div>
 
-      <div className="flex flex-col md:grid md:grid-cols-3 gap-8">
+      <div className="flex flex-col md:grid md:grid-cols-3 gap-6 sm:gap-8">
         {/* Contact Options - Shows after form on mobile */}
         <div className="order-2 md:order-1 md:col-span-1 space-y-4">
           <div className="bg-white rounded-xl p-6 border border-slate-200">
@@ -99,8 +99,8 @@ export function ContactFormContent() {
           </div>
 
           <div className="bg-white rounded-xl p-6 border border-slate-200">
-            <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center mb-4">
-              <MessageSquare className="w-5 h-5 text-violet-600" />
+            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center mb-4">
+              <MessageSquare className="w-5 h-5 text-teal-600" />
             </div>
             <h3 className="font-semibold text-slate-900 mb-1">Feedback</h3>
             <p className="text-sm text-slate-600">
@@ -122,6 +122,7 @@ export function ContactFormContent() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
+                    className="h-12"
                   />
                 </div>
                 <div className="space-y-2">
@@ -133,6 +134,7 @@ export function ContactFormContent() {
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     required
+                    className="h-12"
                   />
                 </div>
               </div>
@@ -143,7 +145,7 @@ export function ContactFormContent() {
                   id="type"
                   value={formData.type}
                   onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+                  className="w-full h-12 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#0099F7] focus:border-transparent"
                 >
                   <option value="general">General Inquiry</option>
                   <option value="support">Technical Support</option>
@@ -162,6 +164,7 @@ export function ContactFormContent() {
                   placeholder="What is your inquiry about?"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                  className="h-12"
                 />
               </div>
 
@@ -182,7 +185,7 @@ export function ContactFormContent() {
               <Button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full bg-sky-600 hover:bg-sky-700 py-6 text-base"
+                className="w-full h-12 bg-[#0099F7] hover:bg-[#0088E0] text-white font-semibold"
               >
                 {isSubmitting ? (
                   <>
@@ -199,7 +202,7 @@ export function ContactFormContent() {
 
               <p className="text-xs text-slate-500 text-center">
                 By submitting this form, you agree to our{" "}
-                <Link href="/privacy" className="text-sky-600 hover:underline">
+                <Link href="/privacy" className="text-[#0099F7] hover:text-[#0080CC] hover:underline">
                   Privacy Policy
                 </Link>
                 . We typically respond within 24-48 hours.

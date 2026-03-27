@@ -92,7 +92,7 @@ export function AuthHandler() {
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-sky-500" />
+          <Loader2 className="w-8 h-8 animate-spin text-[#0099F7]" />
           <p className="text-sm text-slate-500 font-medium">Signing you in...</p>
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2, ArrowRight, Check, Mail, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -330,12 +331,12 @@ function SignUpFormContent() {
       {/* Cross-navigation */}
       <p className="mt-6 text-center text-sm text-slate-600">
         Already have an account?{" "}
-        <a
+        <Link
           href={claimedHandle ? `/sign-in?handle=${claimedHandle}` : "/sign-in"}
           className="font-semibold text-[#0099F7] hover:text-[#0080CC]"
         >
           Sign in
-        </a>
+        </Link>
       </p>
     </motion.div>
   );

@@ -10,8 +10,14 @@ function AuthTabs() {
   const searchParams = useSearchParams();
   const isSignUp = pathname === "/sign-up";
 
-  // Hide tabs on password reset pages
-  if (pathname === "/forgot-password" || pathname === "/reset-password") {
+  const isSignIn = pathname === "/sign-in";
+
+  // Hide tabs on password reset and confirmation pages
+  if (
+    pathname === "/forgot-password" ||
+    pathname === "/reset-password" ||
+    pathname === "/confirm"
+  ) {
     return null;
   }
 
@@ -21,6 +27,18 @@ function AuthTabs() {
 
   return (
     <div className="flex bg-slate-100/80 rounded-xl p-1 mb-6">
+      <Link
+        href={`/sign-in${queryPart}`}
+        className={`
+          flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-center transition-all duration-200
+          ${isSignIn
+            ? "bg-white text-slate-900 shadow-sm"
+            : "text-slate-500 hover:text-slate-700"
+          }
+        `}
+      >
+        Sign In
+      </Link>
       <Link
         href={`/sign-up${queryPart}`}
         className={`
@@ -33,18 +51,6 @@ function AuthTabs() {
       >
         Sign Up
       </Link>
-      <Link
-        href={`/sign-in${queryPart}`}
-        className={`
-          flex-1 py-2.5 px-4 rounded-lg text-sm font-medium text-center transition-all duration-200
-          ${!isSignUp
-            ? "bg-white text-slate-900 shadow-sm"
-            : "text-slate-500 hover:text-slate-700"
-          }
-        `}
-      >
-        Sign In
-      </Link>
     </div>
   );
 }
@@ -53,10 +59,10 @@ function AuthTabsFallback() {
   return (
     <div className="flex bg-slate-100/80 rounded-xl p-1 mb-6">
       <div className="flex-1 py-2.5 px-4 rounded-lg bg-white shadow-sm">
-        <div className="h-4 bg-slate-200 rounded animate-pulse w-16 mx-auto" />
+        <div className="h-4 bg-slate-200 rounded animate-pulse w-14 mx-auto" />
       </div>
       <div className="flex-1 py-2.5 px-4 rounded-lg">
-        <div className="h-4 bg-slate-200 rounded animate-pulse w-16 mx-auto" />
+        <div className="h-4 bg-slate-200 rounded animate-pulse w-14 mx-auto" />
       </div>
     </div>
   );
@@ -81,7 +87,7 @@ export default function AuthLayout({
       <div className="absolute top-1/4 -left-32 w-96 h-96 bg-[#0099F7]/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[#A4FDFF]/20 rounded-full blur-3xl" />
 
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen p-6">
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-8 sm:p-6">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 mb-8 group">
           <div className="relative w-10 h-10 transition-transform group-hover:scale-105">
@@ -104,6 +110,18 @@ export default function AuthLayout({
           </Suspense>
           {children}
         </div>
+
+        {/* Footer links */}
+        <p className="mt-8 text-xs text-slate-400 text-center">
+          By continuing, you agree to our{" "}
+          <Link href="/terms" className="text-slate-500 hover:text-[#0099F7] underline underline-offset-2">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy" className="text-slate-500 hover:text-[#0099F7] underline underline-offset-2">
+            Privacy Policy
+          </Link>
+        </p>
       </div>
     </div>
   );

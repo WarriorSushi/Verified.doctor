@@ -13,12 +13,12 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 py-12">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12">
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Terms of Service</h1>
-        <p className="text-slate-500 mb-8">Last updated: January 3, 2026</p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8 md:p-12">
+        <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">Terms of Service</h1>
+        <p className="text-sm text-slate-500 mb-8">Last updated: January 3, 2026</p>
 
-        <div className="prose prose-slate max-w-none">
+        <div className="prose prose-slate prose-sm sm:prose-base max-w-none prose-headings:scroll-mt-20 prose-h2:text-lg prose-h2:sm:text-xl prose-h2:font-semibold prose-h2:border-b prose-h2:border-slate-100 prose-h2:pb-2 prose-h2:mt-10 prose-h2:mb-4 prose-h3:text-base prose-h3:font-semibold prose-h3:mt-6 prose-p:leading-relaxed prose-li:leading-relaxed">
           <h2>1. Acceptance of Terms</h2>
           <p>
             By accessing or using Verified.Doctor (&quot;the Service&quot;), you agree to be bound by these Terms of Service (&quot;Terms&quot;). If you do not agree to all the terms and conditions, you must not access or use the Service.
@@ -178,7 +178,7 @@ export default function TermsPage() {
 
           <h2>17. Contact Information</h2>
           <p>
-            If you have any questions about these Terms, please contact us through our <Link href="/contact" className="text-sky-600 hover:underline">Contact Page</Link>.
+            If you have any questions about these Terms, please contact us through our <Link href="/contact" className="text-[#0099F7] hover:text-[#0080CC] hover:underline">Contact Page</Link>.
           </p>
         </div>
       </div>

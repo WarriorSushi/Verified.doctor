@@ -25,12 +25,12 @@ export function LegalHeader({ isLoggedIn }: LegalHeaderProps) {
             />
           </div>
           <span className="text-lg font-semibold text-slate-800">
-            verified<span className="text-sky-600">.doctor</span>
+            verified<span className="text-[#0099F7]">.doctor</span>
           </span>
         </Link>
         <Link
           href={backUrl}
-          className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-sky-600 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-slate-600 hover:text-[#0099F7] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           {backText}
