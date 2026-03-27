@@ -61,8 +61,8 @@ export function ViewsChart({ dailyStats }: ViewsChartProps) {
                   <stop offset="95%" stopColor="#0099F7" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorUnique" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0}/>
+                  <stop offset="5%" stopColor="#0D9488" stopOpacity={0.3}/>
+                  <stop offset="95%" stopColor="#0D9488" stopOpacity={0}/>
                 </linearGradient>
                 <linearGradient id="colorDoctor" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
@@ -108,7 +108,7 @@ export function ViewsChart({ dailyStats }: ViewsChartProps) {
                 type="monotone"
                 dataKey="uniqueViews"
                 name="Unique Visitors"
-                stroke="#8B5CF6"
+                stroke="#0D9488"
                 strokeWidth={2}
                 fillOpacity={1}
                 fill="url(#colorUnique)"

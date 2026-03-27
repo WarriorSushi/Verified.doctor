@@ -21,7 +21,7 @@ interface DeviceChartProps {
   deviceBreakdown: DeviceBreakdown;
 }
 
-const COLORS = ["#0099F7", "#8B5CF6", "#10B981"];
+const COLORS = ["#0099F7", "#0D9488", "#10B981"];
 
 export function DeviceChart({ deviceBreakdown }: DeviceChartProps) {
   const [mounted, setMounted] = useState(false);

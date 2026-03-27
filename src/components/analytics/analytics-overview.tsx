@@ -83,8 +83,8 @@ export function AnalyticsOverview({ totals, changes }: AnalyticsOverviewProps) {
         title="Unique Visitors"
         value={totals.uniqueViews}
         change={changes.uniqueViews}
-        icon={<Users className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />}
-        iconBg="bg-purple-100"
+        icon={<Users className="w-4 h-4 sm:w-5 sm:h-5 text-teal-600" />}
+        iconBg="bg-teal-100"
       />
       <MetricCard
         title="Doctor Views"

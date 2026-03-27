@@ -24,7 +24,7 @@ interface ActionsChartProps {
   actionsBreakdown: ActionsBreakdown;
 }
 
-const COLORS = ["#0099F7", "#8B5CF6", "#10B981", "#F59E0B"];
+const COLORS = ["#0099F7", "#0D9488", "#10B981", "#F59E0B"];
 
 export function ActionsChart({ actionsBreakdown }: ActionsChartProps) {
   const [mounted, setMounted] = useState(false);

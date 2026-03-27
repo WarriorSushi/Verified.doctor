@@ -1,6 +1,6 @@
 "use client";
 
-import { Users, Trophy, TrendingUp, UserPlus, Sparkles } from "lucide-react";
+import { Users, Trophy, TrendingUp, UserPlus, Sparkles, Sprout, TreePine, Star, Crown, Gem } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface NetworkStatsProps {
@@ -11,12 +11,12 @@ interface NetworkStatsProps {
 }
 
 const MILESTONES = [
-  { count: 5, label: "Getting Started", icon: "🌱" },
-  { count: 10, label: "Growing Network", icon: "🌿" },
-  { count: 25, label: "Well Connected", icon: "🌳" },
-  { count: 50, label: "Key Networker", icon: "⭐" },
-  { count: 100, label: "Network Leader", icon: "🏆" },
-  { count: 250, label: "Super Connector", icon: "💎" },
+  { count: 5, label: "Getting Started", Icon: Sprout, color: "text-emerald-500" },
+  { count: 10, label: "Growing Network", Icon: TrendingUp, color: "text-teal-500" },
+  { count: 25, label: "Well Connected", Icon: TreePine, color: "text-green-600" },
+  { count: 50, label: "Key Networker", Icon: Star, color: "text-amber-500" },
+  { count: 100, label: "Network Leader", Icon: Crown, color: "text-amber-600" },
+  { count: 250, label: "Super Connector", Icon: Gem, color: "text-sky-500" },
 ];
 
 function getNextMilestone(count: number) {
@@ -59,7 +59,7 @@ export function NetworkStats({
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               {currentMilestone && (
-                <span className="text-lg">{currentMilestone.icon}</span>
+                <currentMilestone.Icon className={`w-5 h-5 ${currentMilestone.color}`} />
               )}
               <span className="text-sm font-medium text-slate-700">
                 {currentMilestone?.label || "New Member"}
@@ -67,7 +67,7 @@ export function NetworkStats({
             </div>
             {nextMilestone && connectionCount < nextMilestone.count && (
               <span className="text-sm text-slate-500">
-                {nextMilestone.count - connectionCount} to {nextMilestone.icon} {nextMilestone.label}
+                {nextMilestone.count - connectionCount} to next milestone
               </span>
             )}
           </div>
