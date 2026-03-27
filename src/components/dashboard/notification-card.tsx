@@ -44,10 +44,10 @@ const typeConfig: Record<NotificationType, {
   },
   info: {
     icon: TrendingUp,
-    gradient: "from-violet-50 via-purple-50 to-fuchsia-50",
-    iconBg: "bg-violet-100",
-    iconColor: "text-violet-600",
-    borderColor: "border-violet-200/50",
+    gradient: "from-teal-50 via-cyan-50 to-sky-50",
+    iconBg: "bg-teal-100",
+    iconColor: "text-teal-600",
+    borderColor: "border-teal-200/50",
   },
   warning: {
     icon: AlertTriangle,

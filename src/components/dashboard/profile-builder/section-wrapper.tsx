@@ -132,7 +132,7 @@ export function SectionWrapper({
                 {title}
               </h3>
               {hasAI && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-violet-100 to-purple-100 text-violet-700 rounded-md">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-gradient-to-r from-sky-100 to-teal-100 text-teal-700 rounded-md">
                   <Sparkles className="w-3 h-3" />
                   AI
                 </span>

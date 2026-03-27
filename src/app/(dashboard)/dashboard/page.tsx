@@ -187,16 +187,16 @@ export default async function DashboardPage() {
       {/* Enrich Your Profile Card - Right after user info */}
       <Link
         href="/dashboard/profile-builder?tab=content"
-        className="block bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl border border-violet-200/50 p-4 sm:p-5 hover:border-violet-300 transition-colors group"
+        className="block bg-gradient-to-br from-teal-50 to-sky-50 rounded-xl border border-teal-200/50 p-4 sm:p-5 hover:border-teal-300 transition-colors group"
       >
         <div className="flex items-start gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-violet-100 flex items-center justify-center flex-shrink-0">
-            <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-violet-600" />
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-teal-100 flex items-center justify-center flex-shrink-0">
+            <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-teal-600" />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-slate-900 text-sm sm:text-base">Enrich Your Profile</h3>
-              <ChevronRight className="w-4 h-4 text-violet-400 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="w-4 h-4 text-teal-400 group-hover:translate-x-0.5 transition-transform" />
             </div>
             <p className="text-xs sm:text-sm text-slate-600 mt-1">
               Add education, procedures, case studies & more to stand out. Pre-made templates available!

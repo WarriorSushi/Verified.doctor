@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Video,
   GraduationCap,
@@ -403,7 +404,7 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-20">
       {/* Image Cropper Modal */}
       {originalImageForCrop && (
         <ImageCropper
@@ -418,6 +419,53 @@ export function ProfileBuilder({ profile, initialTab }: ProfileBuilderProps) {
           cropShape="round"
         />
       )}
+
+      {/* Sticky Save Bar — always visible when changes exist */}
+      <AnimatePresence>
+        {hasChanges && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            className="fixed bottom-0 left-0 right-0 z-50 sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 sm:max-w-md"
+          >
+            <div className="bg-slate-900 text-white px-4 py-3 sm:rounded-xl shadow-2xl flex items-center justify-between gap-3 border-t border-slate-700 sm:border sm:border-slate-700"
+                 style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }}
+            >
+              <p className="text-sm font-medium">Unsaved changes</p>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-slate-300 hover:text-white hover:bg-slate-800"
+                  onClick={() => window.location.reload()}
+                >
+                  Discard
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-[#0099F7] hover:bg-[#0080CC] text-white"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                >
+                  {isSaving ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                      Saving
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5 mr-1.5" />
+                      Save
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">

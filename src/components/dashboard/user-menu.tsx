@@ -109,7 +109,7 @@ export function UserMenu({
               </span>
             )}
             {isTrialActive && !isPro && (
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-[10px] font-bold">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-gradient-to-r from-sky-500 to-teal-500 text-white text-[10px] font-bold">
                 <Sparkles className="w-2.5 h-2.5" />
                 TRIAL
               </span>
@@ -117,7 +117,7 @@ export function UserMenu({
           </div>
           <p className="text-xs text-slate-500">verified.doctor/{handle}</p>
           {isTrialActive && !isPro && trialDaysRemaining > 0 && (
-            <p className="text-[10px] text-violet-600 mt-0.5">
+            <p className="text-[10px] text-teal-600 mt-0.5">
               {trialDaysRemaining} day{trialDaysRemaining !== 1 ? 's' : ''} left in trial
             </p>
           )}

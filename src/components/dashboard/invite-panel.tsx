@@ -189,7 +189,7 @@ export function InvitePanel({ doctorName, currentConnectionCount }: InvitePanelP
         {"share" in navigator && (
           <Button
             variant="outline"
-            className="flex-col h-auto py-4 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-700 transition-colors"
+            className="flex-col h-auto py-4 hover:bg-sky-50 hover:border-sky-200 hover:text-sky-700 transition-colors"
             onClick={shareNative}
             disabled={isLoading}
           >

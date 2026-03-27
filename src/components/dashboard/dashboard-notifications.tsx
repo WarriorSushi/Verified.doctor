@@ -199,11 +199,11 @@ export function DashboardNotifications({
           onDismiss={handleDismiss}
         >
           <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs font-bold">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-sky-500 to-teal-500 text-white text-xs font-bold">
               <Gift className="w-3.5 h-3.5" />
               FREE TRIAL
             </div>
-            <span className="text-xs text-violet-600 font-medium">
+            <span className="text-xs text-teal-600 font-medium">
               {trialDaysRemaining} day{trialDaysRemaining !== 1 ? "s" : ""} remaining
             </span>
           </div>

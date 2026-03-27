@@ -387,7 +387,7 @@ export default function HelpPage() {
             {/* Use Cases */}
             <section>
               <div className="flex items-center gap-2 mb-4">
-                <Globe className="w-5 h-5 text-violet-500" />
+                <Globe className="w-5 h-5 text-teal-500" />
                 <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
                   Use Cases
                 </h2>
@@ -398,8 +398,8 @@ export default function HelpPage() {
                     key={useCase.title}
                     className="bg-gradient-to-br from-slate-50 to-white rounded-xl border border-slate-200 p-4 sm:p-5"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center mb-3">
-                      <useCase.icon className="w-5 h-5 text-violet-600" />
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-100 to-sky-100 flex items-center justify-center mb-3">
+                      <useCase.icon className="w-5 h-5 text-teal-600" />
                     </div>
                     <h3 className="font-semibold text-slate-900 mb-2">
                       {useCase.title}
