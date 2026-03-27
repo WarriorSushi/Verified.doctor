@@ -7,12 +7,11 @@ import { DoctorCard } from "@/components/directory/doctor-card";
 import { SearchFilters } from "@/components/directory/search-filters";
 import { DirectoryPagination } from "@/components/directory/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, SearchIcon, ArrowLeft, Stethoscope } from "lucide-react";
+import { ArrowLeft, Stethoscope } from "lucide-react";
 import type { DoctorCardProfile } from "@/components/directory/doctor-card";
 import {
   slugToSpecialty,
   getSpecialtyMeta,
-  specialtyToSlug,
   cityToSlug,
 } from "@/components/directory/specialty-data";
 
