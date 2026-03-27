@@ -34,6 +34,7 @@ export async function GET(request: NextRequest) {
         handle,
         full_name,
         specialty,
+        qualifications,
         bio,
         clinic_location,
         clinic_name,

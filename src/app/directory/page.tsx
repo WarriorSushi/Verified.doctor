@@ -9,6 +9,7 @@ import { DirectoryPagination } from "@/components/directory/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Users, Search as SearchIcon } from "lucide-react";
 import type { DoctorCardProfile } from "@/components/directory/doctor-card";
+import { specialtyToSlug, getSpecialtyMeta } from "@/components/directory/specialty-data";
 
 export const revalidate = 60;
 
@@ -75,6 +76,7 @@ async function fetchDoctors(params: DirectorySearchParams) {
       handle,
       full_name,
       specialty,
+      qualifications,
       bio,
       clinic_location,
       clinic_name,
@@ -275,6 +277,30 @@ export default async function DirectoryPage({
           </div>
         </div>
       </section>
+
+      {/* Browse by specialty */}
+      {!hasFilters && specialties.length > 0 && (
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+          <h2 className="text-sm font-medium text-slate-500 mb-3">
+            Browse by specialty
+          </h2>
+          <div className="flex flex-wrap gap-2">
+            {specialties.map((s) => {
+              const meta = getSpecialtyMeta(specialtyToSlug(s));
+              return (
+                <Link
+                  key={s}
+                  href={`/directory/${specialtyToSlug(s)}`}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-700 bg-sky-50 hover:bg-sky-100 px-3 py-1.5 rounded-full transition-colors duration-150"
+                >
+                  <span>{meta.icon}</span>
+                  {s}
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* Results */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
