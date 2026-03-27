@@ -7,17 +7,14 @@ import { motion } from "framer-motion";
 import {
   MapPin,
   GraduationCap,
-  Clock,
   Globe,
   ThumbsUp,
-  Users,
   Calendar,
   ExternalLink,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
   Handshake,
-  Award,
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -7,9 +7,7 @@ import { motion } from "framer-motion";
 import {
   MapPin,
   Clock,
-  Globe,
   Calendar,
-  ExternalLink,
   ArrowUpRight,
   ChevronDown,
   ChevronUp,

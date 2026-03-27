@@ -14,7 +14,6 @@ import {
   Users,
   Calendar,
   ExternalLink,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Handshake,

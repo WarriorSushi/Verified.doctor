@@ -10,7 +10,6 @@ import {
   Clock,
   Globe,
   ThumbsUp,
-  Users,
   Calendar,
   ExternalLink,
   CheckCircle2,

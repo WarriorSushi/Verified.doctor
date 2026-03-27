@@ -17,7 +17,6 @@ import {
   ChevronDown,
   ChevronUp,
   Handshake,
-  Award,
   Sparkles,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

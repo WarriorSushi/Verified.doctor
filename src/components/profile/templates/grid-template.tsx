@@ -12,7 +12,6 @@ import {
   ThumbsUp,
   Users,
   Calendar,
-  ExternalLink,
   CheckCircle2,
   ChevronDown,
   ChevronUp,
