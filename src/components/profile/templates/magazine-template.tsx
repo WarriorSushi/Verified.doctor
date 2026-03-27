@@ -576,7 +576,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
         )}
       </main>
 
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={themeColors} />
     </div>
   );
 }

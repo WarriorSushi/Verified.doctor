@@ -17,10 +17,7 @@ import {
   ChevronDown,
   ChevronUp,
   Handshake,
-  Star,
   Activity,
-  Stethoscope,
-  Eye,
   Heart,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -702,7 +699,7 @@ export function GridTemplate({ profile, connectedDoctors, invitedBy, theme }: Gr
         </div>
       </main>
 
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={themeColors} />
     </div>
   );
 }

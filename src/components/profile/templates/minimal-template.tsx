@@ -561,7 +561,7 @@ export function MinimalTemplate({ profile, connectedDoctors, invitedBy, theme }:
         </div>
       </main>
 
-      <ProfileActions profile={profile} />
+      <ProfileActions profile={profile} themeColors={themeColors} />
     </div>
   );
 }
