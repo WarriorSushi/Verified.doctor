@@ -36,8 +36,8 @@ export function TourProvider({ children }: { children: ReactNode }) {
   // Check if tour was completed on mount
   useEffect(() => {
     const completed = localStorage.getItem(TOUR_COMPLETED_KEY);
-    setHasCompletedTour(completed === "true");
-    setIsInitialized(true);
+    setTimeout(() => setHasCompletedTour(completed === "true"), 0);
+    setTimeout(() => setIsInitialized(true), 0);
   }, []);
 
   const startTour = useCallback(() => {

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 import { Shield } from "lucide-react";
@@ -41,24 +42,24 @@ export default async function AdminDashboardPage() {
       <nav className="border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex gap-1">
-            <a
+            <Link
               href="/admin"
               className="px-4 py-3 text-sm font-medium text-white border-b-2 border-[#0099F7]"
             >
               Verifications
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/users"
               className="px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent"
             >
               All Users
-            </a>
-            <a
+            </Link>
+            <Link
               href="/admin/appeals"
               className="px-4 py-3 text-sm font-medium text-slate-400 hover:text-white border-b-2 border-transparent"
             >
               Appeals
-            </a>
+            </Link>
           </div>
         </div>
       </nav>
