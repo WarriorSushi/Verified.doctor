@@ -2,6 +2,8 @@
  * Template variable processing for email automation
  */
 
+import { escapeHtml } from "@/lib/utils/html-escape";
+
 export interface TemplateVars {
   name: string;
   handle: string;
@@ -11,13 +13,17 @@ export interface TemplateVars {
 }
 
 /**
- * Process template string by replacing {{variables}} with values
+ * Process template string by replacing {{variables}} with HTML-escaped values.
+ * All variable values are escaped to prevent HTML/script injection in emails.
  */
 export function processTemplate(template: string, vars: TemplateVars): string {
   let processed = template;
 
   for (const [key, value] of Object.entries(vars)) {
-    processed = processed.replace(new RegExp(`{{${key}}}`, "g"), value || "");
+    processed = processed.replace(
+      new RegExp(`{{${key}}}`, "g"),
+      escapeHtml(value || "")
+    );
   }
 
   return processed;

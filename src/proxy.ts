@@ -36,11 +36,16 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Protected routes - require authentication
-  const protectedRoutes = ["/dashboard", "/onboarding", "/admin"];
-  const isProtectedRoute = protectedRoutes.some((route) =>
+  // Dashboard/onboarding routes - require Supabase authentication
+  const userProtectedRoutes = ["/dashboard", "/onboarding"];
+  const isUserProtectedRoute = userProtectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
+
+  // Admin routes use a separate auth system (custom JWT in admin_session cookie).
+  // /admin/login is public; all other /admin/* routes require admin_session.
+  const isAdminRoute =
+    pathname.startsWith("/admin") && pathname !== "/admin/login";
 
   // Auth routes - redirect to dashboard if already logged in
   // Note: forgot-password and reset-password are excluded so logged-in users can still reset
@@ -50,11 +55,20 @@ export async function proxy(request: NextRequest) {
   // Landing page - redirect to dashboard if already logged in
   const isLandingPage = pathname === "/";
 
-  // Redirect unauthenticated users to sign-in
-  if (isProtectedRoute && !user) {
+  // Redirect unauthenticated users from dashboard/onboarding to sign-in
+  if (isUserProtectedRoute && !user) {
     const redirectUrl = new URL("/sign-in", request.url);
     redirectUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(redirectUrl);
+  }
+
+  // Redirect unauthenticated admins to admin login
+  // (Cookie presence check only — full JWT verification happens server-side)
+  if (isAdminRoute) {
+    const adminSession = request.cookies.get("admin_session")?.value;
+    if (!adminSession) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
   }
 
   // Redirect authenticated users away from auth pages and landing page
