@@ -28,7 +28,7 @@ const signals = [
 
 export function TrustSignalsSection() {
   return (
-    <section className="py-20 sm:py-24 bg-slate-50 overflow-hidden">
+    <section className="py-20 sm:py-28 bg-slate-50 overflow-hidden">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <motion.div

@@ -28,7 +28,7 @@ export default function Home() {
       {/* Bridge Statement */}
       <section className="py-20 sm:py-28 bg-white">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight text-slate-900 leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold tracking-tight text-slate-900 leading-tight">
             Patients Google you.{" "}
             <span className="text-sky-600">
               Own what they find.
