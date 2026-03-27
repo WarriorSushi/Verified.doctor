@@ -50,8 +50,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ events: [] });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from("user_lifecycle_events")
       .select(`
         *,
@@ -125,8 +124,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: event, error } = await (supabase as any)
+    const { data: event, error } = await supabase
       .from("user_lifecycle_events")
       .insert({
         profile_id: profileId,

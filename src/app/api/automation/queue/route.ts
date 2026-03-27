@@ -58,8 +58,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ queuedEmails: [] });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from("automation_email_queue")
       .select(`
         *,
@@ -134,8 +133,7 @@ export async function POST(request: Request) {
     }
 
     // Verify template exists
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: template, error: templateError } = await (supabase as any)
+    const { data: template, error: templateError } = await supabase
       .from("automation_email_templates")
       .select("slug, is_active")
       .eq("slug", templateSlug)
@@ -156,8 +154,7 @@ export async function POST(request: Request) {
     }
 
     // Queue the email
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: queuedEmail, error: queueError } = await (supabase as any)
+    const { data: queuedEmail, error: queueError } = await supabase
       .from("automation_email_queue")
       .insert({
         profile_id: profileId,

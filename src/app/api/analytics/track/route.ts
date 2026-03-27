@@ -57,8 +57,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = await createClient() as any;
+    const supabase = await createClient();
 
     // Get user agent
     const userAgent = request.headers.get("user-agent") || "";

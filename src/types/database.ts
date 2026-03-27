@@ -890,6 +890,47 @@ export type Database = {
           },
         ]
       }
+      support_messages: {
+        Row: {
+          id: string
+          profile_id: string
+          subject: string
+          message: string
+          status: string
+          admin_notes: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          profile_id: string
+          subject: string
+          message: string
+          status?: string
+          admin_notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          profile_id?: string
+          subject?: string
+          message?: string
+          status?: string
+          admin_notes?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trial_invites: {
         Row: {
           completed_at: string | null
@@ -1017,6 +1058,14 @@ export type Database = {
       }
       increment_view_count: {
         Args: { profile_uuid: string }
+        Returns: undefined
+      }
+      increment_messages_received: {
+        Args: { p_profile_id: string }
+        Returns: undefined
+      }
+      increment_ai_suggestions_used: {
+        Args: { p_profile_id: string }
         Returns: undefined
       }
     }

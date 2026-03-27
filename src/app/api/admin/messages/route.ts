@@ -47,8 +47,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create the admin message
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: messageError } = await (supabase as any)
+    const { error: messageError } = await supabase
       .from("messages")
       .insert({
         profile_id: profileId,

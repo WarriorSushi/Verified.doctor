@@ -42,8 +42,7 @@ export async function POST(request: Request) {
     }
 
     // Update freeze status
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: updateError } = await (supabase as any)
+    const { error: updateError } = await supabase
       .from("profiles")
       .update({
         is_frozen: isFrozen,
@@ -60,8 +59,7 @@ export async function POST(request: Request) {
     }
 
     // Log lifecycle event
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (supabase as any).from("user_lifecycle_events").insert({
+    await supabase.from("user_lifecycle_events").insert({
       profile_id: profile.id,
       event_type: isFrozen ? "frozen" : "unfrozen",
     });
@@ -71,8 +69,7 @@ export async function POST(request: Request) {
       const scheduledFor = new Date();
       scheduledFor.setDate(scheduledFor.getDate() + 7);
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any).from("automation_email_queue").insert({
+      await supabase.from("automation_email_queue").insert({
         profile_id: profile.id,
         template_slug: "frozen_nudge",
         scheduled_for: scheduledFor.toISOString(),
@@ -80,8 +77,7 @@ export async function POST(request: Request) {
       });
     } else {
       // If unfreezing, cancel any pending frozen_nudge emails
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase as any)
+      await supabase
         .from("automation_email_queue")
         .update({ status: "cancelled" })
         .eq("profile_id", profile.id)
@@ -122,8 +118,7 @@ export async function GET() {
     const supabase = await createClient();
 
     // Get the user's profile freeze status
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: profile, error } = await (supabase as any)
+    const { data: profile, error } = await supabase
       .from("profiles")
       .select("is_frozen, frozen_at")
       .eq("user_id", userId)

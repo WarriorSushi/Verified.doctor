@@ -26,8 +26,7 @@ export async function GET(request: Request) {
       .eq("user_id", userId)
       .single();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let query = (supabase as any)
+    let query = supabase
       .from("automation_email_log")
       .select(`
         *,

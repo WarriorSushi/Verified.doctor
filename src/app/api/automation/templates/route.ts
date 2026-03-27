@@ -13,8 +13,7 @@ export async function GET() {
 
     const supabase = await createClient();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: templates, error } = await (supabase as any)
+    const { data: templates, error } = await supabase
       .from("automation_email_templates")
       .select("*")
       .order("created_at", { ascending: true });

@@ -174,8 +174,7 @@ export async function GET() {
     }
 
     // Get messages (filter out deleted, order pinned first)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: messages, error } = await (supabase as any)
+    const { data: messages, error } = await supabase
       .from("messages")
       .select("*")
       .eq("profile_id", profile.id)

@@ -25,8 +25,7 @@ export async function POST(request: Request) {
     const now = new Date().toISOString();
 
     // Get pending emails that are due
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: pendingEmails, error: fetchError } = await (supabase as any)
+    const { data: pendingEmails, error: fetchError } = await supabase
       .from("automation_email_queue")
       .select(`
         *,
@@ -111,8 +110,7 @@ export async function GET(request: Request) {
     const supabase = await createClient();
 
     // Get queue statistics
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: stats, error } = await (supabase as any)
+    const { data: stats, error } = await supabase
       .from("automation_email_queue")
       .select("status");
 
@@ -134,8 +132,7 @@ export async function GET(request: Request) {
 
     // Get count of emails due now
     const now = new Date().toISOString();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { count: dueNow } = await (supabase as any)
+    const { count: dueNow } = await supabase
       .from("automation_email_queue")
       .select("*", { count: "exact", head: true })
       .eq("status", "pending")

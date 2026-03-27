@@ -149,8 +149,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     }
 
     const { id } = await params;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = await createClient() as any;
+    const supabase = await createClient();
 
     // Verify ownership
     const { data: profile } = await supabase

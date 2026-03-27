@@ -27,8 +27,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = await createClient() as any;
+    const supabase = await createClient();
 
     // Get the user's profile
     const { data: profile, error: profileError } = await supabase

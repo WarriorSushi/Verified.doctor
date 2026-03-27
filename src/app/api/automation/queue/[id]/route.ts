@@ -24,8 +24,7 @@ export async function GET(request: Request, { params }: RouteParams) {
 
     const supabase = await createClient();
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: queuedEmail, error } = await (supabase as any)
+    const { data: queuedEmail, error } = await supabase
       .from("automation_email_queue")
       .select(`
         *,
@@ -68,8 +67,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const supabase = await createClient();
 
     // Get current email status
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing, error: fetchError } = await (supabase as any)
+    const { data: existing, error: fetchError } = await supabase
       .from("automation_email_queue")
       .select("status")
       .eq("id", id)
@@ -94,8 +92,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     if (status) updateData.status = status;
     if (scheduledFor) updateData.scheduled_for = scheduledFor;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: updated, error: updateError } = await (supabase as any)
+    const { data: updated, error: updateError } = await supabase
       .from("automation_email_queue")
       .update(updateData)
       .eq("id", id)
@@ -143,8 +140,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
     const supabase = await createClient();
 
     // Get current email status
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: existing, error: fetchError } = await (supabase as any)
+    const { data: existing, error: fetchError } = await supabase
       .from("automation_email_queue")
       .select("status")
       .eq("id", id)
@@ -165,8 +161,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: deleteError } = await (supabase as any)
+    const { error: deleteError } = await supabase
       .from("automation_email_queue")
       .delete()
       .eq("id", id);
