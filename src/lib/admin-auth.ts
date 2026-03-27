@@ -43,19 +43,19 @@ export async function validateAdminCredentials(
     return false;
   }
 
-  // Check if ADMIN_PASSWORD is a bcrypt hash (starts with $2a$ or $2b$)
+  // ADMIN_PASSWORD must be a bcrypt hash — no plaintext fallback
   const isHashedPassword = ADMIN_PASSWORD.startsWith("$2a$") || ADMIN_PASSWORD.startsWith("$2b$");
 
-  if (isHashedPassword) {
-    // Compare using bcrypt
-    return await bcrypt.compare(password, ADMIN_PASSWORD);
-  } else {
-    // Fallback for plain text (development only - log warning)
-    if (process.env.NODE_ENV === "production") {
-      console.warn("[SECURITY] Admin password is not hashed. Run: npx bcryptjs hash <password>");
-    }
-    return password === ADMIN_PASSWORD;
+  if (!isHashedPassword) {
+    console.error(
+      "[SECURITY] ADMIN_PASSWORD is not a bcrypt hash. " +
+      "Plaintext passwords are not allowed. " +
+      "Generate a hash with: npx bcryptjs hash <password>"
+    );
+    return false;
   }
+
+  return await bcrypt.compare(password, ADMIN_PASSWORD);
 }
 
 export async function createAdminSession(): Promise<string> {
