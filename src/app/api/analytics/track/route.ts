@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import {
+  getAnalyticsTrackLimiter,
+  checkRateLimit,
+  isAnalyticsDuplicate,
+} from "@/lib/rate-limit";
 
 const trackEventSchema = z.object({
   profileId: z.string().uuid(),
@@ -27,13 +32,33 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = trackEventSchema.parse(body);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const supabase = await createClient() as any;
-
     // Get IP address from headers
     const forwardedFor = request.headers.get("x-forwarded-for");
     const realIp = request.headers.get("x-real-ip");
-    const visitorIp = forwardedFor?.split(",")[0] || realIp || "unknown";
+    const visitorIp = forwardedFor?.split(",")[0]?.trim() || realIp || "unknown";
+
+    // Rate limit: 10 events per IP per minute
+    const limiter = getAnalyticsTrackLimiter();
+    const rateLimitResult = await checkRateLimit(limiter, visitorIp, {
+      allowOnError: true,
+    });
+    if (!rateLimitResult.success) {
+      // Silently drop — don't reveal rate limiting to analytics callers
+      return NextResponse.json({ success: true });
+    }
+
+    // Deduplication: same IP + profile + event type within 5 minutes → skip
+    const isDuplicate = await isAnalyticsDuplicate(
+      visitorIp,
+      validatedData.profileId,
+      validatedData.eventType
+    );
+    if (isDuplicate) {
+      return NextResponse.json({ success: true });
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const supabase = await createClient() as any;
 
     // Get user agent
     const userAgent = request.headers.get("user-agent") || "";

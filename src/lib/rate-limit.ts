@@ -95,6 +95,40 @@ export function getAdminLoginLimiter(): Ratelimit | null {
   });
 }
 
+// Analytics tracking: 10 events per IP per minute
+export function getAnalyticsTrackLimiter(): Ratelimit | null {
+  const redisClient = getRedis();
+  if (!redisClient) return null;
+
+  return new Ratelimit({
+    redis: redisClient,
+    limiter: Ratelimit.slidingWindow(10, "1m"),
+    prefix: "ratelimit:analytics-track",
+    analytics: true,
+  });
+}
+
+// Analytics deduplication: check if same IP+profile+event was seen within 5 minutes
+// Returns true if this is a duplicate (should skip), false if it's new
+export async function isAnalyticsDuplicate(
+  ip: string,
+  profileId: string,
+  eventType: string
+): Promise<boolean> {
+  const redisClient = getRedis();
+  if (!redisClient) return false; // can't dedup without Redis
+
+  const key = `dedup:analytics:${ip}:${profileId}:${eventType}`;
+  try {
+    // SET NX with 5-minute TTL — returns null if key already exists
+    const result = await redisClient.set(key, "1", { nx: true, ex: 300 });
+    return result === null; // null means key existed → duplicate
+  } catch (error) {
+    console.error("[analytics-dedup] Redis error:", error);
+    return false; // fail open for dedup
+  }
+}
+
 // Handle check: 30 per IP per minute (prevent enumeration)
 export function getHandleCheckLimiter(): Ratelimit | null {
   const redisClient = getRedis();
