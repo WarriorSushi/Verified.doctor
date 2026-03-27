@@ -27,7 +27,7 @@ export function DeviceChart({ deviceBreakdown }: DeviceChartProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const timer = setTimeout(() => setMounted(true), 0); return () => clearTimeout(timer);;
   }, []);
 
   const total = deviceBreakdown.mobile + deviceBreakdown.tablet + deviceBreakdown.desktop;

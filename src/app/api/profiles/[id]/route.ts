@@ -5,10 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { getAuth } from "@/lib/auth";
 import { sanitizeName, sanitizeBio, sanitizeText, sanitizeUrl, stripHtml } from "@/lib/sanitize";
 import { getProfileUpdateLimiter, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
-import { createLogger } from "@/lib/logger";
 import { requireCsrf } from "@/lib/csrf";
 
-const log = createLogger("api:profiles:id");
 
 // Schema for education timeline items
 const educationItemSchema = z.object({
@@ -252,7 +250,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
       .eq("id", id);
 
     if (updateError) {
-      log.error("Failed to update profile", updateError, { profileId: id, userId });
+      console.error("Failed to update profile", updateError, { profileId: id, userId });
       return NextResponse.json(
         { error: "Failed to update profile" },
         { status: 500 }
@@ -264,7 +262,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    log.error("Profile update error", error);
+    console.error("Profile update error", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

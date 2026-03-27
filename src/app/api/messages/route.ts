@@ -11,9 +11,7 @@ import {
 import { sendNewMessageEmail } from "@/lib/email";
 import { sanitizeName, sanitizeMessage } from "@/lib/sanitize";
 import { requireCsrf } from "@/lib/csrf";
-import { createLogger } from "@/lib/logger";
 
-const log = createLogger("api:messages");
 
 // Phone validation regex - supports international formats
 const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s./0-9]*$/;
@@ -106,7 +104,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError) {
-      log.error("Failed to insert message", insertError, { profileId, ip });
+      console.error("Failed to insert message", insertError, { profileId, ip });
       return NextResponse.json(
         { error: "Failed to send message" },
         { status: 500 }

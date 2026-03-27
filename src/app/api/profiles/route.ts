@@ -6,7 +6,7 @@ import { isBannedHandle } from "@/lib/banned-handles";
 import { sendWelcomeEmail, sendTrialOfferEmail } from "@/lib/email";
 import { sanitizeName, sanitizeBio, sanitizeText } from "@/lib/sanitize";
 import { getProfileUpdateLimiter, getClientIp, checkRateLimit, formatRetryAfter } from "@/lib/rate-limit";
-import { createLogger } from "@/lib/logger";
+
 
 
 

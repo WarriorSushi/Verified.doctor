@@ -103,22 +103,13 @@ function LayoutPreview({ layoutId, doctor }: { layoutId: string; doctor: DoctorP
   const initials = displayName.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   // Profile Photo Component
-  const ProfilePhoto = ({ size = "w-8 h-8", className = "" }: { size?: string; className?: string }) => (
-    <div className={`${size} rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center ${className}`}>
-      {doctor.profilePhoto ? (
-        <Image src={doctor.profilePhoto} alt="" fill className="object-cover" />
-      ) : (
-        <span className="text-white text-[8px] font-bold">{initials}</span>
-      )}
-    </div>
-  );
 
   switch (layoutId) {
     case "classic":
       return (
         <div className="h-full flex flex-col items-center p-3 bg-white">
           {/* Classic: Clean centered single-column */}
-          <ProfilePhoto size="w-10 h-10" className="mb-2 relative" />
+          <div className={`w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center mb-2 relative`}>{doctor.profilePhoto ? <Image src={doctor.profilePhoto} alt="" fill className="object-cover" /> : <span className="text-white text-[8px] font-bold">{initials}</span>}</div>
           <div className="flex items-center gap-1 mb-0.5">
             <p className="text-[7px] font-semibold text-slate-800 truncate max-w-[60px]">{displayName}</p>
             <div className="w-2.5 h-2.5 relative flex-shrink-0">
@@ -192,7 +183,7 @@ function LayoutPreview({ layoutId, doctor }: { layoutId: string; doctor: DoctorP
           {/* Timeline: Editorial with vertical line */}
           <div className="flex gap-2">
             <div className="flex flex-col items-center">
-              <ProfilePhoto size="w-8 h-8" className="relative" />
+              <div className={`w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center relative`}>{doctor.profilePhoto ? <Image src={doctor.profilePhoto} alt="" fill className="object-cover" /> : <span className="text-white text-[8px] font-bold">{initials}</span>}</div>
               <div className="w-px flex-1 bg-amber-200 mt-1" />
             </div>
             <div className="flex-1">
@@ -257,7 +248,7 @@ function LayoutPreview({ layoutId, doctor }: { layoutId: string; doctor: DoctorP
           {/* Grid: Bento-style cards */}
           <div className="grid grid-cols-3 gap-1 h-full">
             <div className="col-span-2 row-span-2 bg-white rounded-lg p-2 flex flex-col items-center justify-center shadow-sm">
-              <ProfilePhoto size="w-8 h-8" className="mb-1 relative" />
+              <div className={`w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-[#0099F7] to-[#0080CC] flex items-center justify-center mb-1 relative`}>{doctor.profilePhoto ? <Image src={doctor.profilePhoto} alt="" fill className="object-cover" /> : <span className="text-white text-[8px] font-bold">{initials}</span>}</div>
               <p className="text-[6px] font-bold text-slate-800 truncate max-w-[50px]">{displayName}</p>
               <p className="text-[4px] text-[#0099F7]">{displaySpecialty}</p>
             </div>

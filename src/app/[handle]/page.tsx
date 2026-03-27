@@ -395,54 +395,63 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const themeId = extendedProfile.profile_theme || "blue";
   const theme = getTheme(themeId);
 
-  const TemplateWithJsonLd = ({ children }: { children: React.ReactNode }) => (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      {children}
-    </>
-  );
 
   // Route to the correct layout template, passing the theme
   switch (layout) {
     case "hero":
       return (
-        <TemplateWithJsonLd>
-          <HeroTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<HeroTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
     case "timeline":
       return (
-        <TemplateWithJsonLd>
-          <TimelineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<TimelineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
     case "magazine":
       return (
-        <TemplateWithJsonLd>
-          <MagazineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<MagazineTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
     case "grid":
       return (
-        <TemplateWithJsonLd>
-          <GridTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<GridTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
     case "minimal":
       return (
-        <TemplateWithJsonLd>
-          <MinimalTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<MinimalTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
     case "classic":
     default:
       return (
-        <TemplateWithJsonLd>
-          <ClassicTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
-        </TemplateWithJsonLd>
+        
+          <>
+<script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+<ClassicTemplate profile={extendedProfile} connectedDoctors={connectedDoctors} invitedBy={invitedBy} theme={theme} />
+</>
+        
       );
   }
 }

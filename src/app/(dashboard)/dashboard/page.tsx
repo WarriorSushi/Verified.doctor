@@ -39,6 +39,7 @@ import { QuickActions } from "@/components/dashboard/quick-actions";
 import { RecentActivity } from "@/components/dashboard/recent-activity";
 
 export default async function DashboardPage() {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const { profile, userId } = await getProfile();
 
   if (!userId) {
@@ -64,7 +65,7 @@ export default async function DashboardPage() {
       .select("action_type, details, created_at")
       .eq("target_profile_id", profile.id)
       .in("action_type", ["grant_trial", "grant_pro", "verify", "freeze", "ban"])
-      .gte("created_at", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
+      .gte("created_at", sevenDaysAgo.toISOString())
       .order("created_at", { ascending: false })
       .limit(5),
     // Recent profile views for activity feed
@@ -97,7 +98,7 @@ export default async function DashboardPage() {
       .from("analytics_daily_stats")
       .select("recommendations_received, date")
       .eq("profile_id", profile.id)
-      .gte("date", new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0])
+      .gte("date", sevenDaysAgo.toISOString().split("T")[0])
       .order("date", { ascending: false })
       .limit(7),
   ]);

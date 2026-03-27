@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
               .map((s: string) => s.trim().replace(/^["'\-\d.\s]+|["']+$/g, ""))
               .filter((s: string) => s.length > 0 && s.length < 100);
           }
-        } catch (parseError) {
+        } catch {
           console.error(`[Suggest] Failed to parse response:`, content);
           // Fallback parsing
           suggestions = content

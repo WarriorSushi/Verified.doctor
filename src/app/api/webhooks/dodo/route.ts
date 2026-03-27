@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Webhook } from "standardwebhooks";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { z } from "zod";
 
 // Lazily initialize service role client for webhooks (bypasses RLS)
 // Avoids build-time errors when env vars aren't set
@@ -14,6 +15,24 @@ function getSupabase(): SupabaseClient {
   }
   return _supabase;
 }
+
+const dodoEventSchema = z.object({
+  id: z.string().optional(),
+  type: z.string(),
+  data: z.object({
+    subscription_id: z.string().optional().nullable(),
+    amount: z.number().optional().nullable(),
+    currency: z.string().optional().nullable(),
+    next_billing_date: z.string().optional().nullable(),
+    product_id: z.string().optional().nullable(),
+    metadata: z.object({
+      profile_id: z.string().optional().nullable(),
+      plan: z.string().optional().nullable(),
+    }).passthrough().optional().nullable(),
+  }).passthrough().optional().nullable(),
+});
+
+type DodoEvent = z.infer<typeof dodoEventSchema>;
 
 export async function POST(request: NextRequest) {
   const webhookSecret = process.env.DODO_PAYMENTS_WEBHOOK_SECRET;
@@ -47,8 +66,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Parse the event
-  const event = JSON.parse(rawBody);
+  // Parse and validate the event
+  const parsed = dodoEventSchema.safeParse(JSON.parse(rawBody));
+  if (!parsed.success) {
+    console.error("Invalid Dodo webhook payload", parsed.error.flatten());
+    return NextResponse.json({ error: "Invalid webhook payload" }, { status: 400 });
+  }
+
+  const event = parsed.data;
   console.log("Dodo webhook received:", event.type, event.data?.subscription_id);
 
   try {
@@ -124,7 +149,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleSubscriptionActive(event: any) {
+async function handleSubscriptionActive(event: DodoEvent) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) {
     console.error("No profile_id in webhook metadata");
@@ -149,7 +174,7 @@ async function handleSubscriptionActive(event: any) {
   console.log(`Profile ${profileId} upgraded to Pro (${plan})`);
 }
 
-async function handleSubscriptionCancelled(event: any) {
+async function handleSubscriptionCancelled(event: DodoEvent) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 
@@ -165,7 +190,7 @@ async function handleSubscriptionCancelled(event: any) {
   console.log(`Profile ${profileId} subscription cancelled`);
 }
 
-async function handleSubscriptionExpired(event: any) {
+async function handleSubscriptionExpired(event: DodoEvent) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 
@@ -182,7 +207,7 @@ async function handleSubscriptionExpired(event: any) {
   console.log(`Profile ${profileId} subscription expired, reverted to free`);
 }
 
-async function handleSubscriptionOnHold(event: any) {
+async function handleSubscriptionOnHold(event: DodoEvent) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 
@@ -193,7 +218,7 @@ async function handleSubscriptionOnHold(event: any) {
   // For now, we'll keep them as Pro until it expires
 }
 
-async function handlePlanChanged(event: any) {
+async function handlePlanChanged(event: DodoEvent) {
   const profileId = event.data?.metadata?.profile_id;
   if (!profileId) return;
 

@@ -61,8 +61,8 @@ export function VideoEmbedPreview({ value, onChange }: VideoEmbedPreviewProps) {
 
   useEffect(() => {
     if (!value) {
-      setVideoInfo(null);
-      setIsValidUrl(true);
+      const timer = setTimeout(() => setVideoInfo(null), 0);
+      const timer2 = setTimeout(() => setIsValidUrl(true), 0);
       return;
     }
 

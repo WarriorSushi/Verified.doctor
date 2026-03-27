@@ -354,7 +354,7 @@ export function MagazineTemplate({ profile, connectedDoctors, invitedBy, theme }
             className="mb-20"
           >
             <p className="text-2xl sm:text-3xl font-light leading-relaxed" style={{ color: colors.text }}>
-              "{showFullBio ? profile.bio : bioTruncated}"
+              &quot;{showFullBio ? profile.bio : bioTruncated}&quot;
             </p>
             {showBioToggle && (
               <button

@@ -40,6 +40,15 @@ export function TourProvider({ children }: { children: ReactNode }) {
     setIsInitialized(true);
   }, []);
 
+  const startTour = useCallback(() => {
+    setCurrentStep(0);
+    setIsActive(true);
+    // Navigate to dashboard if not already there
+    if (pathname !== "/dashboard") {
+      router.push("/dashboard");
+    }
+  }, [pathname, router]);
+
   // Auto-start tour after onboarding
   useEffect(() => {
     if (!isInitialized) return;
@@ -52,16 +61,7 @@ export function TourProvider({ children }: { children: ReactNode }) {
         startTour();
       }, 500);
     }
-  }, [isInitialized, hasCompletedTour, pathname]);
-
-  const startTour = useCallback(() => {
-    setCurrentStep(0);
-    setIsActive(true);
-    // Navigate to dashboard if not already there
-    if (pathname !== "/dashboard") {
-      router.push("/dashboard");
-    }
-  }, [pathname, router]);
+  }, [isInitialized, hasCompletedTour, pathname, startTour]);
 
   const endTour = useCallback(() => {
     setIsActive(false);
