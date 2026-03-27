@@ -7,11 +7,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface DirectoryPaginationProps {
   currentPage: number;
   totalPages: number;
+  /** Base path for pagination links (defaults to /directory) */
+  baseHref?: string;
 }
 
 export function DirectoryPagination({
   currentPage,
   totalPages,
+  baseHref = "/directory",
 }: DirectoryPaginationProps) {
   const searchParams = useSearchParams();
 
@@ -23,7 +26,7 @@ export function DirectoryPagination({
       params.set("page", String(page));
     }
     const qs = params.toString();
-    return `/directory${qs ? `?${qs}` : ""}`;
+    return `${baseHref}${qs ? `?${qs}` : ""}`;
   };
 
   // Generate page numbers to show
