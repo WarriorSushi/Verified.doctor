@@ -25,17 +25,17 @@ export default function Home() {
       <HeroSection />
       <RecentlyClaimed />
 
-      {/* Bridge statement */}
-      <section className="py-16 sm:py-24 bg-gradient-to-b from-white via-slate-50/30 to-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <p className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
-            Patients Google You.{" "}
-            <span className="bg-gradient-to-r from-sky-600 to-cyan-500 bg-clip-text text-transparent">
-              Own What They Find.
+      {/* Bridge Statement */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold tracking-tight text-slate-900 leading-tight">
+            Patients Google you.{" "}
+            <span className="text-sky-600">
+              Own what they find.
             </span>
-          </p>
-          <p className="mt-4 text-sm sm:text-base text-slate-500 max-w-xl mx-auto">
-            A verified profile page that ranks, builds trust, and collects recommendations automatically.
+          </h2>
+          <p className="mt-5 text-base sm:text-lg text-slate-500 max-w-xl mx-auto leading-relaxed">
+            A verified profile page that ranks, builds trust, and lets patients reach you — no website builder needed.
           </p>
           <PatientJourney />
         </div>

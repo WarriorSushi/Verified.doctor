@@ -63,7 +63,7 @@ export function TestimonialsSection() {
 
   const slideVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 300 : -300,
+      x: direction > 0 ? 200 : -200,
       opacity: 0,
     }),
     center: {
@@ -71,7 +71,7 @@ export function TestimonialsSection() {
       opacity: 1,
     },
     exit: (direction: number) => ({
-      x: direction < 0 ? 300 : -300,
+      x: direction < 0 ? 200 : -200,
       opacity: 0,
     }),
   };
@@ -86,7 +86,6 @@ export function TestimonialsSection() {
     });
   };
 
-  // Auto-advance
   useEffect(() => {
     const timer = setInterval(() => {
       paginate(1);
@@ -97,8 +96,8 @@ export function TestimonialsSection() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="py-20 sm:py-28 bg-gradient-to-br from-sky-50 via-white to-cyan-50 overflow-hidden">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
+    <section className="py-20 sm:py-28 bg-white overflow-hidden">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -107,21 +106,18 @@ export function TestimonialsSection() {
           transition={{ duration: 0.6 }}
           className="text-center mb-12 sm:mb-16"
         >
-          <span className="inline-block px-4 py-1.5 rounded-full bg-sky-100 border border-sky-200 text-sky-700 text-sm font-medium mb-4">
-            What Doctors Say
+          <span className="inline-block px-4 py-1.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-sm font-medium mb-5">
+            Testimonials
           </span>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900">
-            Trusted by Medical
-            <span className="bg-gradient-to-r from-sky-600 to-cyan-500 bg-clip-text text-transparent">
-              {" "}Professionals
-            </span>
+          <h2 className="text-3xl sm:text-4xl md:text-[2.75rem] font-bold text-slate-900 leading-tight">
+            Trusted by medical{" "}
+            <span className="text-sky-600">professionals</span>
           </h2>
         </motion.div>
 
-        {/* Testimonial Carousel */}
+        {/* Testimonial Card */}
         <div className="relative">
-          {/* Main testimonial card */}
-          <div className="relative bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden min-h-[320px] sm:min-h-[280px]">
+          <div className="relative bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden min-h-[280px] sm:min-h-[240px]">
             <AnimatePresence initial={false} custom={direction} mode="wait">
               <motion.div
                 key={currentIndex}
@@ -130,19 +126,19 @@ export function TestimonialsSection() {
                 initial="enter"
                 animate="center"
                 exit="exit"
-                transition={{ duration: 0.4, ease: "easeInOut" }}
-                className="p-6 sm:p-10"
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                className="p-7 sm:p-10"
               >
                 <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start">
                   {/* Avatar */}
                   <div className="flex-shrink-0">
-                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-gradient-to-br from-sky-100 to-slate-100">
+                    <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden bg-gradient-to-br from-sky-100 to-slate-100 border-2 border-white shadow-sm">
                       <Image
                         src={current.image}
                         alt={current.name}
                         fill
                         className="object-cover"
-                        sizes="80px"
+                        sizes="64px"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
                         }}
@@ -152,57 +148,60 @@ export function TestimonialsSection() {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <Quote className="w-8 h-8 text-sky-200 mb-3 -ml-1" />
-                    <p className="text-slate-700 text-base sm:text-lg leading-relaxed mb-6">
-                      &ldquo;{current.quote}&rdquo;
+                    <Quote className="w-6 h-6 text-sky-200 mb-3" />
+                    <p className="text-slate-700 text-base sm:text-lg leading-relaxed mb-5">
+                      {current.quote}
                     </p>
                     <div>
-                      <p className="font-semibold text-slate-900">{current.name}</p>
-                      <p className="text-slate-500 text-sm">
-                        {current.specialty} • {current.location}
+                      <p className="font-semibold text-slate-900 text-sm">{current.name}</p>
+                      <p className="text-slate-400 text-sm">
+                        {current.specialty} · {current.location}
                       </p>
                     </div>
                   </div>
                 </div>
               </motion.div>
             </AnimatePresence>
+          </div>
 
-            {/* Navigation */}
-            <div className="absolute bottom-4 right-4 sm:bottom-6 sm:right-6 flex items-center gap-2">
+          {/* Navigation */}
+          <div className="flex items-center justify-between mt-5">
+            {/* Dots */}
+            <div className="flex gap-1.5">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => {
+                    setDirection(index > currentIndex ? 1 : -1);
+                    setCurrentIndex(index);
+                  }}
+                  className={`rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? "w-6 h-1.5 bg-sky-500"
+                      : "w-1.5 h-1.5 bg-slate-300 hover:bg-slate-400"
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            {/* Arrows */}
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => paginate(-1)}
                 className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                 aria-label="Previous testimonial"
               >
-                <ChevronLeft className="w-5 h-5 text-slate-600" />
+                <ChevronLeft className="w-4 h-4 text-slate-600" />
               </button>
               <button
                 onClick={() => paginate(1)}
                 className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors"
                 aria-label="Next testimonial"
               >
-                <ChevronRight className="w-5 h-5 text-slate-600" />
+                <ChevronRight className="w-4 h-4 text-slate-600" />
               </button>
             </div>
-          </div>
-
-          {/* Dots indicator */}
-          <div className="flex justify-center gap-2 mt-6">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => {
-                  setDirection(index > currentIndex ? 1 : -1);
-                  setCurrentIndex(index);
-                }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? "w-8 bg-sky-500"
-                    : "bg-slate-300 hover:bg-slate-400"
-                }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
           </div>
         </div>
       </div>
